@@ -1,10 +1,12 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import cors from 'cors'
 
 const App = express()
 const BaseURL = 'v1'
 
 dotenv.config()
+App.use(cors())
 
 App.get(`/${BaseURL}/`, (req, res) => {
     res.send({ color: `#${Math.floor(Math.random() * 16777215).toString(16)}` })
