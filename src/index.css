@@ -1,0 +1,154 @@
+/* PLEASE NOTE: THESE TAILWIND IMPORTS SHOULD NEVER BE DELETED */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+/* DO NOT DELETE THESE TAILWIND IMPORTS, OTHERWISE THE STYLING WILL NOT RENDER AT ALL */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@layer base {
+  :root {
+    --background: 33 19% 97%;
+    --foreground: 30 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 10% 10%;
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --primary: 30 35% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 142 60% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --accent-blue: 217 91% 60%;
+    --accent-orange: 24 95% 53%;
+    --accent-green: 158 64% 40%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 30 35% 52%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 240 10% 8%;
+    --foreground: 0 0% 95%;
+    --card: 240 10% 12%;
+    --card-foreground: 0 0% 95%;
+    --border: 240 5% 26%;
+    --input: 240 5% 26%;
+    --primary: 30 35% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 142 60% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --accent-blue: 217 91% 60%;
+    --accent-orange: 24 95% 53%;
+    --accent-green: 158 64% 40%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 30 35% 52%;
+  }
+}
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[#F5F5F0] text-[#503314] dark:bg-gray-900 dark:text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+  h3 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+}
+@layer components {
+  .input {
+    @apply flex h-10 w-full rounded-md border border-[#B45309]/20 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-[#503314] dark:text-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#7C2D12] dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B45309] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 transition-all duration-200;
+  }
+  .page-transition {
+    @apply animate-fadeIn;
+  }
+}
+/* Animation classes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+  .animate-slideIn {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+  .animate-scaleIn {
+    animation: scaleIn 0.5s ease-out forwards;
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #B45309, #92400E);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+/* Staggered children animations */
+.stagger-container > * {
+  opacity: 0;
+}
+.stagger-container > *:nth-child(1) { animation: fadeIn 0.7s ease-out 0.1s forwards; }
+.stagger-container > *:nth-child(2) { animation: fadeIn 0.7s ease-out 0.3s forwards; }
+.stagger-container > *:nth-child(3) { animation: fadeIn 0.7s ease-out 0.5s forwards; }
+.stagger-container > *:nth-child(4) { animation: fadeIn 0.7s ease-out 0.7s forwards; }
+.stagger-container > *:nth-child(5) { animation: fadeIn 0.7s ease-out 0.9s forwards; }
+.stagger-container > *:nth-child(6) { animation: fadeIn 0.7s ease-out 1.1s forwards; }
+.stagger-container > *:nth-child(7) { animation: fadeIn 0.7s ease-out 1.3s forwards; }
+.stagger-container > *:nth-child(8) { animation: fadeIn 0.7s ease-out 1.5s forwards; }
