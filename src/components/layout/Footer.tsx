@@ -1,9 +1,10 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
+import {HashLink} from 'react-router-hash-link'
 import { FacebookIcon, TwitterIcon, LinkedinIcon, InstagramIcon, ChevronDownIcon } from 'lucide-react';
+
 export const Footer = () => {
-  return <footer className="bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] text-white relative overflow-hidden">
+  return <footer id='contact' className="bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] text-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-10 right-20 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
@@ -15,7 +16,7 @@ export const Footer = () => {
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <Logo className="text-white" />
+              <Logo/>
             </div>
             <p className="text-white/80 mb-6 leading-relaxed">
               Connecting Rwandan youth with diaspora IT professionals for
@@ -75,29 +76,19 @@ export const Footer = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                <HashLink to="/#about" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
                   About Us
-                </Link>
+                </HashLink>
               </li>
               <li>
-                <Link to="/partners" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Partners
-                </Link>
-              </li>
-              <li>
-                <Link to="/careers" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                <HashLink to="/#careers" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
                   Careers
-                </Link>
+                </HashLink>
               </li>
               <li>
-                <Link to="/blog" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Contact
-                </Link>
+                <HashLink to="/#partners" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                  Partners
+                </HashLink>
               </li>
             </ul>
           </div>

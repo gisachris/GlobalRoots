@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
+import { useAuth } from '../../utils/auth';
 import { AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
 export const SignIn = ({
   onSignUp
@@ -9,10 +11,26 @@ export const SignIn = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = useLanguage();
-  const handleSubmit = e => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const handleSubmit = async e => {
     e.preventDefault();
-    // In a real app, this would call an authentication API
-    console.log('Sign in with:', email, password);
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        login(data.token, data.user);
+        navigate('/dashboard');
+      } else {
+        console.error('Sign in failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+    }
   };
   return <Card className="w-full max-w-md">
       <CardHeader>

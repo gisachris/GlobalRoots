@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useTheme } from '../../utils/theme';
 import { useLanguage } from '../../utils/language';
+import { useAuth } from '../../utils/auth';
 import { Logo } from '../ui/Logo';
 import { MenuIcon, SearchIcon, XIcon, UserIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
 export const Header = () => {
@@ -18,7 +19,7 @@ export const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes, set to true
+  const { isAuthenticated, logout } = useAuth();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -54,7 +55,7 @@ export const Header = () => {
     navigate('/auth');
   };
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    logout();
     navigate('/');
   };
   return <header className={`sticky top-0 z-50 w-full bg-[#f5f5f0] dark:bg-gray-800 transition-all duration-300 ${scrolled ? 'shadow-md' : ''}`}>

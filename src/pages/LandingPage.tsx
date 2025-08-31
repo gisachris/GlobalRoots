@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { scrollToSection } from "../utils/smoothScroll";
+import { useAuth } from "../utils/auth";
 import {
   Card,
   CardContent,
@@ -22,6 +22,9 @@ import {
   CheckCircleIcon,
 } from "lucide-react";
 export const LandingPage = () => {
+  const navigate = useNavigate()
+  const {isAuthenticated} = useAuth()
+
   // Add page transition effect and smooth scrolling
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,17 +52,17 @@ export const LandingPage = () => {
   return (
     <div className="flex flex-col w-full scroll-smooth">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
+      <section id="about" className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1506260408121-e353d10b87c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80"
             alt="Rwanda landscape"
-            className="w-full h-full object-cover opacity-20 dark:opacity-10"
+            className="w-full h-full object-cover opacity-60 dark:opacity-10"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#F5F5F0]/80 to-[#F5F5F0]/60 dark:from-gray-900/80 dark:to-gray-900/60"></div>
         </div>
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="container mx-auto px-8 py-16 md:py-24 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <div className="stagger-container animate-fadeIn">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
                 Unlocking Diaspora Potential for{" "}
@@ -70,10 +73,11 @@ export const LandingPage = () => {
                 skills-building, and career opportunities that transform lives
                 and build Rwanda's digital economy.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 animate-slideIn" style={{animationDelay: '0.4s'}}>
+              {!isAuthenticated && <div className="flex flex-col sm:flex-row gap-4 animate-slideIn" style={{animationDelay: '0.4s'}}>
                 <Button
                   variant="primary"
                   size="lg"
+                  onClick={()=>navigate('/auth')}
                   className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Youth <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -81,13 +85,14 @@ export const LandingPage = () => {
                 <Button
                   variant="outline"
                   size="lg"
+                  onClick={()=>navigate('/auth')}
                   className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Diaspora <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
+              </div>}
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden px-4 lg:block">
               <div className="relative animate-fadeIn" style={{animationDelay: '0.6s'}}>
                 <div className="relative">
                   <img
@@ -104,7 +109,8 @@ export const LandingPage = () => {
 
       {/* How It Works Section */}
       <section
-        id="how-it-works"
+
+        id="careers"
         className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F5F5F0]/30 to-white dark:from-gray-800 dark:via-gray-700/30 dark:to-gray-800"></div>
@@ -293,7 +299,7 @@ export const LandingPage = () => {
       </section>
 
       {/* Partners Section */}
-      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-800 relative">
+      <section id="partners" className="py-20 bg-[#F5F5F0] dark:bg-gray-800 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
@@ -478,24 +484,17 @@ export const LandingPage = () => {
               diaspora looking to give back, Global Roots is your platform for
               meaningful connections.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            {!isAuthenticated&&<div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-white text-[#503314] hover:bg-white/90 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
+                onClick={()=>navigate('/auth')}
+                className="bg-[#452809] text-white hover:bg-[#503314]/40 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
               >
                 Create Your Profile
                 <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#503314] font-bold text-lg px-8 py-4 rounded-xl transition-all duration-300 hover:translate-y-[-3px] group"
-              >
-                Learn More
-                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+            </div>}
           </div>
         </div>
       </section>

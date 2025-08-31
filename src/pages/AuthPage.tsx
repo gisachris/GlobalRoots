@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { SignIn } from '../components/auth/SignIn';
 import { SignUp } from '../components/auth/SignUp';
 import { Card, CardContent } from '../components/ui/Card';
@@ -32,7 +32,7 @@ export const AuthPage = () => {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] p-12 flex-col justify-center relative">
         <div className="max-w-md">
           <div className="mb-8">
-            <Logo className="text-white" />
+            <Logo />
           </div>
           <h1 className="text-4xl font-bold text-white mb-6">
             Connect. Learn. Grow.
