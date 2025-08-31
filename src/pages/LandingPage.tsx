@@ -130,122 +130,130 @@ export const LandingPage = () => {
               talent and global opportunities through a proven four-step process
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 stagger-container">
+          <div className="grid grid-cols-1 items-stretch md:grid-cols-2 lg:grid-cols-4 gap-8 stagger-container">
             {/* Mentorship Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <UsersIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Mentorship
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Connect with experienced IT professionals
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Get personalized guidance from industry experts who understand
-                  your journey and can help navigate your career path.
-                </p>
-                <Link
-                  to="/opportunities"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Find a mentor
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            <Link to="/opportunities" className="h-full">
+              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                    <UsersIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Mentorship
+                  </CardTitle>
+                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
+                    Connect with experienced IT professionals
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 flex-1 flex flex-col">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
+                    Get personalized guidance from industry experts who understand
+                    your journey and can help navigate your career path.
+                  </p>
+                  <Link
+                    to="/opportunities"
+                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
+                  >
+                    Find a mentor
+                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </Link>
 
             {/* Micro-internships Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <BriefcaseIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Micro-internships
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Gain practical experience remotely
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Work on short-term, paid projects with global companies to
-                  build your portfolio and develop real-world skills.
-                </p>
-                <Link
-                  to="/opportunities"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Explore opportunities
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            <Link to="/opportunities" className="h-full">
+              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                    <BriefcaseIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Micro-internships
+                  </CardTitle>
+                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
+                    Gain practical experience remotely
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 flex-1 flex flex-col">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
+                    Work on short-term, paid projects with global companies to
+                    build your portfolio and develop real-world skills.
+                  </p>
+                  <Link
+                    to="/opportunities"
+                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
+                  >
+                    Explore opportunities
+                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </Link>
 
             {/* Returnships Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <HomeIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Returnships
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Come back home with confidence
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Transition back to Rwanda with our support network, housing
-                  assistance, and employment connections.
-                </p>
-                <Link
-                  to="/returnee"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Plan your return
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            <Link to="/returnee" className="h-full">
+              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                    <HomeIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Returnships
+                  </CardTitle>
+                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
+                    Come back home with confidence
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 flex-1 flex flex-col">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
+                    Transition back to Rwanda with our support network, housing
+                    assistance, and employment connections.
+                  </p>
+                  <Link
+                    to="/returnee"
+                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
+                  >
+                    Plan your return
+                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </Link>
 
             {/* Community Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <GraduationCapIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Community
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Join a supportive network
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Engage with peers, mentors, and industry leaders in our
-                  vibrant community focused on growth and collaboration.
-                </p>
-                <Link
-                  to="/community"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Join a circle
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            <Link to="/community" className="h-full">
+              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                    <GraduationCapIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Community
+                  </CardTitle>
+                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
+                    Join a supportive network
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 flex-1 flex flex-col">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
+                    Engage with peers, mentors, and industry leaders in our
+                    vibrant community focused on growth and collaboration.
+                  </p>
+                  <Link
+                    to="/community"
+                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
+                  >
+                    Join a circle
+                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
