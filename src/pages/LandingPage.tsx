@@ -59,7 +59,7 @@ export const LandingPage = () => {
             alt="Rwanda landscape"
             className="w-full h-full object-cover opacity-60 dark:opacity-10"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F5F5F0]/80 to-[#F5F5F0]/60 dark:from-gray-900/80 dark:to-gray-900/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F5F5F0]/80 to-[#F5F5F0]/60 dark:from-gray-900/40 dark:to-gray-900/20"></div>
         </div>
         <div className="container mx-auto px-8 py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
@@ -324,12 +324,12 @@ export const LandingPage = () => {
               Rwanda's tech talent
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap justify-center gap-8 items-center justify-items-center">
+            {['Konmesky', 'Google', 'MINICT', 'Microsoft', 'SolvIt', 'TheGym', 'RTB', 'OneCode', 'Harvard', 'OpenAi'].map((i) => (
               <div key={i} className="group transition-all duration-500">
-                <div className="h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
-                  <span className="text-[#B45309] dark:text-[#B45309] font-bold text-lg group-hover:text-[#92400E]">
-                    Partner {i}
+                <div className=" cursor-pointer h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
+                  <span className="text-[#B45309] dark:text-[#B45309] font-bold text-lg dark:group-hover:text-[#f18644] group-hover:text-[#a1360f]">
+                    {i}
                   </span>
                 </div>
               </div>
