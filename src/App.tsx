@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { LandingPage } from './pages/LandingPage';
@@ -11,6 +11,7 @@ import { ImpactDashboard } from './pages/ImpactDashboard';
 import { MentorConnect } from './pages/MentorConnect';
 import { ThemeProvider } from './utils/theme';
 import { LanguageProvider } from './utils/language';
+import { useAuth } from './utils/auth';
 import { ProfilePage } from './pages/ProfilePage';
 import { MentorsPage } from './pages/MentorsPage';
 import { LearningPage } from './pages/LearningPage';
@@ -30,14 +31,12 @@ const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNo
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
 };
 
-export function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes, set to true
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
   
-  return <LanguageProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
+  return (
+    <Layout>
+      <Routes>
             {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
@@ -123,9 +122,19 @@ export function App() {
             
             {/* 404 page */}
             <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Layout>
+      </Routes>
+    </Layout>
+  );
+}
+
+export function App() {
+  return (
+    <LanguageProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AppRoutes />
         </BrowserRouter>
       </ThemeProvider>
-    </LanguageProvider>;
+    </LanguageProvider>
+  );
 }
