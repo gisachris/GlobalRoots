@@ -74,7 +74,7 @@ export const SignIn = ({
               <span className="w-full border-t border-primary-200 dark:border-dark-600" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white dark:bg-dark-800 text-dark-500 dark:text-dark-300">
+              <span className="px-2 bg-white dark:bg-gray-800 text-dark-500 dark:text-dark-300">
                 Or continue with
               </span>
             </div>

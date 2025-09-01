@@ -50,8 +50,8 @@ export const Logo = () => {
           </g>
         </svg>
         <span className="font-heading font-bold text-xl ml-2">
-          <span className="text-[#503314]">Global</span>{' '}
-          <span className="text-[#B45309]">Roots</span>
+          <span className="text-[#311f0c] dark:text-[#b67a39]">Global</span>{' '}
+          <span className="text-[#B45309] dark:text-[#964507]">Roots</span>
         </span>
       </div>
     </Link>;

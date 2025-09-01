@@ -18,10 +18,6 @@ export const AuthPage = () => {
     }
   }, []);
   return <div className="min-h-screen flex bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
-      {/* Language Selector */}
-      <div className="absolute top-4 right-4 z-50">
-        <LanguageSelector />
-      </div>
       {/* Background decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 right-20 w-32 h-32 bg-[#B45309]/10 rounded-full blur-3xl animate-float"></div>
