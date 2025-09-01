@@ -1,7 +1,7 @@
 import { LandingPage } from "../../pages/LandingPage"
 import { useAuth } from "../../utils/auth"
 
-function ProtectedRouted() {
+function LoggedIn() {
 
     const {isAuthenticated} = useAuth()
 
@@ -12,4 +12,4 @@ function ProtectedRouted() {
   )
 }
 
-export default ProtectedRouted
+export default LoggedIn

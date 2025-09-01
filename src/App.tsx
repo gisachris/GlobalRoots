@@ -25,7 +25,7 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import ProtectedRouted from './components/layout/ProtectedRoute';
+import LoggedIn from './components/layout/LoggedIn';
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNode; isAuthenticated: boolean }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
@@ -38,7 +38,7 @@ function AppRoutes() {
     <Layout>
       <Routes>
             {/* Public routes */}
-            <Route path="/" element={<ProtectedRouted />} />
+            <Route path="/" element={<LoggedIn />} />
             <Route path="/auth" element={<AuthPage />} />
             
             {/* Protected routes */}
