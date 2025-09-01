@@ -50,7 +50,7 @@ export const Logo = ({isFooter}:{isFooter:boolean}) => {
           </g>
         </svg>
         <span className="font-heading font-bold text-xl ml-2">
-          <span className={`text-[#251707] ${isFooter?'text-[#251707]':'dark:text-[#c07c34]'}`}>Global</span>{' '}
+          <span className={`text-[#251707] ${isFooter?'text-[#995e1a]':'dark:text-[#c07c34]'}`}>Global</span>{' '}
           <span className="text-[#B45309]">Roots</span>
         </span>
       </div>

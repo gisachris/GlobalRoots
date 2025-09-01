@@ -4,11 +4,11 @@ import {HashLink} from 'react-router-hash-link'
 import { FacebookIcon, TwitterIcon, LinkedinIcon, InstagramIcon, ChevronDownIcon } from 'lucide-react';
 
 export const Footer = () => {
-  return <footer id='contact' className="bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] text-white relative overflow-hidden">
+  return <footer id='contact' className="bg-[#1a100c] text-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-10 right-20 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-10 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-10 right-20 w-32 h-32 bg-white/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
       </div>
       
       <div className="container mx-auto px-4 pt-8 py-4 relative z-10">
