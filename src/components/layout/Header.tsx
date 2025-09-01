@@ -19,7 +19,7 @@ export const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { user,isAuthenticated, logout } = useAuth();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -67,9 +67,9 @@ export const Header = () => {
           <nav className="hidden lg:flex items-center space-x-6">
             <NavLink to="/" label={t('nav.home')} currentPath={location.pathname} />
             <NavLink to="/opportunities" label={t('nav.opportunities')} currentPath={location.pathname} />
-            <NavLink to="/community" label={t('nav.community')} currentPath={location.pathname} />
             <NavLink to="/projects" label={t('nav.projects')} currentPath={location.pathname} />
-            <NavLink to="/returnee" label={t('nav.returneeHub')} currentPath={location.pathname} />
+            <NavLink to="/community" label={t('nav.community')} currentPath={location.pathname} />
+            {isAuthenticated&&user?.role==='diaspora'&&<NavLink to="/returnee" label={t('nav.returneeHub')} currentPath={location.pathname} />}
           </nav>
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
@@ -112,38 +112,21 @@ export const Header = () => {
                 </>
               )}
             </div>
-            {isAuthenticated ? <div className="hidden lg:block relative">
+            {isAuthenticated ? 
+              <div className="hidden lg:block relative">
                 <div className="flex items-center space-x-3">
                   <button className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300">
                     <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
                     <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
                   </button>
-                  <button className="flex items-center" onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#B45309]">
-                      <img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="User" className="w-full h-full object-cover" />
-                    </div>
-                  </button>
                 </div>
-                {userMenuOpen && <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
-                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.dashboard')}
-                    </Link>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.profile')}
-                    </Link>
-                    <Link to="/settings" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.settings')}
-                    </Link>
-                    <div className="border-t border-[#B45309]/20 dark:border-gray-600 my-1"></div>
-                    <button className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleLogout}>
-                      {t('nav.signOut')}
-                    </button>
-                  </div>}
-              </div> : <div className="hidden lg:flex items-center">
+              </div> : 
+              <div className="hidden lg:flex items-center">
                 <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
                   {t('nav.getStarted')}
                 </Button>
               </div>}
+              
             {/* Mobile menu button */}
             <button onClick={toggleMobileMenu} className="lg:hidden p-2 rounded-md hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>
               {mobileMenuOpen ? <XIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" /> : <MenuIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" />}
@@ -154,9 +137,8 @@ export const Header = () => {
         {mobileMenuOpen && <div className="lg:hidden pt-4 pb-3 space-y-3 animate-slideIn">
             <MobileNavLink to="/" label={t('nav.home')} onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink to="/opportunities" label={t('nav.opportunities')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/community" label={t('nav.community')} onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink to="/projects" label={t('nav.projects')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/returnee" label={t('nav.returneeHub')} onClick={() => setMobileMenuOpen(false)} />
+            <MobileNavLink to="/community" label={t('nav.community')} onClick={() => setMobileMenuOpen(false)} />
             {isAuthenticated ? <>
                 <div className="border-t border-primary-200 dark:border-dark-600 my-2 pt-2"></div>
                 <MobileNavLink to="/dashboard" label={t('nav.dashboard')} onClick={() => setMobileMenuOpen(false)} />
