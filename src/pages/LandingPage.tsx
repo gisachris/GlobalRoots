@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import {RwandaMap} from "../components/ui/RwandaMap";
 import { useAuth } from "../utils/auth";
 import {
   Card,
@@ -96,11 +97,11 @@ export const LandingPage = () => {
             </div>
             <div className="hidden px-4 lg:block">
               <div className="relative animate-fadeIn" style={{animationDelay: '0.6s'}}>
-                <div className="relative">
+                <div className="relative group">
                   <img
                     src="/hero.png"
                     alt="Global Roots Platform"
-                    className="max-w-2xl w-full object-contain transform transition-all duration-700 hover:scale-105"
+                    className="max-w-2xl w-full object-contain transform transition-all duration-700 group-hover:scale-105"
                   />
                 </div>
               </div>
@@ -111,7 +112,8 @@ export const LandingPage = () => {
 
       {/* About Us Section */}
       <section className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
+        <RwandaMap className="opacity-5 w-screen h-[55vh] sm:h-[60vh] 2xl:h-[70vh] absolute group-hover:scale-105 z-40"/>
+        <div className="container mx-auto px-4 relative z-50">
           <div className="text-center mb-16 animate-fadeIn">
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
               <UsersIcon className="h-4 w-4 text-[#B45309] mr-2" />
@@ -127,7 +129,7 @@ export const LandingPage = () => {
             </p>
           </div>
           <div className="grid gap-12 justify-center items-center max-w-6xl mx-auto">
-            <div className="relative w-full">
+            <div className="relative w-full hover:scale-105 duration-300 transition-all">
               <div className="bg-white dark:bg-gray-800 rounded-2xl py-8 px-24 shadow-xl">
                 <div className="grid grid-cols-2 gap-20">
                   <div className="text-center">
@@ -175,7 +177,7 @@ export const LandingPage = () => {
               Our platform creates meaningful connections between Rwanda's tech talent and global opportunities through three key programs
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Mentorship Program Card */}
             <Link to="/auth" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
@@ -358,13 +360,13 @@ export const LandingPage = () => {
               meaningful connections
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid max-sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 justify-center gap-8">
             <div className="text-center group">
               <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <GlobeIcon className="h-10 w-10 text-white" />
               </div>
               <div className="text-4xl font-bold text-white mb-2">25+</div>
-              <div className="text-white/80 font-medium">
+              <div className="text-white/80 text-wrap font-medium">
                 Countries Connected
               </div>
             </div>
@@ -474,7 +476,7 @@ export const LandingPage = () => {
               Rwanda's tech talent
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap justify-center gap-8 items-center justify-items-center">
+          <div className=" flex flex-wrap justify-center gap-8 items-center justify-items-center">
             {['Konmesky', 'Google', 'MINICT', 'Microsoft', 'SolvIt Africa', 'TheGym', 'RTB', 'OneCode', 'Harvard', 'GIZ', 'OpenAi'].map((i) => (
               <div key={i} className="group transition-all duration-500">
                 <div className=" cursor-pointer h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
@@ -656,6 +658,7 @@ export const LandingPage = () => {
           </div>
         </div>
       </section>
+
     </div>
   );
 };

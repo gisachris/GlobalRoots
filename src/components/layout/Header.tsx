@@ -64,7 +64,7 @@ export const Header = () => {
           {/* Logo */}
           <Logo />
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-6">
             <NavLink to="/" label={t('nav.home')} currentPath={location.pathname} />
             <NavLink to="/opportunities" label={t('nav.opportunities')} currentPath={location.pathname} />
             <NavLink to="/community" label={t('nav.community')} currentPath={location.pathname} />
@@ -73,15 +73,15 @@ export const Header = () => {
           </nav>
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
-            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden md:flex" aria-label="Search">
+            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden lg:flex" aria-label="Search">
               <SearchIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />
             </button>
-            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden md:flex" aria-label="Toggle theme" onClick={toggleTheme}>
+            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden lg:flex" aria-label="Toggle theme" onClick={toggleTheme}>
               {theme === 'dark' ? <SunIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" /> : <MoonIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />}
             </button>
             
             {/* Language Selector */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <button 
                 className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 flex items-center" 
                 onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
@@ -112,7 +112,7 @@ export const Header = () => {
                 </>
               )}
             </div>
-            {isAuthenticated ? <div className="hidden md:block relative">
+            {isAuthenticated ? <div className="hidden lg:block relative">
                 <div className="flex items-center space-x-3">
                   <button className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300">
                     <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
@@ -139,19 +139,19 @@ export const Header = () => {
                       {t('nav.signOut')}
                     </button>
                   </div>}
-              </div> : <div className="hidden md:flex items-center">
+              </div> : <div className="hidden lg:flex items-center">
                 <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
                   {t('nav.getStarted')}
                 </Button>
               </div>}
             {/* Mobile menu button */}
-            <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>
+            <button onClick={toggleMobileMenu} className="lg:hidden p-2 rounded-md hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>
               {mobileMenuOpen ? <XIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" /> : <MenuIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" />}
             </button>
           </div>
         </div>
         {/* Mobile Navigation - Animated slide down */}
-        {mobileMenuOpen && <div className="md:hidden pt-4 pb-3 space-y-3 animate-slideIn">
+        {mobileMenuOpen && <div className="lg:hidden pt-4 pb-3 space-y-3 animate-slideIn">
             <MobileNavLink to="/" label={t('nav.home')} onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink to="/opportunities" label={t('nav.opportunities')} onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink to="/community" label={t('nav.community')} onClick={() => setMobileMenuOpen(false)} />
