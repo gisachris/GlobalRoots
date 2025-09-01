@@ -69,7 +69,7 @@ export const LandingPage = () => {
             <div className="stagger-container animate-fadeIn">
               <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[60px] font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
                 Mentorship Without Borders.
-                <span className="text-[#B45309] dark:text-[#B45309]">Opportunity <br/>Without Limits.</span>
+                <span className="text-[#B45309] dark:text-[#B45309]"> Opportunity <br/>Without Limits.</span>
               </h1>
               <p className="text-lg md:text-xl mb-8 text-[#7C2D12] dark:text-gray-300 max-w-lg animate-slideIn" style={{animationDelay: '0.2s'}}>
                 Connect with Diaspora IT professionals for mentorship,
@@ -101,7 +101,7 @@ export const LandingPage = () => {
                   <img
                     src="/hero.png"
                     alt="Global Roots Platform"
-                    className="max-w-2xl w-full object-contain transform transition-all duration-700 group-hover:scale-105"
+                    className="max-w-4xl lg:scale-x-110 lg:scale-y-125 overflow-hidden xl:max-w-5xl w-full object-contain transform transition-all duration-700"
                   />
                 </div>
               </div>
@@ -111,7 +111,7 @@ export const LandingPage = () => {
       </section>
 
       {/* About Us Section */}
-      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
+      <section id="aboutUs" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
         <RwandaMap className="opacity-5 w-screen h-[55vh] sm:h-[60vh] 2xl:h-[70vh] absolute group-hover:scale-105 z-40"/>
         <div className="container mx-auto px-4 relative z-50">
           <div className="text-center mb-16 animate-fadeIn">
@@ -156,9 +156,7 @@ export const LandingPage = () => {
       </section>
 
       {/* Service Section */}
-      <section
-
-        id="service"
+      <section id="services"
         className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F5F5F0]/30 to-white dark:from-gray-800 dark:via-gray-700/30 dark:to-gray-800"></div>

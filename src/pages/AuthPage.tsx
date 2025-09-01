@@ -24,7 +24,7 @@ export const AuthPage = () => {
       </div>
       
       {/* Left side - Features */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] p-12 flex-col justify-center relative">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#261b10] via-[#cd5e39] to-[#d89867] p-12 flex-col justify-center relative">
         <div className="max-w-md">
           <div className="mb-8">
             <Logo isFooter={true}/>

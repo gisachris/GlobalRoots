@@ -76,13 +76,13 @@ export const Footer = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <HashLink to="/#about" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                <HashLink to="/#aboutUs" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
                   About Us
                 </HashLink>
               </li>
               <li>
-                <HashLink to="/#careers" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Careers
+                <HashLink to="/#services" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                  Services
                 </HashLink>
               </li>
               <li>
