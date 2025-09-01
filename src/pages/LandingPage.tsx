@@ -20,8 +20,12 @@ import {
   TrendingUpIcon,
   GlobeIcon,
   CheckCircleIcon,
+  UserPlusIcon,
+  SearchIcon,
+  HandshakeIcon,
 } from "lucide-react";
 export const LandingPage = () => {
+
   const navigate = useNavigate()
   const {isAuthenticated} = useAuth()
 
@@ -49,10 +53,12 @@ export const LandingPage = () => {
     
     return () => observer.disconnect();
   }, []);
+
   return (
     <div className="flex flex-col w-full scroll-smooth">
+      
       {/* Hero Section */}
-      <section id="about" className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
+      <section id="hero" className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1506260408121-e353d10b87c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80"
@@ -107,10 +113,10 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* Service Section */}
       <section
 
-        id="careers"
+        id="service"
         className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F5F5F0]/30 to-white dark:from-gray-800 dark:via-gray-700/30 dark:to-gray-800"></div>
@@ -119,138 +125,179 @@ export const LandingPage = () => {
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
               <TrendingUpIcon className="h-4 w-4 text-[#B45309] mr-2" />
               <span className="text-sm font-medium text-[#7C2D12]">
-                Our Process
+                Our Services
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
               How Global Roots Works
             </h2>
             <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Our platform creates meaningful connections between Rwanda's tech
-              talent and global opportunities through a proven four-step process
+              Our platform creates meaningful connections between Rwanda's tech talent and global opportunities through three key programs
             </p>
           </div>
-          <div className="grid grid-cols-1 items-stretch md:grid-cols-2 lg:grid-cols-4 gap-8 stagger-container">
-            {/* Mentorship Card */}
-            <Link to="/opportunities" className="h-full">
-              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardHeader className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                    <UsersIcon className="h-8 w-8 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Mentorship Program Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <UsersIcon className="h-10 w-10 text-[#B45309]" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                    Mentorship
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Mentorship Program
                   </CardTitle>
-                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                    Connect with experienced IT professionals
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 flex-1 flex flex-col">
-                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
-                    Get personalized guidance from industry experts who understand
-                    your journey and can help navigate your career path.
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Connect with experienced diaspora professionals for personalized career guidance and skill development.
                   </p>
-                  <Link
-                    to="/opportunities"
-                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
-                  >
-                    Find a mentor
-                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                  </Link>
                 </CardContent>
               </Card>
             </Link>
 
-            {/* Micro-internships Card */}
-            <Link to="/opportunities" className="h-full">
-              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardHeader className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                    <BriefcaseIcon className="h-8 w-8 text-white" />
+            {/* Innovation Labs Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <BriefcaseIcon className="h-10 w-10 text-[#B45309]" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                    Micro-internships
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Innovation Labs
                   </CardTitle>
-                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                    Gain practical experience remotely
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 flex-1 flex flex-col">
-                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
-                    Work on short-term, paid projects with global companies to
-                    build your portfolio and develop real-world skills.
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Collaborative spaces where youth work on real-world projects with diaspora professionals providing guidance and funding.
                   </p>
-                  <Link
-                    to="/opportunities"
-                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
-                  >
-                    Explore opportunities
-                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                  </Link>
                 </CardContent>
               </Card>
             </Link>
 
-            {/* Returnships Card */}
-            <Link to="/returnee" className="h-full">
-              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardHeader className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                    <HomeIcon className="h-8 w-8 text-white" />
+            {/* Remote Internship Hub Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <GlobeIcon className="h-10 w-10 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Remote Internship Hub
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Virtual internships with diaspora-led companies offering real work experience without geographical barriers.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <CheckCircleIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Simple Process
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              How It Works
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Get started on your journey to connect with global opportunities in just four simple steps
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {/* Step 1: Create Profile */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  1
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <UserPlusIcon className="h-8 w-8 text-[#B45309]" />
                   </div>
                   <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                    Returnships
+                    Create Profile
                   </CardTitle>
-                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                    Come back home with confidence
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 flex-1 flex flex-col">
-                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
-                    Transition back to Rwanda with our support network, housing
-                    assistance, and employment connections.
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Sign up and build your professional profile with your skills, interests, and career goals.
                   </p>
-                  <Link
-                    to="/returnee"
-                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
-                  >
-                    Plan your return
-                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                  </Link>
                 </CardContent>
               </Card>
             </Link>
 
-            {/* Community Card */}
-            <Link to="/community" className="h-full">
-              <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden h-full flex flex-col">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardHeader className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                    <GraduationCapIcon className="h-8 w-8 text-white" />
+            {/* Step 2: Get Matched */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <SearchIcon className="h-8 w-8 text-[#B45309]" />
                   </div>
                   <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                    Community
+                    Get Matched
                   </CardTitle>
-                  <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                    Join a supportive network
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 flex-1 flex flex-col">
-                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6 flex-1">
-                    Engage with peers, mentors, and industry leaders in our
-                    vibrant community focused on growth and collaboration.
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Our algorithm connects you with mentors and opportunities that align with your goals.
                   </p>
-                  <Link
-                    to="/community"
-                    className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link mt-auto"
-                  >
-                    Join a circle
-                    <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                  </Link>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Step 3: Start Collaborating */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  3
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <HandshakeIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Start Collaborating
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Begin working with mentors, join projects, and participate in our community programs.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Step 4: Grow Your Career */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  4
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUpIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Grow Your Career
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Advance your skills, build your network, and unlock new career opportunities globally.
+                  </p>
                 </CardContent>
               </Card>
             </Link>
@@ -307,7 +354,7 @@ export const LandingPage = () => {
       </section>
 
       {/* Partners Section */}
-      <section id="partners" className="py-20 bg-[#F5F5F0] dark:bg-gray-800 relative">
+      <section id="partners" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
@@ -467,7 +514,7 @@ export const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-[#503314] dark:from-[#503314]/70 via-[#7C2D12] dark:via-[#7C2D12]/70 to-[#B45309] dark:to-[#B45309]/70 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float"></div>
           <div
@@ -499,7 +546,7 @@ export const LandingPage = () => {
                 onClick={()=>navigate('/auth')}
                 className="bg-[#452809] text-white hover:bg-[#503314]/40 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
               >
-                Create Your Profile
+                Get Stated
                 <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>}

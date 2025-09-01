@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { Opportunities } from './pages/Opportunities';
 import { Community } from './pages/Community';
@@ -26,6 +25,7 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import ProtectedRouted from './components/layout/ProtectedRoute';
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNode; isAuthenticated: boolean }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
@@ -38,7 +38,7 @@ function AppRoutes() {
     <Layout>
       <Routes>
             {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<ProtectedRouted />} />
             <Route path="/auth" element={<AuthPage />} />
             
             {/* Protected routes */}
