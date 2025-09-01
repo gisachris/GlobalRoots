@@ -16,7 +16,7 @@ export const Footer = () => {
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <Logo/>
+              <Logo isFooter={true}/>
             </div>
             <p className="text-white/80 mb-6 leading-relaxed">
               Connecting Rwandan youth with diaspora IT professionals for

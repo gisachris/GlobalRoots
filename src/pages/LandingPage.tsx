@@ -7,14 +7,10 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "../components/ui/Card";
 import {
   UsersIcon,
   BriefcaseIcon,
-  GraduationCapIcon,
-  HomeIcon,
-  ChevronRightIcon,
   ArrowRightIcon,
   StarIcon,
   TrendingUpIcon,
@@ -56,7 +52,7 @@ export const LandingPage = () => {
 
   return (
     <div className="flex flex-col w-full scroll-smooth">
-      
+
       {/* Hero Section */}
       <section id="hero" className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
         <div className="absolute inset-0 z-0">
@@ -70,9 +66,9 @@ export const LandingPage = () => {
         <div className="container mx-auto px-8 py-16 md:py-24 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <div className="stagger-container animate-fadeIn">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
-                Unlocking Diaspora Potential for{" "}
-                <span className="text-[#B45309] dark:text-[#B45309]">Rwanda's Tech Future</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[60px] font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
+                Mentorship Without Borders.
+                <span className="text-[#B45309] dark:text-[#B45309]">Opportunity <br/>Without Limits.</span>
               </h1>
               <p className="text-lg md:text-xl mb-8 text-[#7C2D12] dark:text-gray-300 max-w-lg animate-slideIn" style={{animationDelay: '0.2s'}}>
                 Connect with Diaspora IT professionals for mentorship,
@@ -106,6 +102,50 @@ export const LandingPage = () => {
                     alt="Global Roots Platform"
                     className="max-w-2xl w-full object-contain transform transition-all duration-700 hover:scale-105"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <UsersIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Who We Are
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              About Us
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              Global Roots is a transformative platform connecting Rwanda's emerging tech talent with diaspora professionals worldwide. We believe in the power of mentorship, collaboration, and shared knowledge to build a thriving digital economy in Rwanda.
+            </p>
+          </div>
+          <div className="grid gap-12 justify-center items-center max-w-6xl mx-auto">
+            <div className="relative w-full">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl py-8 px-24 shadow-xl">
+                <div className="grid grid-cols-2 gap-20">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">500+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Active Mentors</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">1,200+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Youth Connected</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">25+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Countries</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">85%</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Success Rate</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -353,6 +393,69 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* Our Mission and Goals Section */}
+      <section className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <StarIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Our Purpose
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              Our Mission and Goals
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Empowering Rwanda's tech ecosystem through meaningful diaspora connections and sustainable career development
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Mission */}
+            <div className="text-center lg:text-left">
+              <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto lg:mx-0 mb-6">
+                <GlobeIcon className="h-8 w-8 text-[#B45309]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#503314] dark:text-white mb-4">
+                Our Mission
+              </h3>
+              <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-lg">
+                To bridge the gap between Rwanda's emerging tech talent and global opportunities by creating a sustainable ecosystem where diaspora professionals mentor, guide, and collaborate with local youth to build Rwanda's digital future.
+                Reaching on an international standard.
+              </p>
+            </div>
+            
+            {/* Goals */}
+            <div className="text-center lg:text-left">
+              <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto lg:mx-0 mb-6">
+                <TrendingUpIcon className="h-8 w-8 text-[#B45309]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#503314] dark:text-white mb-4">
+                Our Goals
+              </h3>
+              <ul className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-lg space-y-3">
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Connect 10,000+ Rwandan youth with global mentors by 2025
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Create 5,000+ remote work opportunities for local talent
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Facilitate 1,000+ diaspora returnees to contribute to Rwanda's tech sector
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Build a self-sustaining innovation ecosystem
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Partners Section */}
       <section id="partners" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative">
         <div className="container mx-auto px-4">
@@ -372,7 +475,7 @@ export const LandingPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap justify-center gap-8 items-center justify-items-center">
-            {['Konmesky', 'Google', 'MINICT', 'Microsoft', 'SolvIt', 'TheGym', 'RTB', 'OneCode', 'Harvard', 'OpenAi'].map((i) => (
+            {['Konmesky', 'Google', 'MINICT', 'Microsoft', 'SolvIt Africa', 'TheGym', 'RTB', 'OneCode', 'Harvard', 'GIZ', 'OpenAi'].map((i) => (
               <div key={i} className="group transition-all duration-500">
                 <div className=" cursor-pointer h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
                   <span className="text-[#B45309] dark:text-[#B45309] font-bold text-lg dark:group-hover:text-[#f18644] group-hover:text-[#a1360f]">
