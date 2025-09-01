@@ -1,11 +1,11 @@
-import React, { useEffect, useState, Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useTheme } from '../../utils/theme';
 import { useLanguage } from '../../utils/language';
 import { useAuth } from '../../utils/auth';
 import { Logo } from '../ui/Logo';
-import { MenuIcon, SearchIcon, XIcon, UserIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
+import { MenuIcon, SearchIcon, XIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const {
@@ -62,7 +62,7 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Logo />
+          <Logo isFooter={false}/>
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             <NavLink to="/" label={t('nav.home')} currentPath={location.pathname} />
@@ -219,24 +219,22 @@ export const Header = () => {
       </div>
     </header>;
 };
+
 // Desktop Navigation Link Component with active state
-const NavLink = ({
-  to,
-  label,
-  currentPath
-}) => {
+const NavLink = ({to,label,currentPath}:{to:string, label:string, currentPath:string}) => {
   const isActive = to === '/' ? currentPath === '/' : currentPath.startsWith(to);
-  return <Link to={to} className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive ? 'text-[#B45309] font-semibold' : 'text-[#503314] dark:text-gray-300 hover:text-[#B45309]'}`}>
+  return (
+    <Link to={to} className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive ? 'text-[#B45309] font-semibold' : 'text-[#503314] dark:text-gray-300 hover:text-[#B45309]'}`}>
       {label}
-    </Link>;
+    </Link>
+  )
 };
+
 // Mobile Navigation Link Component
-const MobileNavLink = ({
-  to,
-  label,
-  onClick
-}) => {
-  return <Link to={to} className="block px-3 py-2 rounded-md text-base font-medium text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-200" onClick={onClick}>
+const MobileNavLink = ({to,label,onClick}:{to:string,label:string,onClick:()=>void}) => {
+  return (
+    <Link to={to} className="block px-3 py-2 rounded-md text-base font-medium text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-200" onClick={onClick}>
       {label}
-    </Link>;
+    </Link>
+    )
 };

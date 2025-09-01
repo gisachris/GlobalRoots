@@ -37,7 +37,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         <div className="mb-6">
           <div className="flex items-center space-x-3 mb-6 p-2">
             <div className="w-10 h-10 rounded-full bg-[#B45309]/10 flex items-center justify-center">
-              <UserIcon className="h-5 w-5 text-[#B45309]" />
+              {<img src={user?.image} className='w-10 object-cover object-center h-10 rounded-full'/>}
             </div>
             <div>
               <div className="font-medium text-[#503314] dark:text-white">

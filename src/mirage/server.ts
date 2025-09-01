@@ -13,6 +13,7 @@ export function makeServer({ environment = 'development' } = {}) {
       server.create('user', {
         id: '1',
         name: 'John Doe',
+        image:"https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80",
         email: 'john@example.com',
         password: 'password123',
         role: 'youth',
@@ -48,6 +49,7 @@ export function makeServer({ environment = 'development' } = {}) {
             id: user.id,
             name: user.name,
             email: user.email,
+            image: user.image,
             role: user.role,
           },
           token: 'mock-jwt-token-' + user.id,

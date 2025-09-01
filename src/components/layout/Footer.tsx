@@ -4,7 +4,7 @@ import {HashLink} from 'react-router-hash-link'
 import { FacebookIcon, TwitterIcon, LinkedinIcon, InstagramIcon, ChevronDownIcon } from 'lucide-react';
 
 export const Footer = () => {
-  return <footer id='contact' className="bg-[#1a100c] text-white relative overflow-hidden">
+  return <footer id='contact' className="bg-[#1a100c] dark:bg-gray-900 text-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-10 right-20 w-32 h-32 bg-white/20 rounded-full blur-3xl"></div>
@@ -113,24 +113,11 @@ export const Footer = () => {
                 </Link>
               </li>
             </ul>
-            {/* Language Selector */}
-            <div className="mt-6">
-              <div className="relative">
-                <select className="appearance-none bg-[#7C2D12] text-primary-200 rounded-md py-2 pl-3 pr-8 w-full focus:outline-none focus:ring-2 focus:ring-primary-400">
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="rw">Kinyarwanda</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-300">
-                  <ChevronDownIcon className="h-4 w-4" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-        <div className="border-t border-white/20 text-center mt-12 pt-8">
-          <div className="flex flex-col md:flex-row text-center items-center">
-            <p className="text-white/70 text-sm">
+        <div className="border-t border-white/20 text-center mt-10 pt-6 pb-3">
+          <div className=" text-center">
+            <p className="text-white/50 text-sm">
               &copy; {new Date().getFullYear()} Global Roots. All rights reserved.
             </p>
           </div>

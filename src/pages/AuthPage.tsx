@@ -74,7 +74,7 @@ export const AuthPage = () => {
         </div>
 
         {/* Right Panel - Auth Form */}
-        <div className="w-full lg:w-3/5 flex items-center justify-center p-8 lg:p-16">
+        <div className="w-full lg:w-[65%] flex items-center justify-center p-8 lg:p-16">
           <div className="w-full max-w-md">
             
             {/* Header */}

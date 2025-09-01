@@ -5,14 +5,14 @@ import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
 import { useAuth } from '../../utils/auth';
 import { AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
-export const SignIn = ({
-  onSignUp
-}) => {
+export const SignIn = ({onSignUp}) => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const handleSubmit = async e => {
     e.preventDefault();
     try {
@@ -24,7 +24,7 @@ export const SignIn = ({
       const data = await response.json();
       if (response.ok) {
         login(data.token, data.user);
-        navigate('/dashboard');
+        navigate('/');
       } else {
         console.error('Sign in failed:', data.error);
       }

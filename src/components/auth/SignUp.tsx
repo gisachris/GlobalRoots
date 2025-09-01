@@ -5,9 +5,8 @@ import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
 import { useAuth } from '../../utils/auth';
 import { UserIcon, AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
-export const SignUp = ({
-  onSignIn
-}) => {
+export const SignUp = ({onSignIn}) => {
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +14,7 @@ export const SignUp = ({
   const { t } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const handleSubmit = async e => {
     e.preventDefault();
     try {
@@ -71,19 +71,6 @@ export const SignUp = ({
               <p className="text-xs text-dark-500 dark:text-dark-400 mt-1">
                 Must be at least 8 characters long
               </p>
-            </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium mb-1">
-                I am a...
-              </label>
-              <select id="role" value={role} onChange={e => setRole(e.target.value)} className="input w-full" required>
-                <option value="" disabled>
-                  Select your role
-                </option>
-                <option value="youth">Youth in Rwanda</option>
-                <option value="diaspora">Diaspora Professional</option>
-                <option value="employer">Employer</option>
-              </select>
             </div>
             <div className="flex items-center">
               <input id="terms" type="checkbox" className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500 accent-orange-800" required />
