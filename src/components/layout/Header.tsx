@@ -90,23 +90,26 @@ export const Header = () => {
                 <GlobeIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />
               </button>
               {languageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
-                        language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#B45309]' : 'text-[#503314] dark:text-gray-300'
-                      }`}
-                      onClick={() => {
-                        setLanguage(lang.code as any);
-                        setLanguageMenuOpen(false);
-                      }}
-                    >
-                      <span>{lang.flag}</span>
-                      <span>{lang.name}</span>
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div onClick={()=>setLanguageMenuOpen(false)} className="fixed inset-0 z-40"/>
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
+                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#ff6f00] dark:text-[#F59E0B]' : 'text-[#503314] dark:text-gray-300'
+                        }`}
+                        onClick={() => {
+                          setLanguage(lang.code as any);
+                          setLanguageMenuOpen(false);
+                        }}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
             {isAuthenticated ? <div className="hidden md:block relative">
@@ -137,7 +140,7 @@ export const Header = () => {
                     </button>
                   </div>}
               </div> : <div className="hidden md:flex items-center">
-                <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6">
+                <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
                   {t('nav.getStarted')}
                 </Button>
               </div>}
@@ -189,12 +192,14 @@ export const Header = () => {
                   <GlobeIcon className="h-5 w-5 text-[#503314] dark:text-gray-300" />
                 </button>
                 {languageMenuOpen && (
+                  <>
+                  <div onClick={()=>setLanguageMenuOpen(false)} className="fixed inset-0 z-40"/>
                   <div className="absolute right-0 bottom-full mb-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
-                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#B45309]' : 'text-[#503314] dark:text-gray-300'
+                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#ff6f00] dark:text-[#F59E0B]' : 'text-[#503314] dark:text-gray-300'
                         }`}
                         onClick={() => {
                           setLanguage(lang.code as any);
@@ -206,6 +211,7 @@ export const Header = () => {
                       </button>
                     ))}
                   </div>
+                  </>
                 )}
               </div>
             </div>

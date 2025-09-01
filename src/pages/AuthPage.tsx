@@ -3,7 +3,6 @@ import { SignIn } from '../components/auth/SignIn';
 import { SignUp } from '../components/auth/SignUp';
 import { Card, CardContent } from '../components/ui/Card';
 import { Logo } from '../components/ui/Logo';
-import { LanguageSelector } from '../components/ui/LanguageSelector';
 import { useLanguage } from '../utils/language';
 import { StarIcon, ShieldCheckIcon, UsersIcon } from 'lucide-react';
 export const AuthPage = () => {
