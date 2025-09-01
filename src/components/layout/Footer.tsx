@@ -11,7 +11,7 @@ export const Footer = () => {
         <div className="absolute bottom-20 left-10 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
       </div>
       
-      <div className="container mx-auto px-4 py-10 relative z-10">
+      <div className="container mx-auto px-4 pt-8 py-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
@@ -128,9 +128,9 @@ export const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="border-t border-white/20 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white/80 text-sm">
+        <div className="border-t border-white/20 text-center mt-12 pt-8">
+          <div className="flex flex-col md:flex-row text-center items-center">
+            <p className="text-white/70 text-sm">
               &copy; {new Date().getFullYear()} Global Roots. All rights reserved.
             </p>
           </div>

@@ -602,7 +602,7 @@ export const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-[#503314] dark:from-[#503314]/70 via-[#7C2D12] dark:via-[#7C2D12]/70 to-[#B45309] dark:to-[#B45309]/70 relative overflow-hidden">
+      <section className="py-24 mb-0.5 bg-gradient-to-br from-[#503314] dark:from-[#503314]/70 via-[#7C2D12] dark:via-[#7C2D12]/70 to-[#B45309] dark:to-[#B45309]/70 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float"></div>
           <div
