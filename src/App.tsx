@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
-import Opportunities from './pages/Opportunities';
 import { Community } from './pages/Community';
 import { Projects } from './pages/Projects';
 import { ReturneeHub } from './pages/ReturneeHub';
@@ -10,7 +9,7 @@ import { ImpactDashboard } from './pages/ImpactDashboard';
 import { MentorConnect } from './pages/MentorConnect';
 import { ThemeProvider } from './utils/theme';
 import { LanguageProvider } from './utils/language';
-import { useAuth } from './utils/auth';
+import { useAuth, User } from './utils/auth';
 import { ProfilePage } from './pages/ProfilePage';
 import { MentorsPage } from './pages/MentorsPage';
 import { LearningPage } from './pages/LearningPage';
@@ -25,31 +24,14 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import LoggedIn from './components/layout/LoggedIn';
 import { YouthDashboard } from './pages/YouthDashboard';
 import { YouthOpportunity } from './pages/YouthOpportunity';
 import { YouthLayout } from './components/layout/YouthLayout';
+import { LandingPage } from './pages/LandingPage';
 
 // Home Route Component
-const HomeRoute = () => {
-  const { isAuthenticated, user } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  // Check if user is youth
-  const isYouth = user?.role === 'youth' || user?.role === 'student';
-  
-  if (isYouth) {
-    return (
-      <YouthLayout>
-        <YouthDashboard />
-      </YouthLayout>
-    );
-  }
-  
-  return <Dashboard />;
+const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}) => {
+  return user?.role=='youth'?<>{children}</>:<LandingPage/>;
 };
 
 // Opportunities Route Component
@@ -72,13 +54,19 @@ const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNo
 };
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { user,isAuthenticated } = useAuth();
   
   return (
     <Layout>
       <Routes>
             {/* Public routes */}
-            <Route path="/" element={<HomeRoute />} />
+            <Route path="/" element={
+              <HomeRoute user={user}>
+                <YouthLayout>
+                  <YouthDashboard/>
+                </YouthLayout>
+              </HomeRoute>
+            } />
             <Route path="/auth" element={<AuthPage />} />
             
             {/* Protected routes */}

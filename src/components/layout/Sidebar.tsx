@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HomeIcon, UsersIcon, BriefcaseIcon, BookOpenIcon, MessageSquareIcon, BarChartIcon, UserIcon, Settings2Icon, LogOutIcon, ShieldIcon, GlobeIcon, HeartIcon, ArrowLeftRightIcon, FolderIcon, XIcon } from 'lucide-react';
 import { useAuth } from '../../utils/auth';
@@ -160,12 +160,6 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
               <Link to="/mentorconnect" onClick={handleLinkClick} className={`flex items-center px-4 py-3 rounded-md ${isActive('/mentorconnect') ? 'bg-[#B45309]/10 text-[#B45309]' : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'}`}>
                 <MessageSquareIcon className="h-5 w-5 mr-3" />
                 <span>Mentor Connect</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/opportunities" onClick={handleLinkClick} className={`flex items-center px-4 py-3 rounded-md ${isActive('/opportunities') ? 'bg-[#B45309]/10 text-[#B45309]' : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'}`}>
-                <BriefcaseIcon className="h-5 w-5 mr-3" />
-                <span>Opportunities</span>
               </Link>
             </li>
             <li>

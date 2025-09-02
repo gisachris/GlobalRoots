@@ -12,7 +12,7 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-full bg-[#F5F5F0] dark:bg-gray-900">
+    <div className="flex h-screen bg-[#F5F5F0] dark:bg-gray-900">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -21,8 +21,8 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
         />
       )}
       
-      {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
+      {/* Desktop sidebar - Fixed */}
+      <div className="hidden lg:block lg:fixed lg:inset-y-0 lg:left-0 lg:z-30">
         <YouthSidebar />
       </div>
       
@@ -33,8 +33,8 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
         <YouthSidebar onClose={() => setSidebarOpen(false)} />
       </div>
       
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main content with left margin for fixed sidebar */}
+      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
         {/* Header with mobile menu button */}
         <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-[#B45309]/20 lg:hidden">
           <Button
@@ -49,7 +49,7 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
         </div>
         
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 pb-20 overflow-y-auto">
           {children}
         </main>
       </div>

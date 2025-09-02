@@ -380,7 +380,7 @@ export const YouthDashboard = () => {
   ];
 
   return (
-    <div className="px-4 space-y-8 pt-8">
+    <div className="px-4 space-y-8 pt-20">
       {/* Welcome Section */}
       <div className="mb-10 text-center">
         <h1 className="text-5xl font-bold text-[#503314] dark:text-white mb-2">
