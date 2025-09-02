@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { YouthSidebar } from '../components/layout/YouthSidebar';
 import { YouthDashboard } from './YouthDashboard';
-import { useAuth } from '../utils/auth';
 
 export const YouthHomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#F5F5F0] dark:bg-gray-900">

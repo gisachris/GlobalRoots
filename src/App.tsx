@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
-import { Opportunities } from './pages/Opportunities';
+import Opportunities from './pages/Opportunities';
 import { Community } from './pages/Community';
 import { Projects } from './pages/Projects';
 import { ReturneeHub } from './pages/ReturneeHub';
@@ -26,6 +26,46 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import LoggedIn from './components/layout/LoggedIn';
+import { YouthDashboard } from './pages/YouthDashboard';
+import { YouthOpportunity } from './pages/YouthOpportunity';
+import { YouthLayout } from './components/layout/YouthLayout';
+
+// Home Route Component
+const HomeRoute = () => {
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  // Check if user is youth
+  const isYouth = user?.role === 'youth' || user?.role === 'student';
+  
+  if (isYouth) {
+    return (
+      <YouthLayout>
+        <YouthDashboard />
+      </YouthLayout>
+    );
+  }
+  
+  return <Dashboard />;
+};
+
+// Opportunities Route Component
+const OpportunitiesRoute = () => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return (
+    <YouthLayout>
+      <YouthOpportunity />
+    </YouthLayout>
+  );
+};
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNode; isAuthenticated: boolean }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
@@ -38,7 +78,7 @@ function AppRoutes() {
     <Layout>
       <Routes>
             {/* Public routes */}
-            <Route path="/" element={<LoggedIn />} />
+            <Route path="/" element={<HomeRoute />} />
             <Route path="/auth" element={<AuthPage />} />
             
             {/* Protected routes */}
@@ -87,7 +127,7 @@ function AppRoutes() {
                 <MentorConnect />
               </ProtectedRoute>
             } />
-            <Route path="/opportunities" element={<Opportunities />} />
+            <Route path="/opportunities" element={<OpportunitiesRoute />} />
             <Route path="/community" element={<Community />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/returnee" element={<ReturneeHub />} />
