@@ -411,11 +411,11 @@ export const YouthDashboard = () => {
             {upcomingEvents.map((event) => (
               <div 
                 key={event.id} 
-                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
+                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 hover:shadow-lg transition-all cursor-pointer flex gap-4 flex-col h-full"
                 onClick={() => {openModal(event, 'event')}}
               >
                 <h4 className="font-semibold text-[#503314] dark:text-white mb-2">{event.title}</h4>
-                <div className="space-y-1 text-sm text-[#7C2D12] dark:text-gray-300">
+                <div className="space-y-2 text-sm text-[#7C2D12] dark:text-gray-300">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
                     {event.date}

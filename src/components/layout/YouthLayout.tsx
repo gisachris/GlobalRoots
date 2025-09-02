@@ -10,6 +10,7 @@ interface YouthLayoutProps {
 
 export const YouthLayout = ({ children }: YouthLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
   return (
     <div className="flex h-screen bg-[#F5F5F0] dark:bg-gray-900">
@@ -23,7 +24,7 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
       
       {/* Desktop sidebar - Fixed */}
       <div className="hidden lg:block lg:fixed lg:inset-y-0 lg:left-0 lg:z-30">
-        <YouthSidebar />
+        <YouthSidebar onWidthChange={setSidebarExpanded} />
       </div>
       
       {/* Mobile sidebar */}
@@ -34,7 +35,7 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
       </div>
       
       {/* Main content with left margin for fixed sidebar */}
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${sidebarExpanded ? 'lg:ml-64' : 'lg:ml-16'}`}>
         {/* Header with mobile menu button */}
         <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-[#B45309]/20 lg:hidden">
           <Button

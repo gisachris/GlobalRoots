@@ -18,9 +18,10 @@ import { Button } from '../ui/Button';
 
 interface YouthSidebarProps {
   onClose?: () => void;
+  onWidthChange?: (isExpanded: boolean) => void;
 }
 
-export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
+export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
   const location = useLocation();
   const [isPinned, setIsPinned] = useState(true);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -40,12 +41,14 @@ export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
   const handleMouseEnter = () => {
     if (!isPinned) {
       setIsExpanded(true);
+      onWidthChange?.(true);
     }
   };
 
   const handleMouseLeave = () => {
     if (!isPinned) {
       setIsExpanded(false);
+      onWidthChange?.(false);
     }
   };
 
@@ -53,6 +56,7 @@ export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
     setIsPinned(!isPinned);
     if (!isPinned) {
       setIsExpanded(true);
+      onWidthChange?.(true);
     }
   };
 
