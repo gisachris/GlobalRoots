@@ -60,7 +60,7 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
     }
   };
 
-  const sidebarWidth = isExpanded ? 'w-64' : 'w-16';
+  const sidebarWidth = isExpanded ? 'w-64 2xl:w-80' : 'w-16 2xl:w-40';
   const shouldShowText = isExpanded;
 
   return (
@@ -71,16 +71,16 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
       onMouseLeave={handleMouseLeave}
     >
       {/* Header with pin/close buttons */}
-      <div className="flex items-center justify-between p-2 border-b border-[#B45309]/20 min-h-[64px] transition-all ease-in-out duration-500">
-        <div className="flex w-full items-center justify-between">
+      <div className="flex items-center justify-center p-2 border-b border-[#B45309]/20 min-h-[64px] transition-all ease-in-out duration-500">
+        <div className={`flex w-full items-center ${isExpanded?'justify-start':'justify-center'} transition-all duration-500 ease-in-out`}>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={togglePin}
-            className="hidden lg:flex hover:bg-[#B45309]/10"
+            className="hidden lg:flex hover:bg-[#B45309]/10 transition-all duration-500 ease-in-out"
             title={isPinned ? "Unpin sidebar" : "Pin sidebar"}
           >
-            <TableOfContents  className={`h-5 w-5 ${isPinned ? 'text-[#B45309]' : 'text-gray-400'} transition-all`} />
+            <TableOfContents  className={`h-5 w-5 ${isPinned ? 'text-[#B45309]' : 'text-gray-400'} transition-all duration-500 ease-in-out`} />
           </Button>
         </div>
         {onClose && (
@@ -92,7 +92,7 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
       
       {/* User Profile Section */}
       <div className={`${isExpanded?'p-4':'px-2 py-4'} transition-all duration-500 ease-in-out`}>
-        <div className={`flex items-center ${shouldShowText ? 'space-x-3' : 'justify-center'} my-4 transition-all duration-300`}>
+        <Link to='/' className={`flex items-center ${shouldShowText ? 'space-x-3' : 'justify-center'} my-4 transition-all duration-300`}>
           <img 
             src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=40&h=40&fit=crop&crop=face" 
             alt="Profile" 
@@ -108,7 +108,7 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
               </div>
             </div>
           )}
-        </div>
+        </Link>
       </div>
 
       <nav className="px-2 truncate transition-all duration-500 ease-in-out">
@@ -126,22 +126,6 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
             >
               <Home className="h-5 w-5 flex-shrink-0" />
               {shouldShowText && <span className="ml-3">Dashboard</span>}
-            </Link>
-          </li>
-          
-          <li>
-            <Link 
-              to="/opportunities" 
-              onClick={handleLinkClick} 
-              className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
-                isActive('/opportunities') 
-                  ? 'bg-[#B45309]/10 text-[#B45309]' 
-                  : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
-              } ${!shouldShowText ? 'justify-center' : ''}`}
-              title={!shouldShowText ? "Opportunities" : ""}
-            >
-              <Briefcase className="h-5 w-5 flex-shrink-0" />
-              {shouldShowText && <span className="ml-3">Opportunities</span>}
             </Link>
           </li>
           

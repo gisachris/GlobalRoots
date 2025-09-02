@@ -34,17 +34,16 @@ const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}
   return user?.role=='youth'?<>{children}</>:<LandingPage/>;
 };
 
-// Opportunities Route Component
-const OpportunitiesRoute = () => {
-  const { isAuthenticated } = useAuth();
+// SidebarLayout Route Component
+const SidebarLayout = ({children,isAuthenticated,user}:{ children: React.ReactNode; isAuthenticated: boolean,user?:User|null }) => {
   
-  if (!isAuthenticated) {
+  if (!isAuthenticated|| user?.role!=='youth') {
     return <Navigate to="/auth" replace />;
   }
   
   return (
     <YouthLayout>
-      <YouthOpportunity />
+      <>{children}</>
     </YouthLayout>
   );
 };
@@ -86,9 +85,9 @@ function AppRoutes() {
               </ProtectedRoute>
             } />
             <Route path="/learning" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                 <LearningPage />
-              </ProtectedRoute>
+              </SidebarLayout>
             } />
             <Route path="/mentees" element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -115,9 +114,21 @@ function AppRoutes() {
                 <MentorConnect />
               </ProtectedRoute>
             } />
-            <Route path="/opportunities" element={<OpportunitiesRoute />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/projects" element={<Projects />} />
+            <Route path="/opportunities" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <YouthOpportunity/>
+              </SidebarLayout>
+            } />
+            <Route path="/community" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Community/>
+              </SidebarLayout>
+            } />
+            <Route path="/projects" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Projects/>
+              </SidebarLayout>
+            } />
             <Route path="/returnee" element={<ReturneeHub />} />
             <Route path="/impact" element={<ImpactDashboard />} />
             <Route path="/settings" element={

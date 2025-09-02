@@ -20,7 +20,7 @@ export const AuthPage = () => {
       <div className="relative min-h-screen flex">
         {/* Left Panel - Hero Section */}
         <div className="hidden lg:flex lg:w-2/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[#1a100c] dark:bg-gray-900" />
+          <div className="absolute inset-0 bg-[#1e120e] dark:bg-gray-900" />
           
           {/* Decorative Elements */}
           <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-3xl" />

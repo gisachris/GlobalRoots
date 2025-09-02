@@ -35,7 +35,7 @@ export const YouthLayout = ({ children }: YouthLayoutProps) => {
       </div>
       
       {/* Main content with left margin for fixed sidebar */}
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${sidebarExpanded ? 'lg:ml-64' : 'lg:ml-16'}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${sidebarExpanded ? 'lg:ml-64 2xl:ml-80' : 'lg:ml-16 2xl:ml-40'}`}>
         {/* Header with mobile menu button */}
         <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-[#B45309]/20 lg:hidden">
           <Button

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { SearchIcon, FilterIcon, FolderIcon, UserIcon, CodeIcon, CalendarIcon, GlobeIcon, ChevronRightIcon, CheckIcon, PlusIcon, TrendingUpIcon, StarIcon } from 'lucide-react';

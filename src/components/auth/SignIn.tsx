@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
 import { useAuth } from '../../utils/auth';
 import { AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
+import { toast, ToastContainer } from 'react-toastify';
 export const SignIn = ({onSignUp}) => {
 
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export const SignIn = ({onSignUp}) => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await fetch('/api/auth/signin', {
@@ -23,16 +24,23 @@ export const SignIn = ({onSignUp}) => {
       });
       const data = await response.json();
       if (response.ok) {
+        toast.success('Login Successfully')
         login(data.token, data.user);
-        navigate('/');
+        navigate('/',{replace:true});
       } else {
+        toast.error('Login Failed')
         console.error('Sign in failed:', data.error);
       }
     } catch (error) {
+      toast.error('Login Failed')
       console.error('Sign in error:', error);
     }
   };
-  return <Card className="w-full max-w-md">
+  return (<>
+    <div className='absolute top-0'>
+      <ToastContainer position='top-right'/>
+    </div>
+  <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>{t('auth.signIn')}</CardTitle>
         <CardDescription>Access your Global Roots account</CardDescription>
@@ -99,5 +107,6 @@ export const SignIn = ({onSignUp}) => {
           </button>
         </div>
       </CardFooter>
-    </Card>;
+    </Card>
+  </>)
 };
