@@ -115,10 +115,10 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
         <ul className="space-y-1">
           <li>
             <Link 
-              to="/" 
+              to="/dashboard" 
               onClick={handleLinkClick} 
               className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
-                isActive('/') && location.pathname === '/' 
+                isActive('/dashboard') && location.pathname === '/' 
                   ? 'bg-[#B45309]/10 text-[#B45309]' 
                   : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
               } ${!shouldShowText ? 'justify-center' : ''}`}
@@ -163,10 +163,10 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
           
           <li>
             <Link 
-              to="/projects" 
+              to="/userProjects" 
               onClick={handleLinkClick} 
               className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
-                isActive('/projects') 
+                isActive('/userProjects') 
                   ? 'bg-[#B45309]/10 text-[#B45309]' 
                   : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
               } ${!shouldShowText ? 'justify-center' : ''}`}

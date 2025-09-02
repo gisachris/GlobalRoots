@@ -28,6 +28,7 @@ import { YouthDashboard } from './pages/YouthDashboard';
 import { YouthOpportunity } from './pages/YouthOpportunity';
 import { YouthLayout } from './components/layout/YouthLayout';
 import { LandingPage } from './pages/LandingPage';
+import { UserPersonalProjects } from './pages/UserPersonalProjects';
 
 // Home Route Component
 const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}) => {
@@ -70,9 +71,9 @@ function AppRoutes() {
             
             {/* Protected routes */}
             <Route path="/dashboard" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                 <Dashboard />
-              </ProtectedRoute>
+              </SidebarLayout>
             } />
             <Route path="/profile" element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -127,6 +128,11 @@ function AppRoutes() {
             <Route path="/projects" element={
               <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                 <Projects/>
+              </SidebarLayout>
+            } />
+            <Route path="/userProjects" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <UserPersonalProjects/>
               </SidebarLayout>
             } />
             <Route path="/returnee" element={<ReturneeHub />} />
