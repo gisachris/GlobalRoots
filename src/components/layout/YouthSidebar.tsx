@@ -61,12 +61,12 @@ export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
   return (
     <aside 
       ref={sidebarRef}
-      className={`h-full ${sidebarWidth} bg-white dark:bg-gray-800 border-r border-[#B45309]/20 overflow-y-auto transition-all duration-300 ease-in-out`}
+      className={`h-full ${sidebarWidth} bg-white dark:bg-gray-800 border-r border-[#B45309]/20 overflow-y-auto transition-all duration5300 ease-in-out`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* Header with pin/close buttons */}
-      <div className="flex items-center justify-between p-2 border-b border-[#B45309]/20 min-h-[64px]">
+      <div className="flex items-center justify-between p-2 border-b border-[#B45309]/20 min-h-[64px] transition-all ease-in-out duration-500">
         <div className="flex w-full items-center justify-between">
           <Button 
             variant="ghost" 
@@ -86,7 +86,7 @@ export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
       </div>
       
       {/* User Profile Section */}
-      <div className={`${isExpanded?'p-4':'px-2 py-4'}`}>
+      <div className={`${isExpanded?'p-4':'px-2 py-4'} transition-all duration-500 ease-in-out`}>
         <div className={`flex items-center ${shouldShowText ? 'space-x-3' : 'justify-center'} my-4 transition-all duration-300`}>
           <img 
             src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=40&h=40&fit=crop&crop=face" 
@@ -106,7 +106,7 @@ export const YouthSidebar = ({ onClose }: YouthSidebarProps) => {
         </div>
       </div>
 
-      <nav className="px-2 truncate">
+      <nav className="px-2 truncate transition-all duration-500 ease-in-out">
         <ul className="space-y-1">
           <li>
             <Link 

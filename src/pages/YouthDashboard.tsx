@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -23,215 +23,7 @@ import {
 } from 'lucide-react';
 
 // Detail Modal Component
-const DetailModal = ({ item, type, onClose }) => {
-  if (!item) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-[#B45309]/20">
-          <h2 className="text-2xl font-bold text-[#503314] dark:text-white">
-            {type === 'event' ? 'Event Details' : type === 'course' ? 'Course Details' : type === 'mentor' ? 'Mentor Profile' : 'Community Details'}
-          </h2>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-        
-        <div className="p-6">
-          {type === 'event' && (
-            <div className="space-y-4">
-              <div className="aspect-video rounded-lg bg-gradient-to-r from-[#B45309] to-[#7C2D12] flex items-center justify-center text-white text-xl font-semibold">
-                {item.title}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Date:</span>
-                    <span className="ml-2">{item.date}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Time:</span>
-                    <span className="ml-2">{item.time}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Location:</span>
-                    <span className="ml-2">{item.location}</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
-                    <h4 className="font-semibold mb-2">Event Details</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {item.description || "Join us for an exciting event that will help you grow your skills and network with like-minded individuals."}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
-                      <Heart className="h-4 w-4 mr-2" />
-                      Register Now
-                    </Button>
-                    <Button variant="outline" className="border-[#B45309] text-[#B45309]">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Add to Calendar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {type === 'course' && (
-            <div className="space-y-4">
-              <img src={item.image} alt={item.title} className="w-full h-48 object-cover rounded-lg" />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold text-[#503314] dark:text-white">{item.title}</h3>
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Instructor:</span>
-                    <span className="ml-2">{item.mentor}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Students:</span>
-                    <span className="ml-2">{item.students}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-yellow-500" />
-                    <span className="font-medium">Rating:</span>
-                    <span className="ml-2">{item.rating}/5.0</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
-                    <h4 className="font-semibold mb-2">Course Description</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {item.description || "This comprehensive course will teach you everything you need to know to excel in this field. Perfect for beginners and intermediate learners."}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
-                      <Play className="h-4 w-4 mr-2" />
-                      Enroll Now
-                    </Button>
-                    <Button variant="outline" className="border-[#B45309] text-[#B45309]">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {type === 'mentor' && (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <img src={item.image} alt={item.name} className="w-20 h-20 rounded-full" />
-                <div>
-                  <h3 className="text-2xl font-bold text-[#503314] dark:text-white">{item.name}</h3>
-                  <p className="text-[#B45309] font-medium">{item.role}</p>
-                  <div className="flex items-center mt-1">
-                    <Building className="h-4 w-4 mr-1 text-gray-500" />
-                    <span className="text-gray-600 dark:text-gray-300">{item.company}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Award className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Expertise:</span>
-                    <span className="ml-2">{item.expertise}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-yellow-500" />
-                    <span className="font-medium">Rating:</span>
-                    <span className="ml-2">{item.rating}/5.0</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Sessions:</span>
-                    <span className="ml-2">{item.sessions} completed</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
-                    <h4 className="font-semibold mb-2">About</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {item.bio || "An experienced professional with years of industry experience. Passionate about mentoring the next generation of talent."}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Book Session
-                    </Button>
-                    <Button variant="outline" className="border-[#B45309] text-[#B45309]">
-                      <User className="h-4 w-4 mr-2" />
-                      View Profile
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {type === 'circle' && (
-            <div className="space-y-4">
-              <img src={item.image} alt={item.name} className="w-full h-48 object-cover rounded-lg" />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold text-[#503314] dark:text-white">{item.name}</h3>
-                  <div className="flex items-center">
-                    <Globe className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Category:</span>
-                    <span className="ml-2">{item.category}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-[#B45309]" />
-                    <span className="font-medium">Members:</span>
-                    <span className="ml-2">{item.members}</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
-                    <h4 className="font-semibold mb-2">About This Community</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {item.description}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
-                      <Users className="h-4 w-4 mr-2" />
-                      Join Circle
-                    </Button>
-                    <Button variant="outline" className="border-[#B45309] text-[#B45309]">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const YouthDashboard = () => {
   const { user } = useAuth();
@@ -246,6 +38,224 @@ export const YouthDashboard = () => {
   const closeModal = () => {
     setSelectedItem(null);
     setModalType(null);
+  };
+
+  const DetailModal = ({ item, type, onClose }) => {
+    const modalRef = useRef<HTMLDivElement|null>(null);
+
+    useEffect(() => {
+      if (item && modalRef.current) {
+        modalRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, [item]);
+
+    if (!item) return null;
+
+    return (
+      <div onClick={closeModal} className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-6 border-b border-[#B45309]/20">
+            <h2 className="text-2xl font-bold text-[#503314] dark:text-white">
+              {type === 'event' ? 'Event Details' : type === 'course' ? 'Course Details' : type === 'mentor' ? 'Mentor Profile' : 'Community Details'}
+            </h2>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          
+          <div className="p-6">
+            {type === 'event' && (
+              <div className="space-y-4">
+                <div className="aspect-video rounded-lg bg-gradient-to-r from-[#B45309] to-[#7C2D12] flex items-center justify-center text-white text-xl font-semibold">
+                  {item.title}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <Calendar className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Date:</span>
+                      <span className="ml-2">{item.date}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Time:</span>
+                      <span className="ml-2">{item.time}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Location:</span>
+                      <span className="ml-2">{item.location}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
+                      <h4 className="font-semibold mb-2">Event Details</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {item.description || "Join us for an exciting event that will help you grow your skills and network with like-minded individuals."}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
+                        <Heart className="h-4 w-4 mr-2" />
+                        Register Now
+                      </Button>
+                      <Button variant="outline" className="border-[#B45309] text-[#B45309]">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Add to Calendar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {type === 'course' && (
+              <div className="space-y-4">
+                <img src={item.image} alt={item.title} className="w-full h-48 object-cover rounded-lg" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold text-[#503314] dark:text-white">{item.title}</h3>
+                    <div className="flex items-center">
+                      <User className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Instructor:</span>
+                      <span className="ml-2">{item.mentor}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Students:</span>
+                      <span className="ml-2">{item.students}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-5 w-5 mr-2 text-yellow-500" />
+                      <span className="font-medium">Rating:</span>
+                      <span className="ml-2">{item.rating}/5.0</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
+                      <h4 className="font-semibold mb-2">Course Description</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {item.description || "This comprehensive course will teach you everything you need to know to excel in this field. Perfect for beginners and intermediate learners."}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
+                        <Play className="h-4 w-4 mr-2" />
+                        Enroll Now
+                      </Button>
+                      <Button variant="outline" className="border-[#B45309] text-[#B45309]">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Preview
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {type === 'mentor' && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <img src={item.image} alt={item.name} className="w-20 h-20 rounded-full" />
+                  <div>
+                    <h3 className="text-2xl font-bold text-[#503314] dark:text-white">{item.name}</h3>
+                    <p className="text-[#B45309] font-medium">{item.role}</p>
+                    <div className="flex items-center mt-1">
+                      <Building className="h-4 w-4 mr-1 text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-300">{item.company}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <Award className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Expertise:</span>
+                      <span className="ml-2">{item.expertise}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-5 w-5 mr-2 text-yellow-500" />
+                      <span className="font-medium">Rating:</span>
+                      <span className="ml-2">{item.rating}/5.0</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Sessions:</span>
+                      <span className="ml-2">{item.sessions} completed</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
+                      <h4 className="font-semibold mb-2">About</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {item.bio || "An experienced professional with years of industry experience. Passionate about mentoring the next generation of talent."}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Book Session
+                      </Button>
+                      <Button variant="outline" className="border-[#B45309] text-[#B45309]">
+                        <User className="h-4 w-4 mr-2" />
+                        View Profile
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {type === 'circle' && (
+              <div className="space-y-4">
+                <img src={item.image} alt={item.name} className="w-full h-48 object-cover rounded-lg" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold text-[#503314] dark:text-white">{item.name}</h3>
+                    <div className="flex items-center">
+                      <Globe className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Category:</span>
+                      <span className="ml-2">{item.category}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 mr-2 text-[#B45309]" />
+                      <span className="font-medium">Members:</span>
+                      <span className="ml-2">{item.members}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="p-4 bg-[#F5F5F0] dark:bg-gray-700 rounded-lg">
+                      <h4 className="font-semibold mb-2">About This Community</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {item.description}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button className="flex-1 bg-[#B45309] hover:bg-[#7C2D12]">
+                        <Users className="h-4 w-4 mr-2" />
+                        Join Circle
+                      </Button>
+                      <Button variant="outline" className="border-[#B45309] text-[#B45309]">
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Preview
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Mock data
@@ -372,7 +382,7 @@ export const YouthDashboard = () => {
   return (
     <div className="px-4 space-y-8 pt-8">
       {/* Welcome Section */}
-      <div className="mb-8 text-center">
+      <div className="mb-10 text-center">
         <h1 className="text-5xl font-bold text-[#503314] dark:text-white mb-2">
           Welcome back, {user?.name || 'Jean-Paul'}!
         </h1>
@@ -401,7 +411,7 @@ export const YouthDashboard = () => {
             {upcomingEvents.map((event) => (
               <div 
                 key={event.id} 
-                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] hover:shadow-lg transition-all cursor-pointer"
+                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
                 onClick={() => {openModal(event, 'event')}}
               >
                 <h4 className="font-semibold text-[#503314] dark:text-white mb-2">{event.title}</h4>
@@ -419,7 +429,7 @@ export const YouthDashboard = () => {
                     {event.location}
                   </p>
                 </div>
-                <Button size="sm" className="mt-3 w-full bg-[#B45309] hover:bg-[#7C2D12]">
+                <Button size="sm" className="mt-auto w-full bg-[#B45309] hover:bg-[#7C2D12]">
                   View Details
                 </Button>
               </div>
@@ -448,11 +458,11 @@ export const YouthDashboard = () => {
             {trendingCourses.map((course) => (
               <div 
                 key={course.id} 
-                className="border border-[#B45309]/20 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                className="border group border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 overflow-hidden hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
                 onClick={() => openModal(course, 'course')}
               >
-                <img src={course.image} alt={course.title} className="w-full h-32 object-cover" />
-                <div className="p-4">
+                <img src={course.image} alt={course.title} className="w-full h-32 object-cover group-hover:scale-110 overflow-hidden transition-all duration-700 ease-in-out" />
+                <div className="p-4 flex flex-col flex-1">
                   <h4 className="font-semibold text-[#503314] dark:text-white mb-2">{course.title}</h4>
                   <p className="text-sm text-[#7C2D12] dark:text-gray-300 mb-2">by {course.mentor}</p>
                   <div className="flex items-center justify-between text-sm mb-3">
@@ -462,7 +472,7 @@ export const YouthDashboard = () => {
                       {course.rating}
                     </div>
                   </div>
-                  <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12]">
+                  <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12] mt-auto">
                     View Course
                   </Button>
                 </div>
@@ -492,7 +502,7 @@ export const YouthDashboard = () => {
             {featuredMentors.map((mentor) => (
               <div 
                 key={mentor.id} 
-                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] hover:shadow-lg transition-all cursor-pointer"
+                className="p-4 border border-[#B45309]/20 rounded-lg hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
                 onClick={() => openModal(mentor, 'mentor')}
               >
                 <div className="flex items-center mb-3">
@@ -511,7 +521,7 @@ export const YouthDashboard = () => {
                   </div>
                   <span className="text-[#7C2D12] dark:text-gray-300">{mentor.sessions} sessions</span>
                 </div>
-                <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12]">
+                <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12] mt-auto">
                   View Profile
                 </Button>
               </div>
@@ -540,18 +550,18 @@ export const YouthDashboard = () => {
             {circles.map((circle) => (
               <div 
                 key={circle.id} 
-                className="border border-[#B45309]/20 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                className="border group border-[#B45309]/20 hover:bg-[#F5F5F0] dark:hover:bg-gray-900/80 rounded-lg overflow-hidden hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
                 onClick={() => openModal(circle, 'circle')}
               >
-                <img src={circle.image} alt={circle.name} className="w-full h-32 object-cover" />
-                <div className="p-4">
+                <img src={circle.image} alt={circle.name} className="w-full h-32 object-cover group-hover:scale-110 overflow-hidden transition-all duration-700 ease-in-out" />
+                <div className="p-4 flex flex-col flex-1">
                   <h4 className="font-semibold text-[#503314] dark:text-white mb-2">{circle.name}</h4>
                   <p className="text-sm text-[#7C2D12] dark:text-gray-300 mb-2">{circle.description}</p>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between my-3">
                     <span className="text-sm text-[#B45309] font-medium">{circle.category}</span>
                     <span className="text-sm text-[#7C2D12] dark:text-gray-300">{circle.members} members</span>
                   </div>
-                  <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12]">
+                  <Button size="sm" className="w-full bg-[#B45309] hover:bg-[#7C2D12] mt-auto">
                     View Circle
                   </Button>
                 </div>
