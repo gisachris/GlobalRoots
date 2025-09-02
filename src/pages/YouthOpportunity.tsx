@@ -6,6 +6,11 @@ import { SearchIcon, FilterIcon, MapPinIcon, ClockIcon, BriefcaseIcon, GlobeIcon
 export const YouthOpportunity = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [skillFilter, setSkillFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [durationFilter, setDurationFilter] = useState('');
+  const [displayCount, setDisplayCount] = useState(6);
   
   useEffect(() => {
     const observerOptions = {
@@ -87,9 +92,39 @@ export const YouthOpportunity = () => {
   }];
 
   const filteredOpportunities = opportunities.filter(opp => {
-    if (activeTab === 'all') return true;
-    return opp.type === activeTab;
+    // Tab filter
+    if (activeTab !== 'all' && opp.type !== activeTab) return false;
+    
+    // Search filter
+    if (searchTerm && !(
+      opp.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      opp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      opp.company?.toLowerCase().includes(searchTerm.toLowerCase())
+    )) return false;
+    
+    // Skill filter
+    if (skillFilter && !opp.skills.some(skill => 
+      skill.toLowerCase().includes(skillFilter.toLowerCase())
+    )) return false;
+    
+    // Location filter
+    if (locationFilter && !opp.location?.toLowerCase().includes(locationFilter.toLowerCase())) return false;
+    
+    // Duration filter
+    if (durationFilter && !opp.duration?.toLowerCase().includes(durationFilter.toLowerCase())) return false;
+    
+    return true;
   });
+  
+  const displayedOpportunities = filteredOpportunities.slice(0, displayCount);
+  const hasMore = filteredOpportunities.length > displayCount;
+  
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSkillFilter('');
+    setLocationFilter('');
+    setDurationFilter('');
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F5F0] dark:bg-gray-900 scroll-smooth">
@@ -110,7 +145,13 @@ export const YouthOpportunity = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-grow">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-400" size={18} />
-              <input type="text" placeholder="Search opportunities..." className="input pl-10 w-full" />
+              <input 
+                type="text" 
+                placeholder="Search opportunities..." 
+                className="input pl-10 w-full" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <Button variant="outline" className="flex items-center" onClick={() => setFilterOpen(!filterOpen)}>
               <FilterIcon className="mr-2" size={18} />
@@ -125,35 +166,39 @@ export const YouthOpportunity = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2">Skills</label>
-                  <select className="input">
+                  <select className="input" value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)}>
                     <option value="">All Skills</option>
                     <option value="javascript">JavaScript</option>
                     <option value="react">React</option>
                     <option value="node">Node.js</option>
                     <option value="python">Python</option>
+                    <option value="flutter">Flutter</option>
+                    <option value="django">Django</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Location</label>
-                  <select className="input">
+                  <select className="input" value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
                     <option value="">All Locations</option>
                     <option value="kigali">Kigali, Rwanda</option>
                     <option value="remote">Remote</option>
+                    <option value="usa">USA</option>
+                    <option value="uk">UK</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Duration</label>
-                  <select className="input">
+                  <select className="input" value={durationFilter} onChange={(e) => setDurationFilter(e.target.value)}>
                     <option value="">Any Duration</option>
-                    <option value="fulltime">Full-time</option>
-                    <option value="parttime">Part-time</option>
-                    <option value="short">Short-term (&lt; 3 months)</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="weeks">Short-term</option>
                   </select>
                 </div>
               </div>
               <div className="mt-4 flex justify-end">
-                <Button variant="outline" className="mr-2">Reset</Button>
-                <Button variant="primary">Apply Filters</Button>
+                <Button variant="outline" className="mr-2" onClick={resetFilters}>Reset</Button>
+                <Button variant="primary" onClick={() => setFilterOpen(false)}>Apply Filters</Button>
               </div>
             </div>
           )}
@@ -191,7 +236,7 @@ export const YouthOpportunity = () => {
 
         {/* Opportunities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredOpportunities.map(opportunity => (
+          {displayedOpportunities.map(opportunity => (
             <Card key={opportunity.id} className="opportunity-card border-none shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700">
               {opportunity.type === 'mentor' ? (
                 // Mentor Card
@@ -344,9 +389,11 @@ export const YouthOpportunity = () => {
         </div>
 
         {/* Load More */}
-        <div className="mt-8 text-center">
-          <Button variant="outline">Load More</Button>
-        </div>
+        {hasMore || opportunities.length>6 && (
+          <div className="mt-8 text-center">
+            <Button variant="outline" onClick={() => setDisplayCount(prev => prev + 6)}>Load More</Button>
+          </div>
+        )}
       </div>
     </div>
   );
