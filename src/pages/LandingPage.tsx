@@ -97,7 +97,7 @@ export const LandingPage = () => {
 
       {/* About Us Section */}
       <section id="aboutUs" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative min-h-screen overflow-hidden">
-        <RwandaMap className="opacity-5 w-screen h-[60vh] md:h-[70vh] lg:h-[90vh]  absolute group-hover:scale-105 z-40"/>
+        <RwandaMap className="opacity-15 w-screen h-[60vh] md:h-[70vh] lg:h-[90vh]  absolute group-hover:scale-105 z-40"/>
         <div className="container mx-auto px-4 relative z-50">
           <div className="text-center mb-16 animate-fadeIn">
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
@@ -331,7 +331,7 @@ export const LandingPage = () => {
       </section>
 
       {/* Impact Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-[#B45309] via-[#92400E] to-[#7C2D12] relative overflow-hidden">
+      <section id="impact" className="py-20 bg-gradient-to-br from-[#B45309] via-[#92400E] to-[#7C2D12] relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">

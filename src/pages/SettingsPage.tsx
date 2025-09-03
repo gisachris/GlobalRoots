@@ -46,7 +46,7 @@ export const SettingsPage = () => {
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦' },
   ];
-  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-dark-900">
+  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-gray-700/60">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-[#503314] dark:text-white">{t('nav.settings')}</h1>

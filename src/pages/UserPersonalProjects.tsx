@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -17,46 +17,13 @@ import {
 export const UserPersonalProjects = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
+  const [projects, setProjects] = useState([]);
 
-  // Mock project data
-  const projects = [
-    {
-      id: 1,
-      title: "E-commerce Platform",
-      description: "A full-stack e-commerce platform built with React and Node.js, featuring payment integration and inventory management.",
-      status: "completed",
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-      startDate: "Jan 2024",
-      endDate: "Mar 2024",
-      githubUrl: "https://github.com/user/ecommerce",
-      liveUrl: "https://myecommerce.com",
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=200&fit=crop"
-    },
-    {
-      id: 2,
-      title: "Task Management App",
-      description: "A collaborative task management application with real-time updates and team collaboration features.",
-      status: "in-progress",
-      technologies: ["Vue.js", "Firebase", "Tailwind CSS"],
-      startDate: "Nov 2024",
-      endDate: null,
-      githubUrl: "https://github.com/user/taskapp",
-      liveUrl: null,
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Weather Dashboard",
-      description: "A responsive weather dashboard that displays current conditions and forecasts for multiple cities.",
-      status: "completed",
-      technologies: ["JavaScript", "API Integration", "Chart.js"],
-      startDate: "Sep 2024",
-      endDate: "Oct 2024",
-      githubUrl: "https://github.com/user/weather",
-      liveUrl: "https://myweather.app",
-      image: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=300&h=200&fit=crop"
-    }
-  ];
+  useEffect(() => {
+    // Load projects from localStorage
+    const savedProjects = JSON.parse(localStorage.getItem('personalProjects') || '[]');
+    setProjects(savedProjects);
+  }, []);
 
   const filteredProjects = projects.filter(project => {
     if (activeTab === 'all') return true;
@@ -65,10 +32,12 @@ export const UserPersonalProjects = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'Completed':
         return 'bg-green-100 text-green-800';
-      case 'in-progress':
+      case 'In Progress':
         return 'bg-blue-100 text-blue-800';
+      case 'Waiting for Response':
+        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -123,16 +92,22 @@ export const UserPersonalProjects = () => {
               All Projects ({projects.length})
             </button>
             <button 
-              onClick={() => setActiveTab('in-progress')}
-              className={`px-4 py-2 rounded-md ${activeTab === 'in-progress' ? 'bg-[#B45309] text-white' : 'bg-white text-[#503314] hover:bg-[#F5F5F0]'}`}
+              onClick={() => setActiveTab('Waiting for Response')}
+              className={`px-4 py-2 rounded-md ${activeTab === 'Waiting for Response' ? 'bg-[#B45309] text-white' : 'bg-white text-[#503314] hover:bg-[#F5F5F0]'}`}
             >
-              In Progress ({projects.filter(p => p.status === 'in-progress').length})
+              Waiting ({projects.filter(p => p.status === 'Waiting for Response').length})
             </button>
             <button 
-              onClick={() => setActiveTab('completed')}
-              className={`px-4 py-2 rounded-md ${activeTab === 'completed' ? 'bg-[#B45309] text-white' : 'bg-white text-[#503314] hover:bg-[#F5F5F0]'}`}
+              onClick={() => setActiveTab('In Progress')}
+              className={`px-4 py-2 rounded-md ${activeTab === 'In Progress' ? 'bg-[#B45309] text-white' : 'bg-white text-[#503314] hover:bg-[#F5F5F0]'}`}
             >
-              Completed ({projects.filter(p => p.status === 'completed').length})
+              In Progress ({projects.filter(p => p.status === 'In Progress').length})
+            </button>
+            <button 
+              onClick={() => setActiveTab('Completed')}
+              className={`px-4 py-2 rounded-md ${activeTab === 'Completed' ? 'bg-[#B45309] text-white' : 'bg-white text-[#503314] hover:bg-[#F5F5F0]'}`}
+            >
+              Completed ({projects.filter(p => p.status === 'Completed').length})
             </button>
           </div>
         </div>
@@ -154,7 +129,7 @@ export const UserPersonalProjects = () => {
                     {project.title}
                   </CardTitle>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                    {project.status === 'in-progress' ? 'In Progress' : 'Completed'}
+                    {project.status}
                   </span>
                 </div>
               </CardHeader>
@@ -165,7 +140,7 @@ export const UserPersonalProjects = () => {
                 
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-1">
-                    {project.technologies.map((tech, index) => (
+                    {(project.stack || project.technologies || []).map((tech, index) => (
                       <span 
                         key={index}
                         className="px-2 py-1 bg-[#B45309]/10 text-[#B45309] rounded text-xs"
@@ -178,17 +153,23 @@ export const UserPersonalProjects = () => {
 
                 <div className="flex items-center text-sm text-[#7C2D12] dark:text-gray-300 mb-4">
                   <Calendar className="h-4 w-4 mr-1" />
-                  <span>{project.startDate}</span>
-                  {project.endDate && (
+                  {project.appliedDate ? (
+                    <span>Applied: {new Date(project.appliedDate).toLocaleDateString()}</span>
+                  ) : (
                     <>
-                      <span className="mx-2">-</span>
-                      <span>{project.endDate}</span>
-                    </>
-                  )}
-                  {!project.endDate && (
-                    <>
-                      <Clock className="h-4 w-4 ml-2 mr-1" />
-                      <span>Ongoing</span>
+                      <span>{project.startDate}</span>
+                      {project.endDate && (
+                        <>
+                          <span className="mx-2">-</span>
+                          <span>{project.endDate}</span>
+                        </>
+                      )}
+                      {!project.endDate && (
+                        <>
+                          <Clock className="h-4 w-4 ml-2 mr-1" />
+                          <span>Ongoing</span>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

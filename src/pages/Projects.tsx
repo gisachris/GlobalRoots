@@ -1,9 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { SearchIcon, FilterIcon, FolderIcon, UserIcon, CodeIcon, CalendarIcon, GlobeIcon, ChevronRightIcon, CheckIcon, PlusIcon, TrendingUpIcon, StarIcon } from 'lucide-react';
+import { SearchIcon, FilterIcon, FolderIcon, UserIcon, CodeIcon, CalendarIcon, GlobeIcon, ChevronRightIcon, CheckIcon, PlusIcon, TrendingUpIcon, StarIcon, ChevronDownIcon, XIcon } from 'lucide-react';
+import { useAuth } from '../utils/auth';
+import { toast, ToastContainer } from 'react-toastify';
 export const Projects = () => {
   const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [stackFilter, setStackFilter] = useState('');
+  const [selectedProject, setSelectedProject] = useState(null);
+  const {user} = useAuth()
+  
+  const handleApply = (project) => {
+    // Get existing personal projects from localStorage
+    const existingProjects = JSON.parse(localStorage.getItem('personalProjects') || '[]');
+    
+    // Create new project entry with waiting status
+    const newProject = {
+      ...project,
+      id: Date.now(), // Generate new ID
+      appliedDate: new Date().toISOString(),
+      status: 'Waiting for Response',
+      originalStatus: project.status
+    };
+    
+    // Add to personal projects
+    const updatedProjects = [...existingProjects, newProject];
+    localStorage.setItem('personalProjects', JSON.stringify(updatedProjects));
+    
+    // Close modal and show success toast
+    setSelectedProject(null);
+    toast.success('Application submitted successfully!');
+  };
   
   useEffect(() => {
     const observerOptions = {
@@ -99,17 +129,32 @@ export const Projects = () => {
     imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
   }];
   const filteredProjects = projects.filter(project => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'featured') return project.featured;
-    if (activeTab === 'recruiting') return project.status === 'Recruiting';
-    if (activeTab === 'in-progress') return project.status === 'In Progress';
-    if (activeTab === 'completed') return project.status === 'Completed';
-    return true;
+    // Tab filter
+    let tabMatch = true;
+    if (activeTab === 'featured') tabMatch = project.featured;
+    else if (activeTab === 'recruiting') tabMatch = project.status === 'Recruiting';
+    else if (activeTab === 'in-progress') tabMatch = project.status === 'In Progress';
+    else if (activeTab === 'completed') tabMatch = project.status === 'Completed';
+    
+    // Search filter
+    const searchMatch = !searchTerm || 
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.stack.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Status filter
+    const statusMatch = !statusFilter || project.status === statusFilter;
+    
+    // Stack filter
+    const stackMatch = !stackFilter || project.stack.some(tech => tech.toLowerCase().includes(stackFilter.toLowerCase()));
+    
+    return tabMatch && searchMatch && statusMatch && stackMatch;
   });
   // Featured projects for the carousel
   const featuredProjects = projects.filter(project => project.featured);
-  return <div className="min-h-screen bg-[#F5F5F0] dark:bg-gray-900 scroll-smooth">
+  return <div className="min-h-screen relative bg-[#F5F5F0] dark:bg-gray-900 scroll-smooth">
       <div className="container mx-auto px-4 py-8">
+        <ToastContainer position='top-right'/>
         <div className="mb-8 text-center">
           <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-4">
             <FolderIcon className="h-4 w-4 text-[#B45309] mr-2" />
@@ -130,7 +175,7 @@ export const Projects = () => {
             <h2 className="text-3xl font-bold text-[#503314] dark:text-white">Featured Projects</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProjects.map(project => <Card key={project.id} className="project-card border-none shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 overflow-hidden relative">
+            {featuredProjects.map(project => <Card key={project.id} className="project-card border-none shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 overflow-hidden relative flex flex-col h-full">
                 <div className="h-40 overflow-hidden">
                   <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
                   <div className="absolute top-3 right-3 bg-gradient-to-r from-[#B45309] to-[#92400E] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
@@ -146,7 +191,7 @@ export const Projects = () => {
                   </div>
                   <CardDescription>{project.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm font-medium">Progress</span>
@@ -164,13 +209,14 @@ export const Projects = () => {
                       </span>)}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" className="flex items-center border-[#B45309] text-[#B45309] hover:bg-[#B45309] hover:text-white">
+                <CardFooter>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center border-[#B45309] text-[#B45309] hover:bg-[#B45309] hover:text-white w-full"
+                    onClick={() => setSelectedProject(project)}
+                  >
                     <ChevronRightIcon className="h-4 w-4 mr-1" />
                     Details
-                  </Button>
-                  <Button variant="primary" className="bg-[#B45309] hover:bg-[#92400E]">
-                    {project.status === 'Recruiting' ? 'Apply' : 'View Project'}
                   </Button>
                 </CardFooter>
               </Card>)}
@@ -181,26 +227,66 @@ export const Projects = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-grow">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-400" size={18} />
-              <input type="text" placeholder="Search projects..." className="input pl-10 w-full" />
+              <input 
+                type="text" 
+                placeholder="Search projects..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input pl-10 w-full" 
+              />
             </div>
-            <Button variant="outline" className="flex items-center">
+            <Button variant="outline" className="flex items-center" onClick={() => setFilterOpen(!filterOpen)}>
               <FilterIcon className="mr-2" size={18} />
-              Filter
+              Filters
+              <ChevronDownIcon className={`ml-2 transition-transform ${filterOpen ? 'rotate-180' : ''}`} size={18} />
             </Button>
-            <Button variant="primary" className="flex items-center">
+            {user?.role==='diaspora'&&<Button variant="primary" className="flex items-center">
               <PlusIcon className="mr-2" size={18} />
               Submit Project
-            </Button>
+            </Button>}
           </div>
+
+          {/* Filter panel */}
+          {filterOpen && (
+            <div className="mt-4 p-4 bg-white dark:bg-dark-800 rounded-lg border border-primary-200 dark:border-dark-600">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Status</label>
+                  <select className="input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <option value="">All Status</option>
+                    <option value="Recruiting">Recruiting</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Planning">Planning</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Technology</label>
+                  <select className="input" value={stackFilter} onChange={(e) => setStackFilter(e.target.value)}>
+                    <option value="">All Technologies</option>
+                    <option value="react">React</option>
+                    <option value="node">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="flutter">Flutter</option>
+                    <option value="vue">Vue.js</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Button variant="outline" className="mr-2" onClick={() => {
+                  setStatusFilter('');
+                  setStackFilter('');
+                }}>Reset</Button>
+                <Button variant="primary" onClick={() => setFilterOpen(false)}>Apply Filters</Button>
+              </div>
+            </div>
+          )}
         </div>
         {/* Tabs */}
         <div className="mb-6 overflow-x-auto">
           <div className="flex space-x-2 pb-2">
             <button className={`px-4 py-2 rounded-md whitespace-nowrap ${activeTab === 'all' ? 'bg-primary-600 text-white' : 'bg-white dark:bg-dark-800 text-dark-600 dark:text-primary-400'}`} onClick={() => setActiveTab('all')}>
               All Projects
-            </button>
-            <button className={`px-4 py-2 rounded-md whitespace-nowrap ${activeTab === 'featured' ? 'bg-primary-600 text-white' : 'bg-white dark:bg-dark-800 text-dark-600 dark:text-primary-400'}`} onClick={() => setActiveTab('featured')}>
-              Featured
             </button>
             <button className={`px-4 py-2 rounded-md whitespace-nowrap ${activeTab === 'recruiting' ? 'bg-primary-600 text-white' : 'bg-white dark:bg-dark-800 text-dark-600 dark:text-primary-400'}`} onClick={() => setActiveTab('recruiting')}>
               Recruiting
@@ -215,7 +301,7 @@ export const Projects = () => {
         </div>
         {/* Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map(project => <Card key={project.id} className="project-card border-none shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700">
+          {filteredProjects.map(project => <Card key={project.id} className="project-card border-none shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 flex flex-col h-full">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{project.title}</CardTitle>
@@ -225,7 +311,7 @@ export const Projects = () => {
                 </div>
                 <CardDescription>{project.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium">Progress</span>
@@ -252,117 +338,200 @@ export const Projects = () => {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" className="flex items-center">
+              <CardFooter>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center w-full"
+                  onClick={() => setSelectedProject(project)}
+                >
                   <ChevronRightIcon className="h-4 w-4 mr-1" />
                   Details
-                </Button>
-                <Button variant="primary">
-                  {project.status === 'Recruiting' ? 'Apply' : 'View Project'}
                 </Button>
               </CardFooter>
             </Card>)}
         </div>
-        {/* Project Contribution Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6 text-[#503314] dark:text-white">How to Contribute</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center mb-4">
-                    <UserIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">
-                    Apply as Developer
-                  </h3>
-                  <p className="text-dark-500 dark:text-dark-300 mb-4">
-                    Join a project team and contribute your coding skills to
-                    build impactful solutions.
-                  </p>
-                  <Button variant="outline">Browse Projects</Button>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center mb-4">
-                    <FolderIcon className="h-8 w-8 text-secondary-600 dark:text-secondary-400" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">
-                    Submit a Project
-                  </h3>
-                  <p className="text-dark-500 dark:text-dark-300 mb-4">
-                    Have an idea? Submit your project proposal and recruit
-                    talented team members.
-                  </p>
-                  <Button variant="primary">Submit Idea</Button>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-accent-blue/10 flex items-center justify-center mb-4">
-                    <GlobeIcon className="h-8 w-8 text-accent-blue" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">Mentor a Team</h3>
-                  <p className="text-dark-500 dark:text-dark-300 mb-4">
-                    Share your expertise by mentoring a project team and helping
-                    them succeed.
-                  </p>
-                  <Button variant="outline">Become a Mentor</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        {/* Success Stories */}
-        <div className="mt-12 bg-gradient-to-br from-[#B45309] to-[#92400E] rounded-xl p-8 text-white">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Success Stories</h2>
-            <p className="text-white/90">Projects that made a real impact in Rwanda</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex">
-              <div className="flex-shrink-0 mr-4">
-                <div className="w-20 h-20 rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="Project image" className="w-full h-full object-cover" />
-                </div>
+        
+        {user?.role==='diaspora'&&
+          (<>
+            {/* Project Contribution Section */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 text-[#503314] dark:text-white">How to Contribute</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center mb-4">
+                        <UserIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">
+                        Apply as Developer
+                      </h3>
+                      <p className="text-dark-500 dark:text-dark-300 mb-4">
+                        Join a project team and contribute your coding skills to
+                        build impactful solutions.
+                      </p>
+                      <Button variant="outline">Browse Projects</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 rounded-full bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center mb-4">
+                        <FolderIcon className="h-8 w-8 text-secondary-600 dark:text-secondary-400" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">
+                        Submit a Project
+                      </h3>
+                      <p className="text-dark-500 dark:text-dark-300 mb-4">
+                        Have an idea? Submit your project proposal and recruit
+                        talented team members.
+                      </p>
+                      <Button variant="primary">Submit Idea</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 rounded-full bg-accent-blue/10 flex items-center justify-center mb-4">
+                        <GlobeIcon className="h-8 w-8 text-accent-blue" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 text-[#503314] dark:text-white">Mentor a Team</h3>
+                      <p className="text-dark-500 dark:text-dark-300 mb-4">
+                        Share your expertise by mentoring a project team and helping
+                        them succeed.
+                      </p>
+                      <Button variant="outline">Become a Mentor</Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <div>
-                <h3 className="font-semibold mb-1">AgriTech Mobile App</h3>
-                <p className="text-dark-500 dark:text-dark-300 text-sm mb-2">
-                  A team of 6 developers built an app that now helps over 3,000
-                  farmers track crop prices and weather patterns.
-                </p>
-                <div className="flex items-center text-primary-600">
-                  <span className="text-sm font-medium">Read case study</span>
-                  <ChevronRightIcon className="h-4 w-4 ml-1" />
+            </div>
+            {/* Success Stories */}
+            <div className="mt-12 bg-gradient-to-br from-[#B45309] to-[#92400E] rounded-xl p-8 text-white">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-2">Success Stories</h2>
+                <p className="text-white/90">Projects that made a real impact in Rwanda</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex">
+                  <div className="flex-shrink-0 mr-4">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden">
+                      <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="Project image" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">AgriTech Mobile App</h3>
+                    <p className="text-dark-500 dark:text-dark-300 text-sm mb-2">
+                      A team of 6 developers built an app that now helps over 3,000
+                      farmers track crop prices and weather patterns.
+                    </p>
+                    <div className="flex items-center text-primary-600">
+                      <span className="text-sm font-medium">Read case study</span>
+                      <ChevronRightIcon className="h-4 w-4 ml-1" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="flex-shrink-0 mr-4">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden">
+                      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="Project image" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">EdTech Learning Platform</h3>
+                    <p className="text-dark-500 dark:text-dark-300 text-sm mb-2">
+                      Started as a project on Global Roots, now adopted by 50+
+                      schools across Rwanda, reaching 15,000 students.
+                    </p>
+                    <div className="flex items-center text-primary-600">
+                      <span className="text-sm font-medium">Read case study</span>
+                      <ChevronRightIcon className="h-4 w-4 ml-1" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex">
-              <div className="flex-shrink-0 mr-4">
-                <div className="w-20 h-20 rounded-lg overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="Project image" className="w-full h-full object-cover" />
+          </>)
+        }
+
+        {/* Project Details Modal */}
+        {selectedProject && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-2xl font-bold text-[#503314] dark:text-white">{selectedProject.title}</h2>
+                  <Button variant="outline" size="sm" onClick={() => setSelectedProject(null)}>
+                    <XIcon className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">EdTech Learning Platform</h3>
-                <p className="text-dark-500 dark:text-dark-300 text-sm mb-2">
-                  Started as a project on Global Roots, now adopted by 50+
-                  schools across Rwanda, reaching 15,000 students.
-                </p>
-                <div className="flex items-center text-primary-600">
-                  <span className="text-sm font-medium">Read case study</span>
-                  <ChevronRightIcon className="h-4 w-4 ml-1" />
+                
+                <div className="mb-6">
+                  <img src={selectedProject.imageUrl} alt={selectedProject.title} className="w-full h-48 object-cover rounded-lg mb-4" />
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{selectedProject.description}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h3 className="font-semibold mb-2">Project Details</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center">
+                          <UserIcon className="h-4 w-4 mr-2" />
+                          <span>Team: {selectedProject.team} members</span>
+                        </div>
+                        <div className="flex items-center">
+                          <CalendarIcon className="h-4 w-4 mr-2" />
+                          <span>Duration: {selectedProject.duration}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${selectedProject.status === 'In Progress' ? 'bg-accent-blue/10 text-accent-blue' : selectedProject.status === 'Recruiting' ? 'bg-accent-orange/10 text-accent-orange' : selectedProject.status === 'Completed' ? 'bg-secondary-100 text-secondary-700' : 'bg-primary-100 text-primary-800'}`}>
+                            {selectedProject.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-semibold mb-2">Technology Stack</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.stack.map((tech, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-[#B45309]/10 text-[#B45309] rounded-full text-xs font-medium">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold">Progress</span>
+                      <span>{selectedProject.progress}%</span>
+                    </div>
+                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full ${selectedProject.status === 'Completed' ? 'bg-green-500' : 'bg-[#B45309]'}`} 
+                        style={{ width: `${selectedProject.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-3">
+                  <Button variant="outline" onClick={() => setSelectedProject(null)}>Close</Button>
+                  <Button 
+                    variant="primary" 
+                    className="bg-[#B45309] hover:bg-[#92400E]"
+                    onClick={() => selectedProject.status === 'Recruiting' ? handleApply(selectedProject) : null}
+                  >
+                    {selectedProject.status === 'Recruiting' ? 'Apply' : 'View Project'}
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>;
 };

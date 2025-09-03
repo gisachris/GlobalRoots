@@ -29,6 +29,9 @@ import { YouthOpportunity } from './pages/YouthOpportunity';
 import { YouthLayout } from './components/layout/YouthLayout';
 import { LandingPage } from './pages/LandingPage';
 import { UserPersonalProjects } from './pages/UserPersonalProjects';
+import { Discussions } from './pages/Discussions';
+import { Calendar } from './pages/Calendar';
+import { Notifications } from './pages/Notifications';
 
 // Home Route Component
 const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}) => {
@@ -135,6 +138,21 @@ function AppRoutes() {
                 <UserPersonalProjects/>
               </SidebarLayout>
             } />
+            <Route path="/discussions" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Discussions/>
+              </SidebarLayout>
+            } />
+            <Route path='/calendar' element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Calendar/>
+              </SidebarLayout>
+            }/>
+            <Route path='/notifications' element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Notifications/>
+              </SidebarLayout>
+            }/>
             <Route path="/returnee" element={<ReturneeHub />} />
             <Route path="/impact" element={<ImpactDashboard />} />
             <Route path="/settings" element={
