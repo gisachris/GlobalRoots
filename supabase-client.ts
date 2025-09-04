@@ -1,6 +1,13 @@
 /// <reference types="vite/client" />
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(import.meta.env.VITE_PROJECT_URL, import.meta.env.VITE_PROJECT_API_KEY)
+const supabaseUrl = import.meta.env.VITE_PROJECT_URL
+const supabaseKey = import.meta.env.VITE_PROJECT_API_KEY
+
+if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase environment variables')
+}
+
+const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
 
 export default supabase

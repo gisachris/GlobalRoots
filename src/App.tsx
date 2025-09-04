@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
@@ -32,19 +33,21 @@ import { UserPersonalProjects } from './pages/UserPersonalProjects';
 import { Discussions } from './pages/Discussions';
 import { Calendar } from './pages/Calendar';
 import { Notifications } from './pages/Notifications';
+//supabase
+import supabase from '../supabase-client';
 
 // Home Route Component
-const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}) => {
-  return user?.role=='youth'?<>{children}</>:<LandingPage/>;
+const HomeRoute = ({ children, user }: { children: React.ReactNode; user: User | null }) => {
+  return user?.role == 'youth' ? <>{children}</> : <LandingPage />;
 };
 
 // SidebarLayout Route Component
-const SidebarLayout = ({children,isAuthenticated,user}:{ children: React.ReactNode; isAuthenticated: boolean,user?:User|null }) => {
-  
-  if (!isAuthenticated|| user?.role!=='youth') {
+const SidebarLayout = ({ children, isAuthenticated, user }: { children: React.ReactNode; isAuthenticated: boolean, user?: User | null }) => {
+
+  if (!isAuthenticated || user?.role !== 'youth') {
     return <Navigate to="/auth" replace />;
   }
-  
+
   return (
     <YouthLayout>
       <>{children}</>
@@ -57,134 +60,134 @@ const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNo
 };
 
 function AppRoutes() {
-  const { user,isAuthenticated } = useAuth();
-  
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <Layout>
       <Routes>
-            {/* Public routes */}
-            <Route path="/" element={
-              <HomeRoute user={user}>
-                <YouthLayout>
-                  <YouthDashboard/>
-                </YouthLayout>
-              </HomeRoute>
-            } />
-            <Route path="/auth" element={<AuthPage />} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Dashboard />
-              </SidebarLayout>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <ProfilePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/mentors" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <MentorsPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/learning" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <LearningPage />
-              </SidebarLayout>
-            } />
-            <Route path="/mentees" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <MenteesPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/content" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <ContentCreationPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/post-job" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <PostJobPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/candidates" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <CandidatesPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/mentorconnect" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <MentorConnect />
-              </ProtectedRoute>
-            } />
-            <Route path="/opportunities" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <YouthOpportunity/>
-              </SidebarLayout>
-            } />
-            <Route path="/community" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Community/>
-              </SidebarLayout>
-            } />
-            <Route path="/projects" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Projects/>
-              </SidebarLayout>
-            } />
-            <Route path="/userProjects" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <UserPersonalProjects/>
-              </SidebarLayout>
-            } />
-            <Route path="/discussions" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Discussions/>
-              </SidebarLayout>
-            } />
-            <Route path='/calendar' element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Calendar/>
-              </SidebarLayout>
-            }/>
-            <Route path='/notifications' element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Notifications/>
-              </SidebarLayout>
-            }/>
-            <Route path="/returnee" element={<ReturneeHub />} />
-            <Route path="/impact" element={<ImpactDashboard />} />
-            <Route path="/settings" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <SettingsPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* Admin routes */}
-            <Route path="/admin/users" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminUsersPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/content" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminContentPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/jobs" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminJobsPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/analytics" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <AdminAnalyticsPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* 404 page */}
-            <Route path="*" element={<NotFoundPage />} />
+        {/* Public routes */}
+        <Route path="/" element={
+          <HomeRoute user={user}>
+            <YouthLayout>
+              <YouthDashboard />
+            </YouthLayout>
+          </HomeRoute>
+        } />
+        <Route path="/auth" element={<AuthPage />} />
+
+        {/* Protected routes */}
+        <Route path="/dashboard" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Dashboard />
+          </SidebarLayout>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/mentors" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <MentorsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/learning" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <LearningPage />
+          </SidebarLayout>
+        } />
+        <Route path="/mentees" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <MenteesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/content" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ContentCreationPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/post-job" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <PostJobPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/candidates" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <CandidatesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/mentorconnect" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <MentorConnect />
+          </ProtectedRoute>
+        } />
+        <Route path="/opportunities" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <YouthOpportunity />
+          </SidebarLayout>
+        } />
+        <Route path="/community" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Community />
+          </SidebarLayout>
+        } />
+        <Route path="/projects" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Projects />
+          </SidebarLayout>
+        } />
+        <Route path="/userProjects" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <UserPersonalProjects />
+          </SidebarLayout>
+        } />
+        <Route path="/discussions" element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Discussions />
+          </SidebarLayout>
+        } />
+        <Route path='/calendar' element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Calendar />
+          </SidebarLayout>
+        } />
+        <Route path='/notifications' element={
+          <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+            <Notifications />
+          </SidebarLayout>
+        } />
+        <Route path="/returnee" element={<ReturneeHub />} />
+        <Route path="/impact" element={<ImpactDashboard />} />
+        <Route path="/settings" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <SettingsPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin routes */}
+        <Route path="/admin/users" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <AdminUsersPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/content" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <AdminContentPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/jobs" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <AdminJobsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <AdminAnalyticsPage />
+          </ProtectedRoute>
+        } />
+
+        {/* 404 page */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   );
