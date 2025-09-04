@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { SearchIcon, FilterIcon, BookOpenIcon, PlayIcon, FileTextIcon, ClockIcon, StarIcon, DownloadIcon, CheckIcon, ChevronDownIcon, TagIcon, UserIcon, ListIcon } from 'lucide-react';
+import { SearchIcon, FilterIcon, BookOpenIcon, PlayIcon, FileTextIcon, ClockIcon, StarIcon, DownloadIcon, ChevronDownIcon, ListIcon } from 'lucide-react';
 export const LearningPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -86,7 +86,7 @@ export const LearningPage = () => {
     return resource.type === activeTab;
   });
   // Get resource type icon
-  const getResourceIcon = type => {
+  const getResourceIcon = (type:string) => {
     switch (type) {
       case 'course':
         return <ListIcon className="h-5 w-5 text-[#B45309]" />;
@@ -98,10 +98,10 @@ export const LearningPage = () => {
         return <BookOpenIcon className="h-5 w-5 text-[#B45309]" />;
     }
   };
-  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-dark-900">
+  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-[#503314]">
+          <h1 className="text-3xl font-bold mb-2 text-[#503314] dark:text-gray-50">
             Learning Resources
           </h1>
           <p className="text-[#7C2D12] dark:text-primary-300">
@@ -191,9 +191,9 @@ export const LearningPage = () => {
         </div>
         {/* Resources Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredResources.map(resource => <Card key={resource.id} className="hover:shadow-lg transition-shadow overflow-hidden">
-              <div className="relative h-40">
-                <img src={resource.imageUrl} alt={resource.title} className="w-full h-full object-cover" />
+          {filteredResources.map(resource => <Card key={resource.id} className="hover:shadow-lg group transition-shadow overflow-hidden">
+              <div className="relative h-40 overflow-hidden">
+                <img src={resource.imageUrl} alt={resource.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500 ea " />
                 <div className="absolute top-2 right-2 px-2 py-1 bg-white dark:bg-dark-800 rounded-full text-xs font-medium text-[#503314] dark:text-primary-300 flex items-center">
                   {getResourceIcon(resource.type)}
                   <span className="ml-1 capitalize">{resource.type}</span>
@@ -223,12 +223,12 @@ export const LearningPage = () => {
                   <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
                     <img src={resource.authorImage} alt={resource.author} className="w-full h-full object-cover" />
                   </div>
-                  <span className="text-sm text-[#7C2D12] dark:text-primary-400">
+                  <span className="text-sm text-[#7C2D12] dark:text-primary-300">
                     {resource.author}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {resource.tags.map((tag, idx) => <span key={idx} className="px-2 py-1 bg-[#B45309]/10 rounded-full text-xs text-[#B45309]">
+                  {resource.tags.map((tag, idx) => <span key={idx} className="px-2 py-1 bg-[#B45309]/10 rounded-full text-xs text-[#B45309] dark:text-primary-100">
                       {tag}
                     </span>)}
                 </div>
@@ -238,7 +238,7 @@ export const LearningPage = () => {
                     <span>{resource.duration}</span>
                   </div>
                   <div>
-                    <span className="px-2 py-1 bg-[#F5F5F0] dark:bg-dark-700 rounded text-xs">
+                    <span className="px-2 py-1 bg-[#F5F5F0] dark:text-primary-300 dark:bg-dark-700 rounded text-xs">
                       {resource.level}
                     </span>
                   </div>

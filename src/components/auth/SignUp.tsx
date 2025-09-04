@@ -1,20 +1,38 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
+import { useAuth } from '../../utils/auth';
 import { UserIcon, AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
-export const SignUp = ({
-  onSignIn
-}) => {
+export const SignUp = ({onSignIn}) => {
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
   const { t } = useLanguage();
-  const handleSubmit = e => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    // In a real app, this would call an API to create the user
-    console.log('Sign up with:', name, email, password, role);
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        login(data.token, data.user);
+        navigate('/dashboard');
+      } else {
+        console.error('Sign up failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+    }
   };
   return <Card className="w-full max-w-md">
       <CardHeader>
@@ -54,21 +72,8 @@ export const SignUp = ({
                 Must be at least 8 characters long
               </p>
             </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium mb-1">
-                I am a...
-              </label>
-              <select id="role" value={role} onChange={e => setRole(e.target.value)} className="input w-full" required>
-                <option value="" disabled>
-                  Select your role
-                </option>
-                <option value="youth">Youth in Rwanda</option>
-                <option value="diaspora">Diaspora Professional</option>
-                <option value="employer">Employer</option>
-              </select>
-            </div>
             <div className="flex items-center">
-              <input id="terms" type="checkbox" className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500" required />
+              <input id="terms" type="checkbox" className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500 accent-orange-800" required />
               <label htmlFor="terms" className="ml-2 block text-sm text-dark-600 dark:text-primary-300">
                 I agree to the{' '}
                 <a href="#" className="text-primary-600 hover:text-primary-700">
@@ -91,7 +96,7 @@ export const SignUp = ({
               <span className="w-full border-t border-primary-200 dark:border-dark-600" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white dark:bg-dark-800 text-dark-500 dark:text-dark-300">
+              <span className="px-2 bg-white dark:bg-gray-800 text-dark-500 dark:text-dark-300">
                 Or continue with
               </span>
             </div>

@@ -22,7 +22,7 @@ export const Button = ({
   const variantClasses = {
     primary: 'bg-[#B45309] text-white hover:bg-[#92400E] shadow-sm hover:shadow',
     secondary: 'bg-[#7C2D12] text-white hover:bg-[#503314] shadow-sm hover:shadow',
-    outline: 'border border-[#B45309] bg-transparent hover:bg-[#B45309]/10 dark:hover:bg-[#B45309]/20 text-[#B45309] hover:border-[#92400E]',
+    outline: 'border border-[#B45309] bg-transparent hover:bg-[#B45309]/10 dark:hover:bg-[#B45309]/20 text-[#B45309] dark:text-primary-500 hover:border-[#92400E]',
     ghost: 'bg-transparent hover:bg-[#F5F5F0] dark:hover:bg-gray-700 text-[#503314] dark:text-gray-300'
   };
   const sizeClasses = {

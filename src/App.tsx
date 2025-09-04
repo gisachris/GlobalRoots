@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
-import { Opportunities } from './pages/Opportunities';
 import { Community } from './pages/Community';
 import { Projects } from './pages/Projects';
 import { ReturneeHub } from './pages/ReturneeHub';
@@ -11,6 +9,7 @@ import { ImpactDashboard } from './pages/ImpactDashboard';
 import { MentorConnect } from './pages/MentorConnect';
 import { ThemeProvider } from './utils/theme';
 import { LanguageProvider } from './utils/language';
+import { useAuth, User } from './utils/auth';
 import { ProfilePage } from './pages/ProfilePage';
 import { MentorsPage } from './pages/MentorsPage';
 import { LearningPage } from './pages/LearningPage';
@@ -25,28 +24,59 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuthPage } from './pages/AuthPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { YouthDashboard } from './pages/YouthDashboard';
+import { YouthOpportunity } from './pages/YouthOpportunity';
+import { YouthLayout } from './components/layout/YouthLayout';
+import { LandingPage } from './pages/LandingPage';
+import { UserPersonalProjects } from './pages/UserPersonalProjects';
+import { Discussions } from './pages/Discussions';
+import { Calendar } from './pages/Calendar';
+import { Notifications } from './pages/Notifications';
+
+// Home Route Component
+const HomeRoute = ({children, user} : {children:React.ReactNode; user:User|null}) => {
+  return user?.role=='youth'?<>{children}</>:<LandingPage/>;
+};
+
+// SidebarLayout Route Component
+const SidebarLayout = ({children,isAuthenticated,user}:{ children: React.ReactNode; isAuthenticated: boolean,user?:User|null }) => {
+  
+  if (!isAuthenticated|| user?.role!=='youth') {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return (
+    <YouthLayout>
+      <>{children}</>
+    </YouthLayout>
+  );
+};
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNode; isAuthenticated: boolean }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
 };
 
-export function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes, set to true
+function AppRoutes() {
+  const { user,isAuthenticated } = useAuth();
   
-  return <LanguageProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
+  return (
+    <Layout>
+      <Routes>
             {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={
+              <HomeRoute user={user}>
+                <YouthLayout>
+                  <YouthDashboard/>
+                </YouthLayout>
+              </HomeRoute>
+            } />
             <Route path="/auth" element={<AuthPage />} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                 <Dashboard />
-              </ProtectedRoute>
+              </SidebarLayout>
             } />
             <Route path="/profile" element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -59,9 +89,9 @@ export function App() {
               </ProtectedRoute>
             } />
             <Route path="/learning" element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                 <LearningPage />
-              </ProtectedRoute>
+              </SidebarLayout>
             } />
             <Route path="/mentees" element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -88,9 +118,41 @@ export function App() {
                 <MentorConnect />
               </ProtectedRoute>
             } />
-            <Route path="/opportunities" element={<Opportunities />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/projects" element={<Projects />} />
+            <Route path="/opportunities" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <YouthOpportunity/>
+              </SidebarLayout>
+            } />
+            <Route path="/community" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Community/>
+              </SidebarLayout>
+            } />
+            <Route path="/projects" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Projects/>
+              </SidebarLayout>
+            } />
+            <Route path="/userProjects" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <UserPersonalProjects/>
+              </SidebarLayout>
+            } />
+            <Route path="/discussions" element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Discussions/>
+              </SidebarLayout>
+            } />
+            <Route path='/calendar' element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Calendar/>
+              </SidebarLayout>
+            }/>
+            <Route path='/notifications' element={
+              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                <Notifications/>
+              </SidebarLayout>
+            }/>
             <Route path="/returnee" element={<ReturneeHub />} />
             <Route path="/impact" element={<ImpactDashboard />} />
             <Route path="/settings" element={
@@ -123,9 +185,19 @@ export function App() {
             
             {/* 404 page */}
             <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Layout>
+      </Routes>
+    </Layout>
+  );
+}
+
+export function App() {
+  return (
+    <LanguageProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AppRoutes />
         </BrowserRouter>
       </ThemeProvider>
-    </LanguageProvider>;
+    </LanguageProvider>
+  );
 }
