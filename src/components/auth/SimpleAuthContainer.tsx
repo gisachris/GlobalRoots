@@ -9,20 +9,21 @@ export const SimpleAuthContainer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center py-8 px-4">
-      <div className="w-full max-w-5xl">
-        <div className="relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center py-4 px-4">
+      <div className="w-full max-w-6xl">
+        {/* Desktop Layout */}
+        <div className="hidden lg:block relative overflow-hidden">
           {/* Hero Content Panel */}
           <div
-            className={`absolute inset-y-0 w-max transition-all duration-1000 ease-in-out transform ${
+            className={`absolute inset-y-0 w-1/2 transition-all duration-1000 ease-in-out transform ${
               isSignUp ? "translate-x-0" : "translate-x-full"
             }`}
           >
             <div className="h-full flex flex-col justify-center text-center p-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-all duration-700">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-all duration-700">
                 Your Digital Roots Start Here.
               </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 transition-all duration-700 delay-100">
+              <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 mb-6 transition-all duration-700 delay-100">
                 Connect. Grow. Strengthen Rwanda's tech ecosystem.
               </p>
 
@@ -31,7 +32,7 @@ export const SimpleAuthContainer: React.FC = () => {
                   <img
                     src="/hero.png"
                     alt="Global Roots Platform"
-                    className="max-w-md w-full object-contain transform transition-all duration-500 group-hover:scale-105 group-hover:rotate-1"
+                    className="max-w-xs w-full object-contain transform transition-all duration-500 group-hover:scale-105 group-hover:rotate-1"
                   />
                 </div>
               </div>
@@ -51,6 +52,13 @@ export const SimpleAuthContainer: React.FC = () => {
 
           {/* Spacer to maintain height */}
           <div className="h-[600px]"></div>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="lg:hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+            <AuthForm isSignUp={isSignUp} onToggleMode={handleToggle} />
+          </div>
         </div>
       </div>
     </div>

@@ -67,25 +67,28 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col justify-center p-4">
+    <div className="h-full flex flex-col justify-center p-2 sm:p-4">
       <div className="w-full max-w-sm mx-auto">
         {/* Logo */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mb-4">
           <Logo isFooter={false} />
         </div>
 
-        <div className="text-center mb-2">
-          <p className="text-md text-black dark:text-gray-300 transition-all duration-500">
+        <div className="text-center mb-4">
+          <h1 className="text-xl font-bold text-[#503314] dark:text-white mb-1">
+            {isSignUp ? 'Join Global Roots' : 'Welcome Back'}
+          </h1>
+          <p className="text-sm text-[#7C2D12] dark:text-gray-300">
             {isSignUp
               ? "Create your account to get started"
               : "Sign in to your account"}
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 sm:space-y-4">
           {isSignUp && (
             <div>
-              <label className="block text-md font-semibold text-[#503314] dark:text-gray-300 mb-1">
+              <label className="block text-sm font-semibold text-[#503314] dark:text-gray-300 mb-1">
                 Full Name
               </label>
               <div className="relative">
@@ -97,7 +100,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
+                  className="w-full pl-8 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -105,7 +108,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           )}
 
           <div>
-            <label className="block text-md font-semibold text-[#503314] dark:text-gray-300 mb-1">
+            <label className="block text-sm font-semibold text-[#503314] dark:text-gray-300 mb-1">
               Email
             </label>
             <div className="relative">
@@ -117,14 +120,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
+                className="w-full pl-8 pr-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-md font-semibold text-[#503314] dark:text-gray-300 mb-1">
+            <label className="block text-sm font-semibold text-[#503314] dark:text-gray-300 mb-1">
               Password
             </label>
             <div className="relative">
@@ -136,7 +139,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full pl-8 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
+                className="w-full pl-8 pr-10 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
                 placeholder="Enter your password"
               />
               <button
@@ -151,14 +154,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
           {isSignUp && (
             <div>
-              <label className="block text-md font-semibold text-[#503314] dark:text-gray-300 mb-1">
+              <label className="block text-sm font-semibold text-[#503314] dark:text-gray-300 mb-1">
                 I am a
               </label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
+                className="w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white"
               >
                 <option value="">Select your role</option>
                 <option value="mentee">Mentee - Looking for guidance</option>
@@ -180,7 +183,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
               />
               <label
                 htmlFor="terms"
-                className="ml-2 text-xs text-black dark:text-gray-400"
+                className="ml-2 text-xs text-[#7C2D12] dark:text-gray-400"
               >
                 I agree to the{" "}
                 <a href="#" className="text-[#B45309] hover:text-[#92400E]">
@@ -196,7 +199,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-[#B45309] hover:bg-[#92400E] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
+            className="w-full bg-[#B45309] hover:bg-[#92400E] text-white font-semibold py-3 sm:py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
           >
             {isSignUp ? "Create Account" : "Sign In"}
           </button>
@@ -212,11 +215,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={handleGoogleSignup}
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-[#503314] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 text-sm"
+              className="flex items-center justify-center px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-[#503314] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 text-sm"
             >
               <SiGoogle className="mr-2" />
               Google
@@ -224,7 +227,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             <button
               type="button"
               onClick={() => toast.info("LinkedIn Sign-in coming soon!")}
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-[#503314] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 text-sm"
+              className="flex items-center justify-center px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-[#503314] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 text-sm"
             >
               <Linkedin size={16} className="mr-2" />
               LinkedIn
@@ -233,7 +236,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
           {/* Toggle Link */}
           <div className="text-center mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-            <span className="text-sm text-black dark:text-gray-400">
+            <span className="text-sm text-[#7C2D12] dark:text-gray-400">
               {isSignUp ? "Already have an account?" : "Don't have an account?"}
             </span>
             <button
