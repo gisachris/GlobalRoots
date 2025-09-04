@@ -1,20 +1,46 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useLanguage } from '../../utils/language';
+import { useAuth } from '../../utils/auth';
 import { AtSignIcon, KeyIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
-export const SignIn = ({
-  onSignUp
-}) => {
+import { toast, ToastContainer } from 'react-toastify';
+export const SignIn = ({onSignUp}) => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = useLanguage();
-  const handleSubmit = e => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would call an authentication API
-    console.log('Sign in with:', email, password);
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast.success('Login Successfully')
+        login(data.token, data.user);
+        navigate('/',{replace:true});
+      } else {
+        toast.error('Login Failed')
+        console.error('Sign in failed:', data.error);
+      }
+    } catch (error) {
+      toast.error('Login Failed')
+      console.error('Sign in error:', error);
+    }
   };
-  return <Card className="w-full max-w-md">
+  return (<>
+    <div className='absolute top-0'>
+      <ToastContainer position='top-right'/>
+    </div>
+  <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>{t('auth.signIn')}</CardTitle>
         <CardDescription>Access your Global Roots account</CardDescription>
@@ -56,7 +82,7 @@ export const SignIn = ({
               <span className="w-full border-t border-primary-200 dark:border-dark-600" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white dark:bg-dark-800 text-dark-500 dark:text-dark-300">
+              <span className="px-2 bg-white dark:bg-gray-800 text-dark-500 dark:text-dark-300">
                 Or continue with
               </span>
             </div>
@@ -81,5 +107,6 @@ export const SignIn = ({
           </button>
         </div>
       </CardFooter>
-    </Card>;
+    </Card>
+  </>)
 };

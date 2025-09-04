@@ -1,27 +1,16 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { scrollToSection } from "../utils/smoothScroll";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../components/ui/Card";
-import {
-  UsersIcon,
-  BriefcaseIcon,
-  GraduationCapIcon,
-  HomeIcon,
-  ChevronRightIcon,
-  ArrowRightIcon,
-  StarIcon,
-  TrendingUpIcon,
-  GlobeIcon,
-  CheckCircleIcon,
-} from "lucide-react";
+import {RwandaMap} from "../components/ui/RwandaMap";
+import { useAuth } from "../utils/auth";
+import {Card,CardContent,CardHeader,CardTitle} from "../components/ui/Card";
+import {UsersIcon,BriefcaseIcon,ArrowRightIcon,StarIcon,TrendingUpIcon,GlobeIcon,CheckCircleIcon,UserPlusIcon,SearchIcon,HandshakeIcon} from "lucide-react";
+
 export const LandingPage = () => {
+
+  const navigate = useNavigate()
+  const {isAuthenticated} = useAuth()
+
   // Add page transition effect and smooth scrolling
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -46,34 +35,37 @@ export const LandingPage = () => {
     
     return () => observer.disconnect();
   }, []);
+
   return (
     <div className="flex flex-col w-full scroll-smooth">
+
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
+      <section id="hero" className="relative min-h-[90vh] flex items-center bg-[#F5F5F0] dark:bg-gray-900">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1506260408121-e353d10b87c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80"
             alt="Rwanda landscape"
-            className="w-full h-full object-cover opacity-20 dark:opacity-10"
+            className="w-full h-full object-cover opacity-60 dark:opacity-10"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F5F5F0]/80 to-[#F5F5F0]/60 dark:from-gray-900/80 dark:to-gray-900/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F5F5F0]/80 to-[#F5F5F0]/60 dark:from-gray-900/40 dark:to-gray-900/20"></div>
         </div>
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="container mx-auto px-8 py-16 md:py-24 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <div className="stagger-container animate-fadeIn">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
-                Unlocking Diaspora Potential for{" "}
-                <span className="text-[#B45309] dark:text-[#B45309]">Rwanda's Tech Future</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[60px] font-bold mb-6 text-[#503314] dark:text-white animate-slideIn">
+                Mentorship Without Borders.
+                <span className="text-[#B45309] dark:text-[#B45309]"> Opportunity <br/>Without Limits.</span>
               </h1>
               <p className="text-lg md:text-xl mb-8 text-[#7C2D12] dark:text-gray-300 max-w-lg animate-slideIn" style={{animationDelay: '0.2s'}}>
                 Connect with Diaspora IT professionals for mentorship,
                 skills-building, and career opportunities that transform lives
                 and build Rwanda's digital economy.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 animate-slideIn" style={{animationDelay: '0.4s'}}>
+              {!isAuthenticated && <div className="flex flex-col sm:flex-row gap-4 animate-slideIn" style={{animationDelay: '0.4s'}}>
                 <Button
                   variant="primary"
                   size="lg"
+                  onClick={()=>navigate('/auth')}
                   className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Youth <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -81,19 +73,20 @@ export const LandingPage = () => {
                 <Button
                   variant="outline"
                   size="lg"
+                  onClick={()=>navigate('/auth')}
                   className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Diaspora <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
+              </div>}
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden px-4 lg:block">
               <div className="relative animate-fadeIn" style={{animationDelay: '0.6s'}}>
-                <div className="relative">
+                <div className="relative group">
                   <img
                     src="/hero.png"
                     alt="Global Roots Platform"
-                    className="max-w-2xl w-full object-contain transform transition-all duration-700 hover:scale-105"
+                    className="max-w-4xl lg:scale-x-110 lg:scale-y-125 overflow-hidden xl:max-w-5xl w-full object-contain transform transition-all duration-700"
                   />
                 </div>
               </div>
@@ -102,9 +95,53 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section
-        id="how-it-works"
+      {/* About Us Section */}
+      <section id="aboutUs" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative min-h-screen overflow-hidden">
+        <RwandaMap className="opacity-15 w-screen h-[60vh] md:h-[70vh] lg:h-[90vh]  absolute group-hover:scale-105 z-40"/>
+        <div className="container mx-auto px-4 relative z-50">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <UsersIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Who We Are
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              About Us
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              Global Roots is a transformative platform connecting Rwanda's emerging tech talent with diaspora professionals worldwide. We believe in the power of mentorship, collaboration, and shared knowledge to build a thriving digital economy in Rwanda.
+            </p>
+          </div>
+          <div className="grid gap-12 justify-center items-center max-w-6xl mx-auto">
+            <div className="relative w-full hover:scale-105 duration-300 transition-all">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl py-8 px-24 shadow-xl">
+                <div className="grid grid-cols-2 gap-20">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">500+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Active Mentors</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">1,200+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Youth Connected</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">25+</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Countries</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-[#B45309] mb-2">85%</div>
+                    <div className="text-[#7C2D12] dark:text-gray-300 text-sm">Success Rate</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Section */}
+      <section id="services"
         className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F5F5F0]/30 to-white dark:from-gray-800 dark:via-gray-700/30 dark:to-gray-800"></div>
@@ -113,139 +150,188 @@ export const LandingPage = () => {
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
               <TrendingUpIcon className="h-4 w-4 text-[#B45309] mr-2" />
               <span className="text-sm font-medium text-[#7C2D12]">
-                Our Process
+                Our Services
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
               How Global Roots Works
             </h2>
             <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Our platform creates meaningful connections between Rwanda's tech
-              talent and global opportunities through a proven four-step process
+              Our platform creates meaningful connections between Rwanda's tech talent and global opportunities through three key programs
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 stagger-container">
-            {/* Mentorship Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <UsersIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Mentorship
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Connect with experienced IT professionals
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Get personalized guidance from industry experts who understand
-                  your journey and can help navigate your career path.
-                </p>
-                <Link
-                  to="/opportunities"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Find a mentor
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Mentorship Program Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <UsersIcon className="h-10 w-10 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Mentorship Program
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Connect with experienced diaspora professionals for personalized career guidance and skill development.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            {/* Micro-internships Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <BriefcaseIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Micro-internships
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Gain practical experience remotely
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Work on short-term, paid projects with global companies to
-                  build your portfolio and develop real-world skills.
-                </p>
-                <Link
-                  to="/opportunities"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Explore opportunities
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            {/* Innovation Labs Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <BriefcaseIcon className="h-10 w-10 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Innovation Labs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Collaborative spaces where youth work on real-world projects with diaspora professionals providing guidance and funding.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            {/* Returnships Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <HomeIcon className="h-8 w-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Returnships
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Come back home with confidence
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Transition back to Rwanda with our support network, housing
-                  assistance, and employment connections.
-                </p>
-                <Link
-                  to="/returnee"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Plan your return
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+            {/* Remote Internship Hub Card */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <GlobeIcon className="h-10 w-10 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-[#B45309] mb-4">
+                    Remote Internship Hub
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#503314] dark:text-gray-300 leading-relaxed text-base">
+                    Virtual internships with diaspora-led companies offering real work experience without geographical barriers.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            {/* Community Card */}
-            <Card className="group border-none shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B45309] to-[#92400E] flex items-center justify-center mb-6 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
-                  <GraduationCapIcon className="h-8 w-8 text-white" />
+      {/* How It Works Section */}
+      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <CheckCircleIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Simple Process
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              How It Works
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Get started on your journey to connect with global opportunities in just four simple steps
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {/* Step 1: Create Profile */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  1
                 </div>
-                <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
-                  Community
-                </CardTitle>
-                <CardDescription className="text-[#7C2D12] dark:text-gray-300 font-medium">
-                  Join a supportive network
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-[#503314] dark:text-gray-300 leading-relaxed mb-6">
-                  Engage with peers, mentors, and industry leaders in our
-                  vibrant community focused on growth and collaboration.
-                </p>
-                <Link
-                  to="/community"
-                  className="inline-flex items-center text-[#B45309] hover:text-[#92400E] font-semibold group/link"
-                >
-                  Join a circle
-                  <ChevronRightIcon className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />
-                </Link>
-              </CardContent>
-            </Card>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <UserPlusIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Create Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Sign up and build your professional profile with your skills, interests, and career goals.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Step 2: Get Matched */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <SearchIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Get Matched
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Our algorithm connects you with mentors and opportunities that align with your goals.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Step 3: Start Collaborating */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  3
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <HandshakeIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Start Collaborating
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Begin working with mentors, join projects, and participate in our community programs.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Step 4: Grow Your Career */}
+            <Link to="/auth" className="h-full">
+              <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
+                <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  4
+                </div>
+                <CardHeader className="text-center pt-8 pb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUpIcon className="h-8 w-8 text-[#B45309]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[#503314] dark:text-white mb-2">
+                    Grow Your Career
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center px-6 pb-8 flex-1">
+                  <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-sm">
+                    Advance your skills, build your network, and unlock new career opportunities globally.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Impact Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-[#B45309] via-[#92400E] to-[#7C2D12] relative overflow-hidden">
+      <section id="impact" className="py-20 bg-gradient-to-br from-[#B45309] via-[#92400E] to-[#7C2D12] relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
@@ -257,13 +343,13 @@ export const LandingPage = () => {
               meaningful connections
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid max-sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 justify-center gap-8">
             <div className="text-center group">
               <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <GlobeIcon className="h-10 w-10 text-white" />
               </div>
               <div className="text-4xl font-bold text-white mb-2">25+</div>
-              <div className="text-white/80 font-medium">
+              <div className="text-white/80 text-wrap font-medium">
                 Countries Connected
               </div>
             </div>
@@ -292,8 +378,71 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* Our Mission and Goals Section */}
+      <section className="py-20 bg-white dark:bg-gray-800 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16 animate-fadeIn">
+            <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
+              <StarIcon className="h-4 w-4 text-[#B45309] mr-2" />
+              <span className="text-sm font-medium text-[#7C2D12]">
+                Our Purpose
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#503314] dark:text-white">
+              Our Mission and Goals
+            </h2>
+            <p className="text-xl text-[#7C2D12] dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Empowering Rwanda's tech ecosystem through meaningful diaspora connections and sustainable career development
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Mission */}
+            <div className="text-center lg:text-left">
+              <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto lg:mx-0 mb-6">
+                <GlobeIcon className="h-8 w-8 text-[#B45309]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#503314] dark:text-white mb-4">
+                Our Mission
+              </h3>
+              <p className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-lg">
+                To bridge the gap between Rwanda's emerging tech talent and global opportunities by creating a sustainable ecosystem where diaspora professionals mentor, guide, and collaborate with local youth to build Rwanda's digital future.
+                Reaching on an international standard.
+              </p>
+            </div>
+            
+            {/* Goals */}
+            <div className="text-center lg:text-left">
+              <div className="w-16 h-16 rounded-full bg-[#B45309]/10 flex items-center justify-center mx-auto lg:mx-0 mb-6">
+                <TrendingUpIcon className="h-8 w-8 text-[#B45309]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#503314] dark:text-white mb-4">
+                Our Goals
+              </h3>
+              <ul className="text-[#7C2D12] dark:text-gray-300 leading-relaxed text-lg space-y-3">
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Connect 10,000+ Rwandan youth with global mentors by 2025
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Create 5,000+ remote work opportunities for local talent
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Facilitate 1,000+ diaspora returnees to contribute to Rwanda's tech sector
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="h-5 w-5 text-[#B45309] mr-3 mt-1 flex-shrink-0" />
+                  Build a self-sustaining innovation ecosystem
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Partners Section */}
-      <section className="py-20 bg-[#F5F5F0] dark:bg-gray-800 relative">
+      <section id="partners" className="py-20 bg-[#F5F5F0] dark:bg-gray-900 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-4 py-2 bg-[#B45309]/10 rounded-full border border-[#B45309]/20 mb-6">
@@ -310,12 +459,12 @@ export const LandingPage = () => {
               Rwanda's tech talent
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className=" flex flex-wrap justify-center gap-8 items-center justify-items-center">
+            {['Konmesky', 'Google', 'MINICT', 'Microsoft', 'SolvIt Africa', 'TheGym', 'RTB', 'OneCode', 'Harvard', 'GIZ', 'OpenAi'].map((i) => (
               <div key={i} className="group transition-all duration-500">
-                <div className="h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
-                  <span className="text-[#B45309] dark:text-[#B45309] font-bold text-lg group-hover:text-[#92400E]">
-                    Partner {i}
+                <div className=" cursor-pointer h-20 w-32 bg-white dark:bg-gray-700 shadow-lg rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl border border-[#B45309]/10 group-hover:border-[#B45309]/30">
+                  <span className="text-[#B45309] dark:text-[#B45309] font-bold text-lg dark:group-hover:text-[#f18644] group-hover:text-[#a1360f]">
+                    {i}
                   </span>
                 </div>
               </div>
@@ -453,7 +602,7 @@ export const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-[#503314] dark:from-[#503314]/70 via-[#7C2D12] dark:via-[#7C2D12]/70 to-[#B45309] dark:to-[#B45309]/70 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float"></div>
           <div
@@ -478,27 +627,21 @@ export const LandingPage = () => {
               diaspora looking to give back, Global Roots is your platform for
               meaningful connections.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            {!isAuthenticated&&<div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-white text-[#503314] hover:bg-white/90 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
+                onClick={()=>navigate('/auth')}
+                className="bg-[#452809] text-white hover:bg-[#503314]/40 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
               >
-                Create Your Profile
+                Get Stated
                 <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#503314] font-bold text-lg px-8 py-4 rounded-xl transition-all duration-300 hover:translate-y-[-3px] group"
-              >
-                Learn More
-                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+            </div>}
           </div>
         </div>
       </section>
+
     </div>
   );
 };

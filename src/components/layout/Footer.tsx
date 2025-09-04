@@ -1,21 +1,22 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
+import {HashLink} from 'react-router-hash-link'
 import { FacebookIcon, TwitterIcon, LinkedinIcon, InstagramIcon, ChevronDownIcon } from 'lucide-react';
+
 export const Footer = () => {
-  return <footer className="bg-gradient-to-br from-[#503314] via-[#7C2D12] to-[#B45309] text-white relative overflow-hidden">
+  return <footer id='contact' className="bg-[#281912] dark:bg-gray-900 text-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-10 right-20 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-10 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-10 right-20 w-32 h-32 bg-white/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
       </div>
       
-      <div className="container mx-auto px-4 py-16 relative z-10">
+      <div className="container mx-auto px-4 pt-8 py-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <Logo className="text-white" />
+              <Logo isFooter={true}/>
             </div>
             <p className="text-white/80 mb-6 leading-relaxed">
               Connecting Rwandan youth with diaspora IT professionals for
@@ -75,29 +76,19 @@ export const Footer = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                <HashLink to="/#aboutUs" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
                   About Us
-                </Link>
+                </HashLink>
               </li>
               <li>
-                <Link to="/partners" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                <HashLink to="/#services" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
+                  Services
+                </HashLink>
+              </li>
+              <li>
+                <HashLink to="/#partners" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
                   Partners
-                </Link>
-              </li>
-              <li>
-                <Link to="/careers" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-primary-300 hover:text-white transition-transform duration-300 hover:translate-x-1 inline-block">
-                  Contact
-                </Link>
+                </HashLink>
               </li>
             </ul>
           </div>
@@ -122,28 +113,12 @@ export const Footer = () => {
                 </Link>
               </li>
             </ul>
-            {/* Language Selector */}
-            <div className="mt-6">
-              <div className="relative">
-                <select className="appearance-none bg-[#7C2D12] text-primary-200 rounded-md py-2 pl-3 pr-8 w-full focus:outline-none focus:ring-2 focus:ring-primary-400">
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="rw">Kinyarwanda</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-300">
-                  <ChevronDownIcon className="h-4 w-4" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-        <div className="border-t border-white/20 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white/80 text-sm">
+        <div className="border-t border-white/20 text-center mt-10 pt-6 pb-3">
+          <div className=" text-center">
+            <p className="text-white/50 text-sm">
               &copy; {new Date().getFullYear()} Global Roots. All rights reserved.
-            </p>
-            <p className="text-white/80 text-sm mt-2 md:mt-0">
-              Made with ❤️ in Rwanda
             </p>
           </div>
         </div>

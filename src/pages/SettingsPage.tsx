@@ -5,13 +5,39 @@ import { LanguageSelector } from '../components/ui/LanguageSelector';
 import { useTheme } from '../utils/theme';
 import { useLanguage, Language } from '../utils/language';
 import { UserIcon, LockIcon, BellIcon, GlobeIcon, ShieldIcon, TrashIcon, CheckIcon, XIcon, MoonIcon, SunIcon } from 'lucide-react';
+import { useAuth } from '../utils/auth';
 export const SettingsPage = () => {
   const {
     theme,
     toggleTheme
   } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('account');
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user?.name || 'Jean-Paul Habimana',
+    email: user?.email || 'jeanpaul@example.com',
+    phone: '+250 78 123 4567'
+  });
+  
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleSave = () => {
+    console.log('Saving user data:', formData);
+    setIsEditing(false);
+  };
+  
+  const handleCancel = () => {
+    setFormData({
+      name: user?.name || 'Jean-Paul Habimana',
+      email: user?.email || 'jeanpaul@example.com',
+      phone: '+250 78 123 4567'
+    });
+    setIsEditing(false);
+  };
   
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -20,7 +46,7 @@ export const SettingsPage = () => {
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦' },
   ];
-  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-dark-900">
+  return <div className="min-h-screen bg-[#F5F5F0]/50 dark:bg-gray-700/60">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-[#503314] dark:text-white">{t('nav.settings')}</h1>
@@ -91,23 +117,43 @@ export const SettingsPage = () => {
                       Email Address
                     </label>
                     <div className="flex items-center">
-                      <input type="email" value="jeanpaul@example.com" className="input flex-1 mr-2" disabled />
-                      <Button variant="outline" size="sm">
-                        Change
-                      </Button>
+                      <input 
+                        type="email" 
+                        value={formData.email} 
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className="input flex-1 mr-2" 
+                        disabled={!isEditing} 
+                      />
+                      {!isEditing && (
+                        <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                          Change
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-[#503314] dark:text-primary-300">
                       Name
                     </label>
-                    <input type="text" value="Jean-Paul Habimana" className="input w-full" />
+                    <input 
+                      type="text" 
+                      value={formData.name} 
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      className="input w-full" 
+                      disabled={!isEditing}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-[#503314] dark:text-primary-300">
                       Phone Number
                     </label>
-                    <input type="tel" value="+250 78 123 4567" className="input w-full" />
+                    <input 
+                      type="tel" 
+                      value={formData.phone} 
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="input w-full" 
+                      disabled={!isEditing}
+                    />
                   </div>
                   <div className="pt-4 border-t border-primary-200 dark:border-dark-600">
                     <h3 className="font-medium text-[#503314] dark:text-primary-300 mb-4">
@@ -120,10 +166,18 @@ export const SettingsPage = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-end space-x-2">
-                  <Button variant="outline">Cancel</Button>
-                  <Button variant="primary" className="bg-[#B45309] hover:bg-[#92400E] text-white">
-                    Save Changes
-                  </Button>
+                  {isEditing ? (
+                    <>
+                      <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+                      <Button variant="primary" className="bg-[#B45309] hover:bg-[#92400E] text-white" onClick={handleSave}>
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="primary" className="bg-[#B45309] hover:bg-[#92400E] text-white" onClick={() => setIsEditing(true)}>
+                      Edit Profile
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>}
             {activeTab === 'security' && <Card>

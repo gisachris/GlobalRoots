@@ -1,10 +1,12 @@
-import React, { useEffect, useState, Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useTheme } from '../../utils/theme';
 import { useLanguage } from '../../utils/language';
+import { useAuth } from '../../utils/auth';
 import { Logo } from '../ui/Logo';
-import { MenuIcon, SearchIcon, XIcon, UserIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
+import { initializeNotifications } from '../../utils/notifications';
+import { MenuIcon, SearchIcon, XIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const {
@@ -18,7 +20,44 @@ export const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes, set to true
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [activeSection, setActiveSection] = useState('');
+  const { user,isAuthenticated, logout } = useAuth();
+
+  useEffect(() => {
+    initializeNotifications();
+    const savedNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+    setNotifications(savedNotifications);
+  }, []);
+
+  // Handle scroll for hash links on home page
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+    
+    const handleScroll = () => {
+      const sections = ['hero', 'aboutUs', 'services', 'impact'];
+      const scrollPosition = window.scrollY + 100;
+      
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+    
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const recentNotifications = notifications.slice(0, 3);
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -49,38 +88,47 @@ export const Header = () => {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
     setLanguageMenuOpen(false);
+    setNotificationOpen(false);
   }, [location.pathname]);
   const handleLogin = () => {
     navigate('/auth');
   };
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    logout();
     navigate('/');
   };
   return <header className={`sticky top-0 z-50 w-full bg-[#f5f5f0] dark:bg-gray-800 transition-all duration-300 ${scrolled ? 'shadow-md' : ''}`}>
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Logo />
+          <Logo isFooter={false}/>
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <NavLink to="/" label={t('nav.home')} currentPath={location.pathname} />
-            <NavLink to="/opportunities" label={t('nav.opportunities')} currentPath={location.pathname} />
-            <NavLink to="/community" label={t('nav.community')} currentPath={location.pathname} />
-            <NavLink to="/projects" label={t('nav.projects')} currentPath={location.pathname} />
-            <NavLink to="/returnee" label={t('nav.returneeHub')} currentPath={location.pathname} />
+          <nav className="hidden lg:flex items-center space-x-6">
+            {isAuthenticated ? (
+              <>
+                <NavLink to="/" label="Home" currentPath={location.pathname} />
+                <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
+                <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
+                <NavLink to="/community" label="Community" currentPath={location.pathname} />
+                {user?.role === 'diaspora' && <NavLink to="/returnee" label="Returnship" currentPath={location.pathname} />}
+              </>
+            ) : (
+              <>
+                <HashNavLink to="/#hero" label="Home" activeSection={activeSection} section="hero" />
+                <HashNavLink to="/#aboutUs" label="About Us" activeSection={activeSection} section="aboutUs" />
+                <HashNavLink to="/#services" label="Services" activeSection={activeSection} section="services" />
+                <HashNavLink to="/#impact" label="Impact" activeSection={activeSection} section="impact" />
+              </>
+            )}
           </nav>
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
-            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden md:flex" aria-label="Search">
-              <SearchIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />
-            </button>
-            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden md:flex" aria-label="Toggle theme" onClick={toggleTheme}>
+            <button className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 hidden lg:flex" aria-label="Toggle theme" onClick={toggleTheme}>
               {theme === 'dark' ? <SunIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" /> : <MoonIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />}
             </button>
             
             {/* Language Selector */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <button 
                 className="p-2 rounded-full hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300 flex items-center" 
                 onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
@@ -89,70 +137,121 @@ export const Header = () => {
                 <GlobeIcon className="h-5 w-5 text-[#503314] dark:text-gray-300 hover:text-[#B45309] transition-colors" />
               </button>
               {languageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
-                        language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#B45309]' : 'text-[#503314] dark:text-gray-300'
-                      }`}
-                      onClick={() => {
-                        setLanguage(lang.code as any);
-                        setLanguageMenuOpen(false);
-                      }}
-                    >
-                      <span>{lang.flag}</span>
-                      <span>{lang.name}</span>
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div onClick={()=>setLanguageMenuOpen(false)} className="fixed inset-0 z-40"/>
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
+                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#ff6f00] dark:text-[#F59E0B]' : 'text-[#503314] dark:text-gray-300'
+                        }`}
+                        onClick={() => {
+                          setLanguage(lang.code as any);
+                          setLanguageMenuOpen(false);
+                        }}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-            {isAuthenticated ? <div className="hidden md:block relative">
+            {isAuthenticated ? 
+              <div className="hidden lg:block relative">
                 <div className="flex items-center space-x-3">
-                  <button className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300">
-                    <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
-                    <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-                  </button>
-                  <button className="flex items-center" onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#B45309]">
-                      <img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80" alt="User" className="w-full h-full object-cover" />
-                    </div>
-                  </button>
-                </div>
-                {userMenuOpen && <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
-                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.dashboard')}
-                    </Link>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.profile')}
-                    </Link>
-                    <Link to="/settings" className="block px-4 py-2 text-sm text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0] dark:hover:bg-gray-600" onClick={() => setUserMenuOpen(false)}>
-                      {t('nav.settings')}
-                    </Link>
-                    <div className="border-t border-[#B45309]/20 dark:border-gray-600 my-1"></div>
-                    <button className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleLogout}>
-                      {t('nav.signOut')}
+                  <div className="relative">
+                    <button 
+                      className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300"
+                      onClick={() => setNotificationOpen(!notificationOpen)}
+                    >
+                      <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                      )}
                     </button>
-                  </div>}
-              </div> : <div className="hidden md:flex items-center">
-                <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6">
+                    {notificationOpen && (
+                      <>
+                        <div onClick={() => setNotificationOpen(false)} className="fixed inset-0 z-40" />
+                        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-700 rounded-md shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-600">
+                          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+                            <h3 className="font-semibold text-[#B45309] dark:text-white">Notifications</h3>
+                          </div>
+                          <div className="max-h-64 overflow-y-auto">
+                            {recentNotifications.length > 0 ? (
+                              recentNotifications.map(notification => (
+                                <div 
+                                  key={notification.id} 
+                                  className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 border-b border-gray-100 dark:border-gray-600 cursor-pointer"
+                                  onClick={() => {
+                                    setNotificationOpen(false);
+                                    navigate(`/notifications?open=${notification.id}`);
+                                  }}
+                                >
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-gray-800 dark:text-white">{notification.title}</p>
+                                      <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 truncate">{notification.message}</p>
+                                      <p className="text-xs text-gray-500 mt-1">{new Date(notification.timestamp).toLocaleDateString()}</p>
+                                    </div>
+                                    {!notification.read && (
+                                      <div className="w-2 h-2 bg-[#B45309] rounded-full ml-2 mt-1"></div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                No notifications
+                              </div>
+                            )}
+                          </div>
+                          <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-600">
+                            <Link 
+                              to="/notifications" 
+                              className="text-sm text-[#cd7735] hover:text-[#6a3206] dark:text-blue-400"
+                              onClick={() => setNotificationOpen(false)}
+                            >
+                              View all notifications
+                            </Link>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div> : 
+              <div className="hidden lg:flex items-center">
+                <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
                   {t('nav.getStarted')}
                 </Button>
               </div>}
+              
             {/* Mobile menu button */}
-            <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>
+            <button onClick={toggleMobileMenu} className="lg:hidden p-2 rounded-md hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-300" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>
               {mobileMenuOpen ? <XIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" /> : <MenuIcon className="h-6 w-6 text-[#503314] dark:text-gray-300" />}
             </button>
           </div>
         </div>
         {/* Mobile Navigation - Animated slide down */}
-        {mobileMenuOpen && <div className="md:hidden pt-4 pb-3 space-y-3 animate-slideIn">
-            <MobileNavLink to="/" label={t('nav.home')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/opportunities" label={t('nav.opportunities')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/community" label={t('nav.community')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/projects" label={t('nav.projects')} onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink to="/returnee" label={t('nav.returneeHub')} onClick={() => setMobileMenuOpen(false)} />
+        {mobileMenuOpen && <div className="lg:hidden pt-4 pb-3 space-y-3 animate-slideIn">
+          <MobileHashNavLink to="/#hero" label="Home" activeSection={activeSection} section="hero" onClick={() => setMobileMenuOpen(false)} />
+            {isAuthenticated ? (
+              <>
+                <MobileNavLink to="/opportunities" label="Opportunities" onClick={() => setMobileMenuOpen(false)} />
+                <MobileNavLink to="/projects" label="Projects" onClick={() => setMobileMenuOpen(false)} />
+                <MobileNavLink to="/community" label="Community" onClick={() => setMobileMenuOpen(false)} />
+                {user?.role === 'diaspora' && <MobileNavLink to="/returnee" label="Returnship" onClick={() => setMobileMenuOpen(false)} />}
+              </>
+            ) : (
+              <>
+                <MobileHashNavLink to="/#aboutUs" label="About Us" activeSection={activeSection} section="aboutUs" onClick={() => setMobileMenuOpen(false)} />
+                <MobileHashNavLink to="/#services" label="Services" activeSection={activeSection} section="services" onClick={() => setMobileMenuOpen(false)} />
+                <MobileHashNavLink to="/#impact" label="Impact" activeSection={activeSection} section="impact" onClick={() => setMobileMenuOpen(false)} />
+              </>
+            )}
             {isAuthenticated ? <>
                 <div className="border-t border-primary-200 dark:border-dark-600 my-2 pt-2"></div>
                 <MobileNavLink to="/dashboard" label={t('nav.dashboard')} onClick={() => setMobileMenuOpen(false)} />
@@ -188,12 +287,14 @@ export const Header = () => {
                   <GlobeIcon className="h-5 w-5 text-[#503314] dark:text-gray-300" />
                 </button>
                 {languageMenuOpen && (
+                  <>
+                  <div onClick={()=>setLanguageMenuOpen(false)} className="fixed inset-0 z-40"/>
                   <div className="absolute right-0 bottom-full mb-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-50 border border-[#B45309]/20 dark:border-gray-600">
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F5F5F0] dark:hover:bg-gray-600 flex items-center space-x-2 ${
-                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#B45309]' : 'text-[#503314] dark:text-gray-300'
+                          language === lang.code ? 'bg-[#F5F5F0] dark:bg-gray-600 text-[#ff6f00] dark:text-[#F59E0B]' : 'text-[#503314] dark:text-gray-300'
                         }`}
                         onClick={() => {
                           setLanguage(lang.code as any);
@@ -205,6 +306,7 @@ export const Header = () => {
                       </button>
                     ))}
                   </div>
+                  </>
                 )}
               </div>
             </div>
@@ -212,24 +314,46 @@ export const Header = () => {
       </div>
     </header>;
 };
+
 // Desktop Navigation Link Component with active state
-const NavLink = ({
-  to,
-  label,
-  currentPath
-}) => {
+const NavLink = ({to,label,currentPath}:{to:string, label:string, currentPath:string}) => {
   const isActive = to === '/' ? currentPath === '/' : currentPath.startsWith(to);
-  return <Link to={to} className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive ? 'text-[#B45309] font-semibold' : 'text-[#503314] dark:text-gray-300 hover:text-[#B45309]'}`}>
+  return (
+    <Link to={to} className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive ? 'text-[#B45309] font-semibold' : 'text-[#503314] dark:text-gray-300 hover:text-[#B45309]'}`}>
       {label}
-    </Link>;
+    </Link>
+  )
 };
-// Mobile Navigation Link Component
-const MobileNavLink = ({
-  to,
-  label,
-  onClick
-}) => {
-  return <Link to={to} className="block px-3 py-2 rounded-md text-base font-medium text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-200" onClick={onClick}>
+
+// Hash Navigation Link Component
+const HashNavLink = ({to, label, activeSection, section}: {to: string, label: string, activeSection: string, section: string}) => {
+  const isActive = activeSection === section;
+  return (
+    <a href={to} className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+      isActive ? 'text-[#B45309] font-semibold' : 'text-[#503314] dark:text-gray-300 hover:text-[#B45309]'
+    }`}>
       {label}
-    </Link>;
+    </a>
+  );
+};
+
+// Mobile Hash Navigation Link Component
+const MobileHashNavLink = ({to, label, activeSection, section, onClick}: {to: string, label: string, activeSection: string, section: string, onClick: () => void}) => {
+  const isActive = activeSection === section;
+  return (
+    <a href={to} className={`block px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+      isActive ? 'text-[#B45309] font-semibold bg-[#F5F5F0]/80 dark:bg-gray-700' : 'text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700'
+    }`} onClick={onClick}>
+      {label}
+    </a>
+  );
+};
+
+// Mobile Navigation Link Component
+const MobileNavLink = ({to,label,onClick}:{to:string,label:string,onClick:()=>void}) => {
+  return (
+    <Link to={to} className="block px-3 py-2 rounded-md text-base font-medium text-[#503314] dark:text-gray-300 hover:bg-[#F5F5F0]/80 dark:hover:bg-gray-700 transition-all duration-200" onClick={onClick}>
+      {label}
+    </Link>
+    )
 };

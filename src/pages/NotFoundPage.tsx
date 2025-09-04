@@ -1,9 +1,12 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { HomeIcon, ArrowLeftIcon } from 'lucide-react';
+import { useAuth } from '../utils/auth';
 
 export const NotFoundPage = () => {
+
+  const {isAuthenticated} = useAuth()
+
   return <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F5F0] dark:bg-gray-900 px-4 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0">
@@ -34,7 +37,7 @@ export const NotFoundPage = () => {
               Go Home
             </Button>
           </Link>
-          <Link to="/dashboard">
+          {isAuthenticated && <Link to="/dashboard">
             <Button 
               variant="outline" 
               className="border-[#B45309] text-[#B45309] hover:bg-[#B45309] hover:text-white px-8 py-3 rounded-xl flex items-center"
@@ -42,7 +45,7 @@ export const NotFoundPage = () => {
               <ArrowLeftIcon className="mr-2 h-5 w-5" />
               Dashboard
             </Button>
-          </Link>
+          </Link>}
         </div>
         
         <div className="mt-12">
