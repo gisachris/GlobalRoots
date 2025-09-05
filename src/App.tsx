@@ -50,6 +50,7 @@ import { UserPersonalProjects } from './pages/UserPersonalProjects';
 import { Discussions } from './pages/Discussions';
 import { Calendar } from './pages/Calendar';
 import { Notifications } from './pages/Notifications';
+import EmailConfirmation from './components/auth/EmailConfirmation';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -111,6 +112,7 @@ function AppRoutes() {
     <Layout>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="/" element={
           user?.role === 'youth' ? (

@@ -103,10 +103,8 @@ export const SignUp = ({ onSignIn }: SignUpProps) => {
 
     try {
       await signUp(formData.email, formData.password);
-      setMessage('Sign up successful! Please check your email to verify your account.');
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      setMessage('Sign up successful! Please check your email and click the confirmation link to complete your registration.');
+      // Don't auto-redirect - user needs to confirm email first
     } catch (error: any) {
       setErrors({ submit: error.message });
     }
