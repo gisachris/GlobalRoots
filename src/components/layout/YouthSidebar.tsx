@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Briefcase
 } from 'lucide-react';
-import { useAuth } from '../../utils/auth';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
 
 interface YouthSidebarProps {

@@ -11,6 +11,7 @@ import { MentorConnect } from './pages/MentorConnect';
 import { ThemeProvider } from './utils/theme';
 import { LanguageProvider } from './utils/language';
 import { AuthProvider, useAuth, User } from './context/AuthContext';
+import { LoadingOverlay } from './components/ui/LoadingOverlay';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ProfilePage } from './pages/ProfilePage';
 import { MentorsPage } from './pages/MentorsPage';
@@ -56,11 +57,7 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingOverlay isVisible={true} message="Loading your dashboard..." />;
   }
 
   if (!user || user?.role !== 'youth') {
@@ -79,11 +76,7 @@ const MentorLayoutRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingOverlay isVisible={true} message="Setting up mentor dashboard..." />;
   }
 
   if (!user || user?.role !== 'mentor') {
@@ -101,11 +94,7 @@ function AppRoutes() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingOverlay isVisible={true} message="Initializing your account..." />;
   }
 
   return (

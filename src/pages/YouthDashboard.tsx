@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { useAuth } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 import { 
   Calendar, 
   BookOpen, 

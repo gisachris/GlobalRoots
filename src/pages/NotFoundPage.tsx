@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { HomeIcon, ArrowLeftIcon } from 'lucide-react';
-import { useAuth } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 
 export const NotFoundPage = () => {
 

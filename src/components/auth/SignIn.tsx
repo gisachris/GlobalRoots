@@ -2,7 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { useAuthRedirect } from '../../hooks/useAuthRedirect';
+
 
 interface SignInFormData {
   email: string;
@@ -96,8 +96,7 @@ export const SignIn = ({ onSignUp }: SignInProps) => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   
-  // Redirect authenticated users
-  useAuthRedirect();
+
 
   const [formData, setFormData] = useState<SignInFormData>({
     email: '',

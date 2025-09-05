@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import {RwandaMap} from "../components/ui/RwandaMap";
-import { useAuth } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 import { useAuthRedirect } from "../hooks/useAuthRedirect";
 import {Card,CardContent,CardHeader,CardTitle} from "../components/ui/Card";
 import {UsersIcon,BriefcaseIcon,ArrowRightIcon,StarIcon,TrendingUpIcon,GlobeIcon,CheckCircleIcon,UserPlusIcon,SearchIcon,HandshakeIcon} from "lucide-react";

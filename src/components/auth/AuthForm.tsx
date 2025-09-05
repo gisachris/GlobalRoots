@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../utils/language";
-import { useAuth } from "../../utils/auth";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { Logo } from "../ui/Logo";
+import { LoadingButton } from "../ui/LoadingButton";
 import { Linkedin, Lock, Mail, User } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 
@@ -26,7 +27,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 }) => {
   const [searchParams] = useSearchParams();
   const preSelectedRole = searchParams.get('role');
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +38,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
   const [termsAccepted, setTermsAccepted] = useState(false);
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { signIn, signUp, isSigningIn, isSigningUp } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,53 +94,30 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       return;
     }
 
-    // Mock mentor login for testing
-    if (!isSignUp && formData.email === "mentor@test.com" && formData.password === "123456") {
-      const mockMentor = {
-        id: "mentor-1",
-        name: "Sarah Johnson",
-        email: "mentor@test.com",
-        role: "mentor",
-        image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-      };
-      toast.success("Login successful!");
-      login("mock-token", mockMentor);
-      navigate("/mentor/dashboard");
-      return;
-    }
-
     try {
-      const endpoint = isSignUp ? "/api/auth/signup" : "/api/auth/signin";
-      const body = isSignUp
-        ? formData
-        : { email: formData.email, password: formData.password };
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success(
-          isSignUp ? "Account created successfully!" : "Login successful!"
-        );
-        login(data.token, data.user || { ...formData, role: formData.role });
-        
-        // Redirect based on role
-        if (formData.role === 'mentor' && isSignUp) {
-          navigate("/mentor/onboarding");
-        } else if (formData.role === 'mentor') {
-          navigate("/mentor/dashboard");
-        } else {
-          navigate("/dashboard");
-        }
+      if (isSignUp) {
+        // Use Supabase signup
+        await signUp(formData.email, formData.password);
+        toast.success("Account created! Please check your email to verify.");
       } else {
-        toast.error(data.error || "Authentication failed");
+        // Use Supabase signin
+        await signIn(formData.email, formData.password);
+        toast.success("Login successful!");
+
+        // Redirect will be handled by useAuthRedirect hook
+        navigate("/dashboard");
       }
-    } catch (error) {
-      toast.error("Authentication failed");
+    } catch (error: any) {
+      // Handle specific error types
+      if (error.message?.includes('429') || error.message?.includes('rate limit') || error.message?.includes('after')) {
+        toast.error("Too many attempts. Please wait a minute before trying again.");
+      } else if (error.message?.includes('User already registered')) {
+        toast.error("An account with this email already exists. Try signing in instead.");
+      } else if (error.message?.includes('Invalid login credentials')) {
+        toast.error("Invalid email or password. Please check your credentials.");
+      } else {
+        toast.error(error.message || "Authentication failed");
+      }
       console.error("Auth error:", error);
     }
   };
@@ -179,11 +157,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${
-                    errors.name
+                  className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${errors.name
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 dark:border-gray-600 focus:ring-[#B45309]"
-                  }`}
+                    }`}
                   placeholder="Enter your full name"
                 />
               </div>
@@ -206,11 +183,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${
-                  errors.email
+                className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${errors.email
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 dark:border-gray-600 focus:ring-[#B45309]"
-                }`}
+                  }`}
                 placeholder="Enter your email"
               />
             </div>
@@ -232,11 +208,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full pl-8 pr-10 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${
-                  errors.password
+                className={`w-full pl-8 pr-10 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${errors.password
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 dark:border-gray-600 focus:ring-[#B45309]"
-                }`}
+                  }`}
                 placeholder="Enter your password"
               />
               <button
@@ -261,11 +236,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${
-                  errors.role
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all text-sm bg-white dark:bg-gray-700 text-[#503314] dark:text-white ${errors.role
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 dark:border-gray-600 focus:ring-[#B45309]"
-                }`}
+                  }`}
               >
                 <option value="">Select your role</option>
                 <option value="mentee">Mentee - Looking for guidance</option>
@@ -293,9 +267,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                       setErrors({ ...errors, terms: undefined });
                     }
                   }}
-                  className={`mt-1 h-3 w-3 text-[#503314] focus:ring-[#B45309] border-gray-300 rounded ${
-                    errors.terms ? "border-red-500" : ""
-                  }`}
+                  className={`mt-1 h-3 w-3 text-[#503314] focus:ring-[#B45309] border-gray-300 rounded ${errors.terms ? "border-red-500" : ""
+                    }`}
                 />
                 <label
                   htmlFor="terms"
@@ -317,12 +290,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
           )}
 
-          <button
+          <LoadingButton
+            loading={isSignUp ? isSigningUp : isSigningIn}
             onClick={handleSubmit}
             className="w-full bg-[#B45309] hover:bg-[#92400E] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
+            loadingText={isSignUp ? "Creating Account..." : "Signing In..."}
           >
             {isSignUp ? "Create Account" : "Sign In"}
-          </button>
+          </LoadingButton>
 
           <div className="relative my-3">
             <div className="absolute inset-0 flex items-center">
