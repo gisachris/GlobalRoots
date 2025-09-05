@@ -62,15 +62,20 @@ function AppRoutes() {
   return (
     <Layout>
       <Routes>
-            {/* Public routes */}
+        {/* Auth route with Layout */}
+        <Route path="/auth" element={<AuthPage />} />
+        
+        {/* Public routes */}
             <Route path="/" element={
-              <HomeRoute user={user}>
-                <YouthLayout>
-                  <YouthDashboard/>
-                </YouthLayout>
-              </HomeRoute>
+              isAuthenticated ? (
+                user?.role === 'youth' ? (
+                  <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                    <YouthDashboard/>
+                  </SidebarLayout>
+                ) : <LandingPage />
+              ) : <LandingPage />
             } />
-            <Route path="/auth" element={<AuthPage />} />
+
             
             {/* Protected routes */}
             <Route path="/dashboard" element={
@@ -183,8 +188,8 @@ function AppRoutes() {
               </ProtectedRoute>
             } />
             
-            {/* 404 page */}
-            <Route path="*" element={<NotFoundPage />} />
+        {/* 404 page */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   );
