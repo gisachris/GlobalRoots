@@ -27,6 +27,22 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { YouthDashboard } from './pages/YouthDashboard';
 import { YouthOpportunity } from './pages/YouthOpportunity';
 import { YouthLayout } from './components/layout/YouthLayout';
+import { MentorLayout } from './components/layout/MentorLayout';
+import { MentorDashboard } from './pages/MentorDashboard';
+import { LinkedInIntegration } from './components/mentor/LinkedInIntegration';
+import { CreateCircle } from './pages/mentor/CreateCircle';
+import { EditProfile } from './pages/mentor/EditProfile';
+import { MentorMentees } from './pages/mentor/MentorMentees';
+import { MentorCircles } from './pages/mentor/MentorCircles';
+import { MentorCalendar } from './pages/mentor/MentorCalendar';
+import { MentorResources } from './pages/mentor/MentorResources';
+import { MentorMessages } from './pages/mentor/MentorMessages';
+import { MentorMarketplace } from './pages/mentor/MentorMarketplace';
+import { MentorAnalytics } from './pages/mentor/MentorAnalytics';
+import { MentorAchievements } from './pages/mentor/MentorAchievements';
+import { MentorSettings } from './pages/mentor/MentorSettings';
+import { ScheduleMeeting } from './pages/mentor/ScheduleMeeting';
+import { RoleSelection } from './pages/RoleSelection';
 import { LandingPage } from './pages/LandingPage';
 import { UserPersonalProjects } from './pages/UserPersonalProjects';
 import { Discussions } from './pages/Discussions';
@@ -51,6 +67,20 @@ const SidebarLayout = ({children,isAuthenticated,user}:{ children: React.ReactNo
     </YouthLayout>
   );
 };
+
+// MentorLayout Route Component
+const MentorLayoutRoute = ({children,isAuthenticated,user}:{ children: React.ReactNode; isAuthenticated: boolean,user?:User|null }) => {
+  
+  if (!isAuthenticated|| user?.role!=='mentor') {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return (
+    <MentorLayout>
+      <>{children}</>
+    </MentorLayout>
+  );
+};
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }: { children: React.ReactNode; isAuthenticated: boolean }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
@@ -64,6 +94,7 @@ function AppRoutes() {
       <Routes>
         {/* Auth route with Layout */}
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
         
         {/* Public routes */}
             <Route path="/" element={
@@ -72,6 +103,10 @@ function AppRoutes() {
                   <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
                     <YouthDashboard/>
                   </SidebarLayout>
+                ) : user?.role === 'mentor' ? (
+                  <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                    <MentorDashboard/>
+                  </MentorLayoutRoute>
                 ) : <LandingPage />
               ) : <LandingPage />
             } />
@@ -124,9 +159,17 @@ function AppRoutes() {
               </ProtectedRoute>
             } />
             <Route path="/opportunities" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <YouthOpportunity/>
-              </SidebarLayout>
+              isAuthenticated ? (
+                user?.role === 'mentor' ? (
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <YouthOpportunity/>
+                  </ProtectedRoute>
+                ) : (
+                  <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                    <YouthOpportunity/>
+                  </SidebarLayout>
+                )
+              ) : <Navigate to="/auth" replace />
             } />
             <Route path="/community" element={
               <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
@@ -134,9 +177,17 @@ function AppRoutes() {
               </SidebarLayout>
             } />
             <Route path="/projects" element={
-              <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
-                <Projects/>
-              </SidebarLayout>
+              isAuthenticated ? (
+                user?.role === 'mentor' ? (
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <Projects/>
+                  </ProtectedRoute>
+                ) : (
+                  <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
+                    <Projects/>
+                  </SidebarLayout>
+                )
+              ) : <Navigate to="/auth" replace />
             } />
             <Route path="/userProjects" element={
               <SidebarLayout isAuthenticated={isAuthenticated} user={user}>
@@ -158,6 +209,78 @@ function AppRoutes() {
                 <Notifications/>
               </SidebarLayout>
             }/>
+            
+            {/* Mentor routes */}
+            <Route path="/mentor/onboarding" element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <LinkedInIntegration />
+              </ProtectedRoute>
+            } />
+            <Route path="/mentor/dashboard" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorDashboard/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/circles/create" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <CreateCircle/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/profile/edit" element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <EditProfile/>
+              </ProtectedRoute>
+            } />
+            <Route path="/mentor/mentees" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorMentees/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/circles" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorCircles/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/calendar" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorCalendar/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/resources" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorResources/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/messages" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorMessages/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/marketplace" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorMarketplace/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/analytics" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorAnalytics/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/achievements" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorAchievements/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/settings" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <MentorSettings/>
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/schedule" element={
+              <MentorLayoutRoute isAuthenticated={isAuthenticated} user={user}>
+                <ScheduleMeeting/>
+              </MentorLayoutRoute>
+            } />
             <Route path="/returnee" element={<ReturneeHub />} />
             <Route path="/impact" element={<ImpactDashboard />} />
             <Route path="/settings" element={

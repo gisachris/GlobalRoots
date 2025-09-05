@@ -65,7 +65,7 @@ export const LandingPage = () => {
                 <Button
                   variant="primary"
                   size="lg"
-                  onClick={()=>navigate('/auth')}
+                  onClick={()=>navigate('/auth?role=mentee&source=hero')}
                   className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Youth <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -73,7 +73,7 @@ export const LandingPage = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={()=>navigate('/auth')}
+                  onClick={()=>navigate('/auth?role=mentor&source=hero')}
                   className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Diaspora <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -162,7 +162,7 @@ export const LandingPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Mentorship Program Card */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=services" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <CardHeader className="text-center pt-8 pb-6">
                   <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -181,7 +181,7 @@ export const LandingPage = () => {
             </Link>
 
             {/* Innovation Labs Card */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=services" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <CardHeader className="text-center pt-8 pb-6">
                   <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -200,7 +200,7 @@ export const LandingPage = () => {
             </Link>
 
             {/* Remote Internship Hub Card */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=services" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <CardHeader className="text-center pt-8 pb-6">
                   <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -240,7 +240,7 @@ export const LandingPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {/* Step 1: Create Profile */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=how-it-works" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
                   1
@@ -262,7 +262,7 @@ export const LandingPage = () => {
             </Link>
 
             {/* Step 2: Get Matched */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=how-it-works" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
                   2
@@ -284,7 +284,7 @@ export const LandingPage = () => {
             </Link>
 
             {/* Step 3: Start Collaborating */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=how-it-works" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
                   3
@@ -306,7 +306,7 @@ export const LandingPage = () => {
             </Link>
 
             {/* Step 4: Grow Your Career */}
-            <Link to="/auth" className="h-full">
+            <Link to="/role-selection?source=how-it-works" className="h-full">
               <Card className="group border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800 relative overflow-hidden h-full flex flex-col rounded-2xl">
                 <div className="absolute top-4 right-4 w-8 h-8 bg-[#B45309] text-white rounded-full flex items-center justify-center text-sm font-bold">
                   4
@@ -631,10 +631,10 @@ export const LandingPage = () => {
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={()=>navigate('/auth')}
+                onClick={()=>navigate('/role-selection?source=cta')}
                 className="bg-[#452809] text-white hover:bg-[#503314]/40 font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:translate-y-[-3px] group"
               >
-                Get Stated
+                Get Started
                 <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>}
