@@ -1,6 +1,7 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthRedirect } from '../../hooks/useAuthRedirect';
 
 interface SignUpFormData {
   fullName: string;
@@ -26,6 +27,9 @@ export const SignUp = ({ onSignIn }: SignUpProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(true);
+  
+  // Redirect authenticated users
+  useAuthRedirect();
 
   // Get userType from URL params or location state
   const urlParams = new URLSearchParams(location.search);
