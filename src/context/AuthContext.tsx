@@ -5,7 +5,7 @@ import React, {
     useState,
     ReactNode,
 } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../lib/supabase-client';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Define the shape of a user profile row
