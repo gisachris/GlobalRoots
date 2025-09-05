@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AuthForm } from "./AuthForm";
 
 export const SimpleAuthContainer: React.FC = () => {
@@ -19,12 +19,16 @@ export const SimpleAuthContainer: React.FC = () => {
               isSignUp ? "translate-x-0" : "translate-x-full"
             }`}
           >
-            <div className="h-full flex flex-col justify-center text-center p-8">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-all duration-700">
-                Your Digital Roots Start Here.
+            <div className="h-full flex flex-col justify-center text-center p-12">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 transition-all duration-700 leading-tight">
+                {isSignUp
+                  ? "Join Rwanda's Tech Revolution"
+                  : "Welcome Back to Your Journey"}
               </h1>
-              <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 mb-6 transition-all duration-700 delay-100">
-                Connect. Grow. Strengthen Rwanda's tech ecosystem.
+              <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-8 transition-all duration-700 delay-100 leading-relaxed max-w-md mx-auto">
+                {isSignUp
+                  ? "Connect with mentors, find opportunities, and grow your career in Rwanda's thriving tech ecosystem."
+                  : "Continue building your network and advancing your career with Rwanda's tech community."}
               </p>
 
               <div className="flex justify-center transition-all duration-700 delay-200">
@@ -32,8 +36,31 @@ export const SimpleAuthContainer: React.FC = () => {
                   <img
                     src="/hero.png"
                     alt="Global Roots Platform"
-                    className="max-w-xs w-full object-contain transform transition-all duration-500 group-hover:scale-105 group-hover:rotate-1"
+                    className="max-w-sm w-full object-contain transform transition-all duration-500 group-hover:scale-105 group-hover:rotate-1"
                   />
+                </div>
+              </div>
+
+              <div className="mt-8 transition-all duration-700 delay-300">
+                <div className="flex justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-center">
+                    <div className="font-semibold text-[#B45309] text-lg">
+                      1000+
+                    </div>
+                    <div>Tech Professionals</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-[#B45309] text-lg">
+                      500+
+                    </div>
+                    <div>Mentorship Connections</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-[#B45309] text-lg">
+                      200+
+                    </div>
+                    <div>Job Opportunities</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -51,7 +78,7 @@ export const SimpleAuthContainer: React.FC = () => {
           </div>
 
           {/* Spacer to maintain height */}
-          <div className="h-[600px]"></div>
+          <div className="h-[650px]"></div>
         </div>
 
         {/* Mobile Layout */}
