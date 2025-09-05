@@ -5,9 +5,7 @@ type ThemeContextType = {
   toggleTheme: () => void;
 };
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-export const ThemeProvider = ({
-  children
-}) => {
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize theme from localStorage or system preference
   const [theme, setTheme] = useState<Theme>('light');
   
