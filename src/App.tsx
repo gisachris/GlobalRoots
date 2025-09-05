@@ -29,6 +29,22 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { YouthDashboard } from './pages/YouthDashboard';
 import { YouthOpportunity } from './pages/YouthOpportunity';
 import { YouthLayout } from './components/layout/YouthLayout';
+import { MentorLayout } from './components/layout/MentorLayout';
+import { MentorDashboard } from './pages/MentorDashboard';
+import { LinkedInIntegration } from './components/mentor/LinkedInIntegration';
+import { CreateCircle } from './pages/mentor/CreateCircle';
+import { EditProfile } from './pages/mentor/EditProfile';
+import { MentorMentees } from './pages/mentor/MentorMentees';
+import { MentorCircles } from './pages/mentor/MentorCircles';
+import { MentorCalendar } from './pages/mentor/MentorCalendar';
+import { MentorResources } from './pages/mentor/MentorResources';
+import { MentorMessages } from './pages/mentor/MentorMessages';
+import { MentorMarketplace } from './pages/mentor/MentorMarketplace';
+import { MentorAnalytics } from './pages/mentor/MentorAnalytics';
+import { MentorAchievements } from './pages/mentor/MentorAchievements';
+import { MentorSettings } from './pages/mentor/MentorSettings';
+import { ScheduleMeeting } from './pages/mentor/ScheduleMeeting';
+import { RoleSelection } from './pages/RoleSelection';
 import { LandingPage } from './pages/LandingPage';
 import { UserPersonalProjects } from './pages/UserPersonalProjects';
 import { Discussions } from './pages/Discussions';
@@ -57,6 +73,29 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// MentorLayout Route Component
+const MentorLayoutRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user || user?.role !== 'mentor') {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return (
+    <MentorLayout>
+      <>{children}</>
+    </MentorLayout>
+  );
+};
+
 function AppRoutes() {
   const { user, loading } = useAuth();
 
@@ -72,11 +111,16 @@ function AppRoutes() {
     <Layout>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="/" element={
           user?.role === 'youth' ? (
             <SidebarLayout>
               <YouthDashboard />
             </SidebarLayout>
+          ) : user?.role === 'mentor' ? (
+            <MentorLayoutRoute>
+              <MentorDashboard />
+            </MentorLayoutRoute>
           ) : <LandingPage />
         } />
 
@@ -186,6 +230,78 @@ function AppRoutes() {
         <Route path="/admin/analytics" element={
           <ProtectedRoute>
             <AdminAnalyticsPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Mentor Routes */}
+        <Route path="/mentor/dashboard" element={
+          <MentorLayoutRoute>
+            <MentorDashboard />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/create-circle" element={
+          <MentorLayoutRoute>
+            <CreateCircle />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/edit-profile" element={
+          <MentorLayoutRoute>
+            <EditProfile />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/mentees" element={
+          <MentorLayoutRoute>
+            <MentorMentees />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/circles" element={
+          <MentorLayoutRoute>
+            <MentorCircles />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/calendar" element={
+          <MentorLayoutRoute>
+            <MentorCalendar />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/resources" element={
+          <MentorLayoutRoute>
+            <MentorResources />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/messages" element={
+          <MentorLayoutRoute>
+            <MentorMessages />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/marketplace" element={
+          <MentorLayoutRoute>
+            <MentorMarketplace />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/analytics" element={
+          <MentorLayoutRoute>
+            <MentorAnalytics />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/achievements" element={
+          <MentorLayoutRoute>
+            <MentorAchievements />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/settings" element={
+          <MentorLayoutRoute>
+            <MentorSettings />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/schedule-meeting" element={
+          <MentorLayoutRoute>
+            <ScheduleMeeting />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/linkedin-integration" element={
+          <ProtectedRoute>
+            <LinkedInIntegration />
           </ProtectedRoute>
         } />
 
