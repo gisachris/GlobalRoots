@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../utils/language";
 import { useAuth } from "../../utils/auth";
 import { toast } from "react-toastify";
@@ -24,11 +24,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   isSignUp,
   onToggleMode,
 }) => {
+  const [searchParams] = useSearchParams();
+  const preSelectedRole = searchParams.get('role');
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "",
+    role: preSelectedRole || "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -36,6 +39,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const { t } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (preSelectedRole) {
+      setFormData(prev => ({ ...prev, role: preSelectedRole }));
+    }
+  }, [preSelectedRole]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -84,6 +93,21 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       return;
     }
 
+    // Mock mentor login for testing
+    if (!isSignUp && formData.email === "mentor@test.com" && formData.password === "123456") {
+      const mockMentor = {
+        id: "mentor-1",
+        name: "Sarah Johnson",
+        email: "mentor@test.com",
+        role: "mentor",
+        image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+      };
+      toast.success("Login successful!");
+      login("mock-token", mockMentor);
+      navigate("/mentor/dashboard");
+      return;
+    }
+
     try {
       const endpoint = isSignUp ? "/api/auth/signup" : "/api/auth/signin";
       const body = isSignUp
@@ -101,8 +125,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         toast.success(
           isSignUp ? "Account created successfully!" : "Login successful!"
         );
-        login(data.token, data.user);
-        navigate("/dashboard");
+        login(data.token, data.user || { ...formData, role: formData.role });
+        
+        // Redirect based on role
+        if (formData.role === 'mentor' && isSignUp) {
+          navigate("/mentor/onboarding");
+        } else if (formData.role === 'mentor') {
+          navigate("/mentor/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         toast.error(data.error || "Authentication failed");
       }

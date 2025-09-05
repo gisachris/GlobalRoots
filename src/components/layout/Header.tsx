@@ -91,7 +91,7 @@ export const Header = () => {
     setNotificationOpen(false);
   }, [location.pathname]);
   const handleLogin = () => {
-    navigate('/auth');
+    navigate('/role-selection');
   };
   const handleLogout = () => {
     logout();
@@ -107,9 +107,20 @@ export const Header = () => {
             {isAuthenticated ? (
               <>
                 <NavLink to="/" label="Home" currentPath={location.pathname} />
-                <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
-                <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
-                <NavLink to="/community" label="Community" currentPath={location.pathname} />
+                {user?.role !== 'mentor' && (
+                  <>
+                    <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
+                    <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
+                    <NavLink to="/community" label="Community" currentPath={location.pathname} />
+                  </>
+                )}
+                {user?.role === 'mentor' && (
+                  <>
+                    <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
+                    <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
+                    <NavLink to="/mentor/dashboard" label="Dashboard" currentPath={location.pathname} />
+                  </>
+                )}
                 {user?.role === 'diaspora' && <NavLink to="/returnee" label="Returnship" currentPath={location.pathname} />}
               </>
             ) : (
@@ -160,18 +171,17 @@ export const Header = () => {
               )}
             </div>
             {isAuthenticated ? 
-              <div className="hidden lg:block relative">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <button 
-                      className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300"
-                      onClick={() => setNotificationOpen(!notificationOpen)}
-                    >
-                      <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
-                      {unreadCount > 0 && (
-                        <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-                      )}
-                    </button>
+              <div className="hidden lg:flex items-center space-x-3">
+                <div className="relative">
+                  <button 
+                    className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300"
+                    onClick={() => setNotificationOpen(!notificationOpen)}
+                  >
+                    <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                    )}
+                  </button>
                     {notificationOpen && (
                       <>
                         <div onClick={() => setNotificationOpen(false)} className="fixed inset-0 z-40" />
@@ -220,8 +230,16 @@ export const Header = () => {
                         </div>
                       </>
                     )}
-                  </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center"
+                >
+                  <LogOutIcon className="h-4 w-4 mr-1" />
+                  Logout
+                </Button>
               </div> : 
               <div className="hidden lg:flex items-center">
                 <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
