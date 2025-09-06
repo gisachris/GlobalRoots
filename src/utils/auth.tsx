@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export interface User {
   id: string;
   name: string;
-  image:string;
+  image: string;
   email: string;
   role: string;
 }
@@ -28,18 +28,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.user) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-        } else {
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('token');
+          }
+        })
+        .catch(() => {
           localStorage.removeItem('token');
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem('token');
-      });
+        });
     }
   }, []);
 

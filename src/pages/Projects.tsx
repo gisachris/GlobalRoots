@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { SearchIcon, FilterIcon, FolderIcon, UserIcon, CodeIcon, CalendarIcon, GlobeIcon, ChevronRightIcon, CheckIcon, PlusIcon, TrendingUpIcon, StarIcon, ChevronDownIcon, XIcon } from 'lucide-react';
-import { useAuth } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 export const Projects = () => {
   const [activeTab, setActiveTab] = useState('all');

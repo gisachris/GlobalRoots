@@ -3,8 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useTheme } from '../../utils/theme';
 import { useLanguage } from '../../utils/language';
-import { useAuth } from '../../utils/auth';
+import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../ui/Logo';
+import { LoadingButton } from '../ui/LoadingButton';
 import { initializeNotifications } from '../../utils/notifications';
 import { MenuIcon, SearchIcon, XIcon, BellIcon, LogOutIcon, MoonIcon, SunIcon, GlobeIcon } from 'lucide-react';
 export const Header = () => {
@@ -23,7 +24,8 @@ export const Header = () => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [activeSection, setActiveSection] = useState('');
-  const { user,isAuthenticated, logout } = useAuth();
+  const { user, signOut, isSigningOut } = useAuth();
+  const isAuthenticated = !!user;
 
   useEffect(() => {
     initializeNotifications();
@@ -93,8 +95,8 @@ export const Header = () => {
   const handleLogin = () => {
     navigate('/role-selection');
   };
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate('/');
   };
   return <header className={`sticky top-0 z-50 w-full bg-[#f5f5f0] dark:bg-gray-800 transition-all duration-300 ${scrolled ? 'shadow-md' : ''}`}>
@@ -231,15 +233,17 @@ export const Header = () => {
                       </>
                     )}
                 </div>
-                <Button 
+                <LoadingButton 
                   variant="outline" 
                   size="sm" 
+                  loading={isSigningOut}
                   onClick={handleLogout}
                   className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center"
+                  loadingText="Signing Out..."
                 >
                   <LogOutIcon className="h-4 w-4 mr-1" />
                   Logout
-                </Button>
+                </LoadingButton>
               </div> : 
               <div className="hidden lg:flex items-center">
                 <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
@@ -276,13 +280,19 @@ export const Header = () => {
                 <MobileNavLink to="/profile" label={t('nav.profile')} onClick={() => setMobileMenuOpen(false)} />
                 <MobileNavLink to="/settings" label={t('nav.settings')} onClick={() => setMobileMenuOpen(false)} />
                 <div className="px-3 pt-2">
-                  <Button variant="outline" fullWidth onClick={() => {
-              handleLogout();
-              setMobileMenuOpen(false);
-            }} className="text-red-600 border-red-200 hover:bg-red-50 flex items-center justify-center">
+                  <LoadingButton 
+                    variant="outline" 
+                    loading={isSigningOut}
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }} 
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 flex items-center justify-center"
+                    loadingText="Signing Out..."
+                  >
                     <LogOutIcon className="h-4 w-4 mr-2" />
                     {t('nav.signOut')}
-                  </Button>
+                  </LoadingButton>
                 </div>
               </> : <div className="px-3 pt-2">
                 <Button variant="primary" fullWidth onClick={() => {

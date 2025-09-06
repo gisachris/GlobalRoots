@@ -3,11 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Users, Globe, ArrowRight, CheckCircle, Star, Building } from 'lucide-react';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 export const RoleSelection: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'get-started';
+  
+  // Redirect authenticated users to their dashboard
+  useAuthRedirect();
 
   const handleRoleSelect = (role: string) => {
     navigate(`/auth?role=${role}&source=${source}`);

@@ -5,7 +5,7 @@ import { LanguageSelector } from '../components/ui/LanguageSelector';
 import { useTheme } from '../utils/theme';
 import { useLanguage, Language } from '../utils/language';
 import { UserIcon, LockIcon, BellIcon, GlobeIcon, ShieldIcon, TrashIcon, CheckIcon, XIcon, MoonIcon, SunIcon } from 'lucide-react';
-import { useAuth } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 export const SettingsPage = () => {
   const {
     theme,

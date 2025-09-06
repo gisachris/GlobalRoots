@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { UsersIcon, CalendarIcon, MessageSquareIcon, PlusIcon, ChevronRightIcon, UserPlusIcon, MapPinIcon, ClockIcon, GlobeIcon, SearchIcon, FilterIcon, TrendingUpIcon, StarIcon } from 'lucide-react';
-import { useAuth } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 export const Community = () => {
   const [activeTab, setActiveTab] = useState('circles');
   const [searchTerm, setSearchTerm] = useState('');
