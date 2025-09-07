@@ -5,6 +5,15 @@ export interface User {
   id: string;
   email: string;
   role: 'youth' | 'mentor' | 'admin';
+  fullName?: string;
+}
+
+interface SignUpData {
+  email: string;
+  password: string;
+  fullName?: string;
+  userType?: 'mentor' | 'mentee';
+  role?: 'youth' | 'mentor' | 'admin';
 }
 
 interface AuthContextType {
@@ -14,7 +23,7 @@ interface AuthContextType {
   isSigningUp: boolean;
   isSigningOut: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -35,7 +44,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          role: userRole
+          role: userRole,
+          fullName: session.user.user_metadata?.full_name
         });
       }
       setLoading(false);
@@ -50,7 +60,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            role: userRole
+            role: userRole,
+            fullName: session.user.user_metadata?.full_name
           });
         } else {
           setUser(null);
@@ -72,10 +83,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (data: SignUpData) => {
     setIsSigningUp(true);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+            user_type: data.userType,
+            role: data.role || (data.userType === 'mentee' ? 'youth' : 'mentor')
+          }
+        }
+      });
       if (error) throw error;
     } finally {
       setIsSigningUp(false);

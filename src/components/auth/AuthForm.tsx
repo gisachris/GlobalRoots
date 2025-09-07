@@ -97,7 +97,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     try {
       if (isSignUp) {
         // Use Supabase signup
-        await signUp(formData.email, formData.password);
+        await signUp({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.name,
+          userType: formData.role === 'mentee' ? 'mentee' : 'mentor',
+          role: formData.role === 'mentee' ? 'youth' : 'mentor'
+        });
         toast.success("Account created! Please check your email to verify.");
       } else {
         // Use Supabase signin
