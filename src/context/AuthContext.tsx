@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const userRole = session.user.user_metadata?.role || 'youth';
+        const userRole = session.user.user_metadata?.user_type === 'mentor' ? 'mentor' : 'youth';
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const userRole = session.user.user_metadata?.role || 'youth';
+          const userRole = session.user.user_metadata?.user_type === 'mentor' ? 'mentor' : 'youth';
           setUser({
             id: session.user.id,
             email: session.user.email!,
@@ -91,18 +91,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signUp = async (data: SignUpData) => {
     setIsSigningUp(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             full_name: data.fullName,
             user_type: data.userType,
-            role: data.role || (data.userType === 'mentee' ? 'youth' : 'mentor')
+            profile_completed: false
           }
         }
       });
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase signup error:', error);
+        throw error;
+      }
+      console.log('Signup result:', result);
     } finally {
       setIsSigningUp(false);
     }
@@ -122,30 +126,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) throw new Error('No user found');
     
     try {
-      // Create profile in database
-      const profilePayload: Omit<UserProfile, 'id'> = {
-        user_id: user.id,
-        full_name: profileData.fullName,
-        about: profileData.about || '',
-        location: profileData.location || '',
-        hometown: profileData.hometown,
-        profile_picture: profileData.profilePicture,
-        headline: profileData.headline,
-        current_role: profileData.currentRole,
-        current_company: profileData.currentCompany,
-        industry: profileData.industry,
-        years_of_experience: profileData.yearsOfExperience,
-        field_of_study: profileData.fieldOfStudy,
-        current_status: profileData.currentStatus,
-        desired_industry: profileData.desiredIndustry,
-        career_stage: profileData.careerStage,
-        skills: profileData.skills || [],
-        education: profileData.education || [],
-        experience: profileData.experience || [],
-        certifications: profileData.certifications || []
-      };
+      // Update user_information table with profile data
+      const { error: updateError } = await supabase
+        .from('user_information')
+        .update({
+          full_name: profileData.fullName,
+          about: profileData.about || '',
+          location: profileData.location || '',
+          hometown: profileData.hometown,
+          profile_picture: profileData.profilePicture,
+          headline: profileData.headline,
+          current_role: profileData.currentRole,
+          current_company: profileData.currentCompany,
+          industry: profileData.industry,
+          years_of_experience: profileData.yearsOfExperience,
+          field_of_study: profileData.fieldOfStudy,
+          current_status: profileData.currentStatus,
+          desired_industry: profileData.desiredIndustry,
+          career_stage: profileData.careerStage,
+          skills: profileData.skills || [],
+          education: profileData.education || [],
+          experience: profileData.experience || [],
+          certifications: profileData.certifications || []
+        })
+        .eq('user_id', user.id);
 
-      await createUserProfile(profilePayload);
+      if (updateError) throw updateError;
 
       // Update auth metadata
       const { error } = await supabase.auth.updateUser({
