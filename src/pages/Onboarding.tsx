@@ -19,12 +19,12 @@ export const Onboarding = () => {
   const [newSkill, setNewSkill] = useState('');
   const [error, setError] = useState('');
 
-  // Redirect if profile already completed
-  useEffect(() => {
-    if (user?.profileCompleted) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+  // Redirect if profile already completed (disabled for testing)
+  // useEffect(() => {
+  //   if (user?.profileCompleted) {
+  //     navigate('/');
+  //   }
+  // }, [user, navigate]);
 
   const handleLinkedInScrape = async () => {
     if (!linkedinUrl.trim()) {
@@ -36,11 +36,17 @@ export const Onboarding = () => {
     setError('');
     
     try {
+      console.log('=== ONBOARDING: Starting LinkedIn scrape ===');
       const profileData = await scrapeLinkedInProfile(linkedinUrl);
-      const mapped = mapLinkedInDataToUserProfile(profileData, user?.role || 'youth');
+      console.log('=== ONBOARDING: Scraping completed ===');
+      
+      const mapped = mapLinkedInDataToUserProfile(profileData, user?.role || 'mentor');
+      console.log('=== ONBOARDING: Data mapped ===');
+      console.log('Final mapped data:', mapped);
       
       setScrapedData(profileData);
       setFormData(mapped);
+      console.log('=== ONBOARDING: Form data set, moving to step 3 ===');
       setStep(3);
     } catch (err: any) {
       setError(err.message);
@@ -50,8 +56,8 @@ export const Onboarding = () => {
   };
 
   const handleSkipLinkedIn = () => {
-    // Create empty form data based on user role
-    const emptyData = user?.role === 'mentor' ? {
+    // Create empty form data based on user role (default to mentor for testing)
+    const emptyData = (user?.role || 'mentor') === 'mentor' ? {
       fullName: user?.fullName || '',
       about: '',
       currentRole: '',
@@ -252,7 +258,7 @@ export const Onboarding = () => {
                 </div>
 
                 {/* Role-specific fields */}
-                {user?.role === 'mentor' ? (
+                {(user?.role || 'mentor') === 'mentor' ? (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
@@ -312,7 +318,9 @@ export const Onboarding = () => {
                       </label>
                       <input
                         type="number"
-                        value={formData.yearsOfExperience}
+                        min="0"
+                        max="50"
+                        value={formData.yearsOfExperience || ''}
                         onChange={(e) => handleInputChange('yearsOfExperience', parseInt(e.target.value) || 0)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                         placeholder="Years of professional experience"

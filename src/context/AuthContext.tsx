@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       });
       if (error) throw error;
-      
+
       // Update local user state
       if (user) {
         setUser({ ...user, profileCompleted: true });
@@ -138,14 +138,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
+    <AuthContext.Provider value={{
+      user,
+      loading,
       isSigningIn,
       isSigningUp,
       isSigningOut,
-      signIn, 
-      signUp, 
+      signIn,
+      signUp,
       signOut,
       completeProfile
     }}>

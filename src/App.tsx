@@ -104,15 +104,7 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/role-selection" element={<RoleSelection />} />
-        <Route path="/onboarding" element={
-          user && !user.profileCompleted ? (
-            <Onboarding />
-          ) : user?.profileCompleted ? (
-            <Navigate to="/" replace />
-          ) : (
-            <Navigate to="/auth" replace />
-          )
-        } />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/" element={
           user ? (
             user.profileCompleted === false ? (
