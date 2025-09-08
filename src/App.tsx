@@ -52,6 +52,7 @@ import { Discussions } from './pages/Discussions';
 import { Calendar } from './pages/Calendar';
 import { Notifications } from './pages/Notifications';
 import EmailConfirmation from './components/auth/EmailConfirmation';
+import { Onboarding } from './pages/Onboarding';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -103,15 +104,28 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/onboarding" element={
+          user && !user.profileCompleted ? (
+            <Onboarding />
+          ) : user?.profileCompleted ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Navigate to="/auth" replace />
+          )
+        } />
         <Route path="/" element={
-          user?.role === 'youth' ? (
-            <SidebarLayout>
-              <YouthDashboard />
-            </SidebarLayout>
-          ) : user?.role === 'mentor' ? (
-            <MentorLayoutRoute>
-              <MentorDashboard />
-            </MentorLayoutRoute>
+          user ? (
+            user.profileCompleted === false ? (
+              <Navigate to="/onboarding" replace />
+            ) : user.role === 'youth' ? (
+              <SidebarLayout>
+                <YouthDashboard />
+              </SidebarLayout>
+            ) : user.role === 'mentor' ? (
+              <MentorLayoutRoute>
+                <MentorDashboard />
+              </MentorLayoutRoute>
+            ) : <LandingPage />
           ) : <LandingPage />
         } />
 

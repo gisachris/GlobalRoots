@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: 'youth' | 'mentor' | 'admin';
   fullName?: string;
+  profileCompleted?: boolean;
 }
 
 interface SignUpData {
@@ -25,6 +26,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
+  completeProfile: (profileData: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,7 +47,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           id: session.user.id,
           email: session.user.email!,
           role: userRole,
-          fullName: session.user.user_metadata?.full_name
+          fullName: session.user.user_metadata?.full_name,
+          profileCompleted: session.user.user_metadata?.profile_completed || false
         });
       }
       setLoading(false);
@@ -61,7 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             id: session.user.id,
             email: session.user.email!,
             role: userRole,
-            fullName: session.user.user_metadata?.full_name
+            fullName: session.user.user_metadata?.full_name,
+            profileCompleted: session.user.user_metadata?.profile_completed || false
           });
         } else {
           setUser(null);
@@ -113,6 +117,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const completeProfile = async (profileData: any) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          ...profileData,
+          profile_completed: true
+        }
+      });
+      if (error) throw error;
+      
+      // Update local user state
+      if (user) {
+        setUser({ ...user, profileCompleted: true });
+      }
+    } catch (error) {
+      console.error('Error completing profile:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -122,7 +146,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       isSigningOut,
       signIn, 
       signUp, 
-      signOut 
+      signOut,
+      completeProfile
     }}>
       {children}
     </AuthContext.Provider>
