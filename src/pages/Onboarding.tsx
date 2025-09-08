@@ -19,12 +19,12 @@ export const Onboarding = () => {
   const [newSkill, setNewSkill] = useState('');
   const [error, setError] = useState('');
 
-  // Redirect if profile already completed (disabled for testing)
-  // useEffect(() => {
-  //   if (user?.profileCompleted) {
-  //     navigate('/');
-  //   }
-  // }, [user, navigate]);
+  // Redirect if profile already completed
+  useEffect(() => {
+    if (user?.profileCompleted) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleLinkedInScrape = async () => {
     if (!linkedinUrl.trim()) {
