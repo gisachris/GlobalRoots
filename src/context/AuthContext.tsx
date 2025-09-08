@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '../lib/supabase-client';
+import { createUserProfile, UserProfile } from '../services/profile-service';
 
 export interface User {
   id: string;
@@ -118,19 +119,44 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const completeProfile = async (profileData: any) => {
+    if (!user) throw new Error('No user found');
+    
     try {
+      // Create profile in database
+      const profilePayload: Omit<UserProfile, 'id'> = {
+        user_id: user.id,
+        full_name: profileData.fullName,
+        about: profileData.about || '',
+        location: profileData.location || '',
+        hometown: profileData.hometown,
+        profile_picture: profileData.profilePicture,
+        headline: profileData.headline,
+        current_role: profileData.currentRole,
+        current_company: profileData.currentCompany,
+        industry: profileData.industry,
+        years_of_experience: profileData.yearsOfExperience,
+        field_of_study: profileData.fieldOfStudy,
+        current_status: profileData.currentStatus,
+        desired_industry: profileData.desiredIndustry,
+        career_stage: profileData.careerStage,
+        skills: profileData.skills || [],
+        education: profileData.education || [],
+        experience: profileData.experience || [],
+        certifications: profileData.certifications || []
+      };
+
+      await createUserProfile(profilePayload);
+
+      // Update auth metadata
       const { error } = await supabase.auth.updateUser({
         data: {
-          ...profileData,
           profile_completed: true
         }
       });
       if (error) throw error;
 
       // Update local user state
-      if (user) {
-        setUser({ ...user, profileCompleted: true });
-      }
+      setUser({ ...user, profileCompleted: true });
     } catch (error) {
       console.error('Error completing profile:', error);
       throw error;
