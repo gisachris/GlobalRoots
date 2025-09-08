@@ -126,10 +126,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) throw new Error('No user found');
     
     try {
-      // Update user_information table with profile data
-      const { error: updateError } = await supabase
+      // Insert or update user_information table with profile data
+      const { error: upsertError } = await supabase
         .from('user_information')
-        .update({
+        .upsert({
+          user_id: user.id,
           full_name: profileData.fullName,
           about: profileData.about || '',
           location: profileData.location || '',
@@ -148,10 +149,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           education: profileData.education || [],
           experience: profileData.experience || [],
           certifications: profileData.certifications || []
-        })
-        .eq('user_id', user.id);
+        }, {
+          onConflict: 'user_id'
+        });
 
-      if (updateError) throw updateError;
+      if (upsertError) throw upsertError;
 
       // Update auth metadata
       const { error } = await supabase.auth.updateUser({
