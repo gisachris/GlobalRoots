@@ -241,9 +241,9 @@ export const MentorDashboard = () => {
             <Globe className="h-5 w-5 mr-2 text-[#B45309]" />
             My Mentorship Circles
           </CardTitle>
-          <Link to="/mentor/circles/create">
+          <Link to="/mentor/create-circle">
             <Button size="sm" className="bg-[#B45309] hover:bg-[#7C2D12]">
-              <Plus className="h-4 w-4 mr-1" /> Create Circle
+              <Plus className="h-4 w-4 mr-1" /> Create New Circle
             </Button>
           </Link>
         </CardHeader>
@@ -369,13 +369,13 @@ export const MentorDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Link to="/mentor/circles/create">
+            <Link to="/mentor/create-circle">
               <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center border-[#B45309] text-[#B45309] hover:bg-[#B45309] hover:text-white">
                 <Plus className="h-6 w-6 mb-1" />
-                Create Circle
+                Start New Circle
               </Button>
             </Link>
-            <Link to="/mentor/schedule">
+            <Link to="/mentor/schedule-meeting">
               <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center border-[#B45309] text-[#B45309] hover:bg-[#B45309] hover:text-white">
                 <Calendar className="h-6 w-6 mb-1" />
                 Schedule Meeting

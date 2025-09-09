@@ -1,44 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { meetingService } from '../../services/meetings';
 import { Calendar, Clock, Users, Video, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const MentorCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [meetings, setMeetings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingMeeting, setEditingMeeting] = useState<any>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  const meetings = [
-    {
-      id: 1,
-      title: 'Frontend Development Circle',
-      type: 'Circle Meeting',
-      time: '14:00',
-      duration: 60,
-      attendees: ['Alice K.', 'Bob M.', 'Carol S.'],
-      date: '2024-12-15',
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      title: '1-on-1 with Jean-Paul',
-      type: 'Individual Session',
-      time: '10:00',
-      duration: 45,
-      attendees: ['Jean-Paul H.'],
-      date: '2024-12-16',
-      status: 'confirmed'
-    },
-    {
-      id: 3,
-      title: 'Career Guidance Session',
-      type: 'Group Session',
-      time: '15:00',
-      duration: 90,
-      attendees: ['Marie U.', 'Patrick K.'],
-      date: '2024-12-16',
-      status: 'pending'
+  useEffect(() => {
+    loadMeetings();
+  }, [currentDate]);
+
+  const loadMeetings = async () => {
+    try {
+      setLoading(true);
+      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      
+      const meetingsData = await meetingService.getMeetingsByDateRange(
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0]
+      );
+      
+      setMeetings(meetingsData || []);
+    } catch (error) {
+      console.error('Error loading meetings:', error);
+      // Fallback to example data
+      setMeetings([
+        {
+          id: 'example-1',
+          title: 'Frontend Development Circle',
+          meeting_type: 'circle',
+          meeting_time: '14:00',
+          duration_minutes: 60,
+          meeting_date: '2024-12-15',
+          status: 'scheduled',
+          meeting_link: 'https://meet.jit.si/example-room'
+        },
+        {
+          id: 'example-2',
+          title: '1-on-1 with Jean-Paul',
+          meeting_type: 'individual',
+          meeting_time: '10:00',
+          duration_minutes: 45,
+          meeting_date: '2024-12-16',
+          status: 'scheduled',
+          meeting_link: 'https://meet.jit.si/example-room-2'
+        }
+      ]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleDeleteMeeting = async (meetingId: string) => {
+    try {
+      await meetingService.deleteMeeting(meetingId);
+      setShowDeleteConfirm(null);
+      // Reload meetings from database
+      await loadMeetings();
+    } catch (error) {
+      console.error('Error deleting meeting:', error);
+    }
+  };
+
+  const handleEditMeeting = (meeting: any) => {
+    setEditingMeeting(meeting);
+  };
+
+  const handleUpdateMeeting = async (updates: any) => {
+    try {
+      await meetingService.updateMeeting(editingMeeting.id, updates);
+      setEditingMeeting(null);
+      // Reload meetings from database
+      await loadMeetings();
+    } catch (error) {
+      console.error('Error updating meeting:', error);
+    }
+  };
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -64,12 +109,17 @@ export const MentorCalendar: React.FC = () => {
   };
 
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    // Convert to Rwanda timezone (CAT - UTC+2)
+    const rwandaDate = new Date(date.toLocaleString('en-US', { timeZone: 'Africa/Kigali' }));
+    const year = rwandaDate.getFullYear();
+    const month = String(rwandaDate.getMonth() + 1).padStart(2, '0');
+    const day = String(rwandaDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const getMeetingsForDate = (date: Date) => {
     const dateStr = formatDate(date);
-    return meetings.filter(meeting => meeting.date === dateStr);
+    return meetings.filter(meeting => meeting.meeting_date === dateStr);
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -96,10 +146,12 @@ export const MentorCalendar: React.FC = () => {
           <h1 className="text-3xl font-bold text-[#503314] dark:text-white">Calendar</h1>
           <p className="text-[#7C2D12] dark:text-gray-300">Manage your mentoring schedule</p>
         </div>
-        <Button className="bg-[#B45309] hover:bg-[#7C2D12]">
-          <Plus className="h-4 w-4 mr-2" />
-          Schedule Meeting
-        </Button>
+        <Link to="/mentor/schedule-meeting">
+          <Button className="bg-[#B45309] hover:bg-[#7C2D12]">
+            <Plus className="h-4 w-4 mr-2" />
+            Schedule Meeting
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -168,7 +220,7 @@ export const MentorCalendar: React.FC = () => {
                           key={meeting.id}
                           className="text-xs p-1 bg-[#B45309] text-white rounded truncate"
                         >
-                          {meeting.time} {meeting.title}
+                          {meeting.meeting_time} {meeting.title}
                         </div>
                       ))}
                       {dayMeetings.length > 2 && (
@@ -187,18 +239,27 @@ export const MentorCalendar: React.FC = () => {
         {/* Selected Day Details */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-[#B45309]" />
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 mr-2 text-[#B45309]" />
+                {selectedDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+              <span className="text-sm text-[#7C2D12] dark:text-gray-400 font-normal">
+                Rwanda Time (GMT+2)
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {getMeetingsForDate(selectedDate).length === 0 ? (
+              {loading ? (
+                <p className="text-[#7C2D12] dark:text-gray-300 text-center py-8">
+                  Loading meetings...
+                </p>
+              ) : getMeetingsForDate(selectedDate).length === 0 ? (
                 <p className="text-[#7C2D12] dark:text-gray-300 text-center py-8">
                   No meetings scheduled for this day
                 </p>
@@ -210,7 +271,7 @@ export const MentorCalendar: React.FC = () => {
                         {meeting.title}
                       </h4>
                       <span className={`px-2 py-1 rounded text-xs ${
-                        meeting.status === 'confirmed' 
+                        meeting.status === 'scheduled' 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
@@ -218,23 +279,43 @@ export const MentorCalendar: React.FC = () => {
                       </span>
                     </div>
                     <p className="text-sm text-[#7C2D12] dark:text-gray-300 mb-2">
-                      {meeting.type}
+                      {meeting.meeting_type === 'individual' ? 'Individual Session' :
+                       meeting.meeting_type === 'group' ? 'Group Session' : 'Circle Meeting'}
                     </p>
                     <div className="flex items-center text-sm text-[#7C2D12] dark:text-gray-300 mb-2">
                       <Clock className="h-4 w-4 mr-1" />
-                      {meeting.time} ({meeting.duration} min)
-                    </div>
-                    <div className="flex items-center text-sm text-[#7C2D12] dark:text-gray-300 mb-3">
-                      <Users className="h-4 w-4 mr-1" />
-                      {meeting.attendees.join(', ')}
+                      {meeting.meeting_time} ({meeting.duration_minutes} min) - Rwanda Time
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm" className="bg-[#B45309] hover:bg-[#7C2D12] flex-1">
-                        <Video className="h-4 w-4 mr-1" />
-                        Join
-                      </Button>
-                      <Button size="sm" variant="outline" className="border-[#B45309] text-[#B45309]">
+                      {meeting.meeting_link ? (
+                        <Button 
+                          size="sm" 
+                          className="bg-[#B45309] hover:bg-[#7C2D12] flex-1"
+                          onClick={() => window.open(meeting.meeting_link, '_blank')}
+                        >
+                          <Video className="h-4 w-4 mr-1" />
+                          Join
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="outline" className="border-[#B45309] text-[#B45309] flex-1">
+                          No Link
+                        </Button>
+                      )}
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-[#B45309] text-[#B45309]"
+                        onClick={() => handleEditMeeting(meeting)}
+                      >
                         Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-red-500 text-red-500 hover:bg-red-50"
+                        onClick={() => setShowDeleteConfirm(meeting.id)}
+                      >
+                        Delete
                       </Button>
                     </div>
                   </div>
@@ -244,6 +325,83 @@ export const MentorCalendar: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Meeting Modal */}
+      {editingMeeting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Edit Meeting</h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={editingMeeting.title}
+                onChange={(e) => setEditingMeeting({...editingMeeting, title: e.target.value})}
+                className="w-full px-3 py-2 border rounded-lg"
+                placeholder="Meeting title"
+              />
+              <input
+                type="time"
+                value={editingMeeting.meeting_time}
+                onChange={(e) => setEditingMeeting({...editingMeeting, meeting_time: e.target.value})}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="url"
+                value={editingMeeting.meeting_link || ''}
+                onChange={(e) => setEditingMeeting({...editingMeeting, meeting_link: e.target.value})}
+                className="w-full px-3 py-2 border rounded-lg"
+                placeholder="Meeting link"
+              />
+            </div>
+            <div className="flex space-x-2 mt-6">
+              <Button 
+                onClick={() => handleUpdateMeeting({
+                  title: editingMeeting.title,
+                  meeting_time: editingMeeting.meeting_time,
+                  meeting_link: editingMeeting.meeting_link
+                })}
+                className="bg-[#B45309] hover:bg-[#7C2D12] flex-1"
+              >
+                Save
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setEditingMeeting(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-4">Delete Meeting</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this meeting? This action cannot be undone.
+            </p>
+            <div className="flex space-x-2">
+              <Button 
+                onClick={() => handleDeleteMeeting(showDeleteConfirm)}
+                className="bg-red-500 hover:bg-red-600 text-white flex-1"
+              >
+                Delete
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
