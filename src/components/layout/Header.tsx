@@ -239,10 +239,10 @@ export const Header = () => {
                   size="sm" 
                   loading={isSigningOut}
                   onClick={handleLogout}
-                  className=" text-red-600 hover:bg-red-100 hover:text-red-700  items-center"
+                  className="text-red-600 hover:bg-red-100 hover:text-red-700 flex items-center whitespace-nowrap"
                   loadingText="Signing Out..."
                 >
-                  <LogOutIcon className="h-4 w-4 mr-1" /><p>Logout</p>
+                  <LogOutIcon className="h-4 w-4 mr-1" />Logout
                 </LoadingButton>
               </div> : 
               <div className="hidden lg:flex items-center space-x-3">

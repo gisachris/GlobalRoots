@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '../lib/supabase-client';
+import { createUserProfile, UserProfile } from '../services/profile-service';
 
 export interface User {
   id: string;
@@ -42,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const userRole = session.user.user_metadata?.role || 'youth';
+        const userRole = session.user.user_metadata?.user_type === 'mentor' ? 'mentor' : 'youth';
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const userRole = session.user.user_metadata?.role || 'youth';
+          const userRole = session.user.user_metadata?.user_type === 'mentor' ? 'mentor' : 'youth';
           setUser({
             id: session.user.id,
             email: session.user.email!,
@@ -92,18 +93,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signUp = async (data: SignUpData) => {
     setIsSigningUp(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             full_name: data.fullName,
             user_type: data.userType,
-            role: data.role || (data.userType === 'mentee' ? 'youth' : 'mentor')
+            profile_completed: false
           }
         }
       });
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase signup error:', error);
+        throw error;
+      }
+      console.log('Signup result:', result);
     } finally {
       setIsSigningUp(false);
     }
@@ -120,19 +125,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const completeProfile = async (profileData: any) => {
+    if (!user) throw new Error('No user found');
+    
     try {
+      // Insert or update user_information table with profile data
+      const { error: upsertError } = await supabase
+        .from('user_information')
+        .upsert({
+          user_id: user.id,
+          full_name: profileData.fullName,
+          about: profileData.about || '',
+          location: profileData.location || '',
+          hometown: profileData.hometown,
+          profile_picture: profileData.profilePicture || profileData.profile_picture,
+          headline: profileData.headline,
+          current_role: profileData.currentRole,
+          current_company: profileData.currentCompany,
+          industry: profileData.industry,
+          years_of_experience: profileData.yearsOfExperience,
+          field_of_study: profileData.fieldOfStudy,
+          current_status: profileData.currentStatus,
+          desired_industry: profileData.desiredIndustry,
+          career_stage: profileData.careerStage,
+          skills: profileData.skills || [],
+          education: profileData.education || [],
+          experience: profileData.experience || [],
+          certifications: profileData.certifications || []
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (upsertError) throw upsertError;
+
+      // Update auth metadata
       const { error } = await supabase.auth.updateUser({
         data: {
-          ...profileData,
           profile_completed: true
         }
       });
       if (error) throw error;
 
       // Update local user state
-      if (user) {
-        setUser({ ...user, profileCompleted: true });
-      }
+      setUser({ ...user, profileCompleted: true });
     } catch (error) {
       console.error('Error completing profile:', error);
       throw error;
