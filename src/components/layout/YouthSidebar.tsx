@@ -25,7 +25,7 @@ interface YouthSidebarProps {
 export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
   const location = useLocation();
   const { isExpanded, isPinned, setIsExpanded, togglePinned } = useSidebar();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const sidebarRef = useRef(null);
   
   const isActive = (path: string) => {
