@@ -11,6 +11,7 @@ import { SiGoogle } from "react-icons/si";
 interface AuthFormProps {
   isSignUp: boolean;
   onToggleMode: () => void;
+  initialRole?: string | null;
 }
 
 interface FormErrors {
@@ -24,6 +25,7 @@ interface FormErrors {
 export const AuthForm: React.FC<AuthFormProps> = ({
   isSignUp,
   onToggleMode,
+  initialRole,
 }) => {
   const [searchParams] = useSearchParams();
   const preSelectedRole = searchParams.get('role');
@@ -32,7 +34,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     name: "",
     email: "",
     password: "",
-    role: preSelectedRole || "",
+    role: initialRole || preSelectedRole || "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -341,7 +343,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
               {isSignUp ? "Already have an account?" : "Don't have an account?"}
             </span>
             <button
-              onClick={onToggleMode}
+              onClick={() => navigate(`/auth?mode=${isSignUp ? 'signin' : 'signup'}`)}
               className="ml-2 text-[#B45309] hover:text-[#92400E] font-semibold transition-colors text-sm underline"
             >
               {isSignUp ? "Sign In" : "Sign Up"}

@@ -245,9 +245,22 @@ export const Header = () => {
                   Logout
                 </LoadingButton>
               </div> : 
-              <div className="hidden lg:flex items-center">
-                <Button variant="primary" size="sm" onClick={handleLogin} className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-5">
-                  {t('nav.getStarted')}
+              <div className="hidden lg:flex items-center space-x-3">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/auth?mode=signin')}
+                  className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 rounded-md px-4 py-2"
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  onClick={() => navigate('/auth?mode=signup')}
+                  className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-4 py-2"
+                >
+                  Get Started
                 </Button>
               </div>}
               
@@ -294,12 +307,28 @@ export const Header = () => {
                     {t('nav.signOut')}
                   </LoadingButton>
                 </div>
-              </> : <div className="px-3 pt-2">
-                <Button variant="primary" fullWidth onClick={() => {
-            handleLogin();
-            setMobileMenuOpen(false);
-          }} className="bg-[#B45309] hover:bg-[#92400E] text-white">
-                  {t('nav.getStarted')}
+              </> : <div className="px-3 pt-2 space-y-2">
+                <Button 
+                  variant="outline" 
+                  fullWidth 
+                  onClick={() => {
+                    navigate('/auth?mode=signin');
+                    setMobileMenuOpen(false);
+                  }} 
+                  className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10"
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  variant="primary" 
+                  fullWidth 
+                  onClick={() => {
+                    navigate('/auth?mode=signup');
+                    setMobileMenuOpen(false);
+                  }} 
+                  className="bg-[#B45309] hover:bg-[#92400E] text-white"
+                >
+                  Get Started
                 </Button>
               </div>}
             <div className="px-3 pt-2 flex justify-center space-x-2">

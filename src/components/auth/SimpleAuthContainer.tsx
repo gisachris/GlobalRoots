@@ -1,8 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AuthForm } from "./AuthForm";
 
-export const SimpleAuthContainer: React.FC = () => {
-  const [isSignUp, setIsSignUp] = useState(true);
+interface SimpleAuthContainerProps {
+  initialMode?: string;
+  initialRole?: string | null;
+}
+
+export const SimpleAuthContainer: React.FC<SimpleAuthContainerProps> = ({ 
+  initialMode = 'signin',
+  initialRole 
+}) => {
+  const [searchParams] = useSearchParams();
+  const currentMode = searchParams.get('mode') || initialMode;
+  const [isSignUp, setIsSignUp] = useState(currentMode === 'signup');
+
+  useEffect(() => {
+    setIsSignUp(currentMode === 'signup');
+  }, [currentMode]);
 
   const handleToggle = () => {
     setIsSignUp(!isSignUp);
@@ -73,7 +88,7 @@ export const SimpleAuthContainer: React.FC = () => {
             }`}
           >
             <div className="h-full bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-              <AuthForm isSignUp={isSignUp} onToggleMode={handleToggle} />
+              <AuthForm isSignUp={isSignUp} onToggleMode={handleToggle} initialRole={initialRole} />
             </div>
           </div>
 
@@ -84,7 +99,7 @@ export const SimpleAuthContainer: React.FC = () => {
         {/* Mobile Layout */}
         <div className="lg:hidden">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-            <AuthForm isSignUp={isSignUp} onToggleMode={handleToggle} />
+            <AuthForm isSignUp={isSignUp} onToggleMode={handleToggle} initialRole={initialRole} />
           </div>
         </div>
       </div>

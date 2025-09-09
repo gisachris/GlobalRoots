@@ -111,9 +111,7 @@ function AppRoutes() {
         } />
         <Route path="/" element={
           user ? (
-            user.profileCompleted === false ? (
-              <Navigate to="/onboarding" replace />
-            ) : user.role === 'youth' ? (
+            user.role === 'youth' ? (
               <SidebarLayout>
                 <YouthDashboard />
               </SidebarLayout>
