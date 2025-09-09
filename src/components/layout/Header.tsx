@@ -113,7 +113,8 @@ export const Header = () => {
                   <>
                     <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
                     <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
-                    <NavLink to="/community" label="Community" currentPath={location.pathname} />
+                    {/* <NavLink to="/community" label="Community" currentPath={location.pathname} /> */}
+                    <NavLink to='/circle' label='Circle' currentPath={location.pathname}/>
                   </>
                 )}
                 {user?.role === 'mentor' && (
