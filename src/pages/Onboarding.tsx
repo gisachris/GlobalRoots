@@ -447,8 +447,8 @@ export const Onboarding = () => {
                 <div className="flex space-x-4 pt-6">
                   <Button
                     onClick={handleCompleteOnboarding}
-                    disabled={isCompleting || !formData.fullName || !formData.location || !formData.about || 
-                             ((user?.role || 'mentor') === 'mentor' ? !formData.hometown : !formData.desiredIndustry)}
+                    disabled={isCompleting || !formData.fullName || !formData.location || !formData.about ||
+                      ((user?.role || 'mentor') === 'mentor' ? !formData.hometown : !formData.desiredIndustry)}
                     className="flex-1 bg-[#B45309] hover:bg-[#7C2D12] text-white disabled:opacity-50"
                   >
                     {isCompleting ? (
