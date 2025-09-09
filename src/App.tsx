@@ -112,8 +112,9 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
         <Route path="/" element={
-          user ? (
-            user.role === 'youth' ? (
+          user ? (user.profileCompleted ===false?(
+              <Navigate to="/onboarding" replace />
+            ) : user.role === 'youth' ? (
               <SidebarLayout>
                 <YouthDashboard />
               </SidebarLayout>
