@@ -110,13 +110,13 @@ export const MentorLayout: React.FC<MentorLayoutProps> = ({ children }) => {
           {/* Quick Actions */}
           <div className="mx-4 mt-4 space-y-2">
             <Link
-              to="/mentor/circles/create"
+              to="/mentor/create-circle"
               className="block w-full px-4 py-2 text-sm font-medium text-center text-white bg-[#B45309] rounded-lg hover:bg-[#7C2D12] transition-colors"
             >
               Create New Circle
             </Link>
             <Link
-              to="/mentor/schedule"
+              to="/mentor/schedule-meeting"
               className="block w-full px-4 py-2 text-sm font-medium text-center text-[#B45309] border border-[#B45309] rounded-lg hover:bg-[#B45309] hover:text-white transition-colors"
             >
               Schedule Meeting

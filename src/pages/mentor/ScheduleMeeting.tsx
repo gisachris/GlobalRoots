@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Calendar, Clock, Users, Video, MessageCircle, Plus, X } from 'lucide-react';
+import { meetingService } from '../../services/meetings';
+import { supabase } from '../../lib/supabase-client';
+import { Calendar, Clock, Users, Video, MessageCircle, Plus, X, AlertCircle, CheckCircle } from 'lucide-react';
 
 export const ScheduleMeeting: React.FC = () => {
   const navigate = useNavigate();
@@ -20,19 +22,81 @@ export const ScheduleMeeting: React.FC = () => {
   });
 
   const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
+  const [selectedCircle, setSelectedCircle] = useState<string>('');
+  const [mentees, setMentees] = useState<any[]>([]);
+  const [circles, setCircles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const mentees = [
-    { id: '1', name: 'Jean-Paul Habimana', email: 'jean@example.com' },
-    { id: '2', name: 'Alice Uwimana', email: 'alice@example.com' },
-    { id: '3', name: 'Bob Nkurunziza', email: 'bob@example.com' },
-    { id: '4', name: 'Carol Mukamana', email: 'carol@example.com' }
-  ];
+  useEffect(() => {
+    loadMenteesAndCircles();
+  }, []);
 
-  const circles = [
-    { id: '1', name: 'Frontend Development Mastery', members: 12 },
-    { id: '2', name: 'Career Transition Bootcamp', members: 8 },
-    { id: '3', name: 'Startup Founders Circle', members: 6 }
-  ];
+  const loadMenteesAndCircles = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Try to load from database first
+      const [menteesResult, circlesResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('role', 'youth')
+          .limit(20),
+        supabase
+          .from('circles')
+          .select('id, title')
+          .eq('mentor_id', user.id)
+          .eq('status', 'active')
+      ]);
+
+      // Use database data if available, otherwise use examples
+      const menteesData = menteesResult.data && menteesResult.data.length > 0 
+        ? menteesResult.data 
+        : [
+            { id: '550e8400-e29b-41d4-a716-446655440001', full_name: 'Jean-Paul Habimana', email: 'jeanpaul@example.com' },
+            { id: '550e8400-e29b-41d4-a716-446655440002', full_name: 'Alice Uwimana', email: 'alice@example.com' },
+            { id: '550e8400-e29b-41d4-a716-446655440003', full_name: 'Bob Nkurunziza', email: 'bob@example.com' },
+            { id: '550e8400-e29b-41d4-a716-446655440004', full_name: 'Carol Mukamana', email: 'carol@example.com' },
+            { id: '550e8400-e29b-41d4-a716-446655440005', full_name: 'David Nsengimana', email: 'david@example.com' },
+            { id: '550e8400-e29b-41d4-a716-446655440006', full_name: 'Grace Uwimana', email: 'grace@example.com' }
+          ];
+
+      const circlesData = circlesResult.data && circlesResult.data.length > 0
+        ? circlesResult.data
+        : [
+            { id: '550e8400-e29b-41d4-a716-446655441001', title: 'Frontend Development Mastery' },
+            { id: '550e8400-e29b-41d4-a716-446655441002', title: 'Career Transition Bootcamp' },
+            { id: '550e8400-e29b-41d4-a716-446655441003', title: 'Startup Founders Circle' },
+            { id: '550e8400-e29b-41d4-a716-446655441004', title: 'Data Science Fundamentals' },
+            { id: '550e8400-e29b-41d4-a716-446655441005', title: 'Mobile App Development' }
+          ];
+
+      setMentees(menteesData);
+      setCircles(circlesData);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      // Fallback to example data on error
+      setMentees([
+        { id: '550e8400-e29b-41d4-a716-446655440001', full_name: 'Jean-Paul Habimana', email: 'jeanpaul@example.com' },
+        { id: '550e8400-e29b-41d4-a716-446655440002', full_name: 'Alice Uwimana', email: 'alice@example.com' },
+        { id: '550e8400-e29b-41d4-a716-446655440003', full_name: 'Bob Nkurunziza', email: 'bob@example.com' }
+      ]);
+      setCircles([
+        { id: '550e8400-e29b-41d4-a716-446655441001', title: 'Frontend Development Mastery' },
+        { id: '550e8400-e29b-41d4-a716-446655441002', title: 'Career Transition Bootcamp' }
+      ]);
+    }
+  };
+
+  const generateMeetingLink = () => {
+    const meetingId = Math.random().toString(36).substring(2, 15);
+    const roomName = meetingData.title.replace(/\s+/g, '-').toLowerCase();
+    const link = `https://meet.jit.si/${roomName}-${meetingId}`;
+    handleInputChange('meetingLink', link);
+  };
 
   const handleInputChange = (field: string, value: any) => {
     setMeetingData(prev => ({
@@ -49,10 +113,51 @@ export const ScheduleMeeting: React.FC = () => {
     );
   };
 
-  const handleSchedule = () => {
-    // Schedule meeting logic
-    console.log('Meeting scheduled:', { ...meetingData, attendees: selectedMentees });
-    navigate('/mentor/calendar');
+  const validateForm = () => {
+    if (!meetingData.title.trim()) return 'Meeting title is required';
+    if (!meetingData.date) return 'Meeting date is required';
+    if (!meetingData.time) return 'Meeting time is required';
+    if (meetingData.type === 'circle' && !selectedCircle) return 'Please select a circle';
+    if (meetingData.type !== 'circle' && selectedMentees.length === 0) return 'Please select at least one attendee';
+    return null;
+  };
+
+  const handleSchedule = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const attendees = meetingData.type === 'circle' ? [] : selectedMentees;
+      
+      await meetingService.createMeeting({
+        title: meetingData.title,
+        description: meetingData.description,
+        meeting_type: meetingData.type as 'individual' | 'group' | 'circle',
+        circle_id: meetingData.type === 'circle' ? selectedCircle : undefined,
+        meeting_date: meetingData.date,
+        meeting_time: meetingData.time,
+        duration_minutes: meetingData.duration,
+        meeting_link: meetingData.meetingLink,
+        is_recurring: meetingData.recurring,
+        recurring_type: meetingData.recurring ? meetingData.recurringType as 'weekly' | 'biweekly' | 'monthly' : undefined,
+        attendees
+      });
+
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/mentor/calendar');
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to schedule meeting');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,6 +181,19 @@ export const ScheduleMeeting: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {error && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center">
+                <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                <span className="text-red-700 dark:text-red-300">{error}</span>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                <span className="text-green-700 dark:text-green-300">Meeting scheduled successfully! Redirecting...</span>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-[#503314] dark:text-white mb-2">
                 Meeting Title *
@@ -127,13 +245,20 @@ export const ScheduleMeeting: React.FC = () => {
                   type="date"
                   value={meetingData.date}
                   onChange={(e) => handleInputChange('date', e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={(() => {
+                    // Get current date in Rwanda timezone
+                    const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Kigali' }));
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                  })()}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#503314] dark:text-white mb-2">
-                  Time *
+                  Time * <span className="text-xs text-[#7C2D12] dark:text-gray-400">(Rwanda Time - GMT+2)</span>
                 </label>
                 <input
                   type="time"
@@ -186,7 +311,12 @@ export const ScheduleMeeting: React.FC = () => {
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                   placeholder="https://zoom.us/j/..."
                 />
-                <Button variant="outline" className="border-[#B45309] text-[#B45309]">
+                <Button 
+                  type="button"
+                  onClick={generateMeetingLink}
+                  variant="outline" 
+                  className="border-[#B45309] text-[#B45309]"
+                >
                   <Video className="h-4 w-4 mr-2" />
                   Generate
                 </Button>
@@ -230,65 +360,118 @@ export const ScheduleMeeting: React.FC = () => {
           <CardContent>
             {meetingData.type === 'circle' ? (
               <div className="space-y-3">
-                <p className="text-sm text-[#7C2D12] dark:text-gray-300 mb-3">
-                  Select a circle for the meeting:
-                </p>
-                {circles.map(circle => (
-                  <div
-                    key={circle.id}
-                    className="p-3 border border-gray-200 rounded-lg hover:border-[#B45309] cursor-pointer transition-colors"
-                  >
-                    <h4 className="font-medium text-[#503314] dark:text-white">{circle.name}</h4>
-                    <p className="text-sm text-[#7C2D12] dark:text-gray-300">{circle.members} members</p>
-                  </div>
-                ))}
+                <label className="block text-sm font-medium text-[#503314] dark:text-white mb-2">
+                  Select Circle *
+                </label>
+                <select
+                  value={selectedCircle}
+                  onChange={(e) => setSelectedCircle(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
+                >
+                  <option value="">Choose a circle...</option>
+                  {circles.map(circle => (
+                    <option key={circle.id} value={circle.id}>
+                      {circle.title}
+                    </option>
+                  ))}
+                </select>
+                {selectedCircle && (
+                  <p className="text-sm text-[#7C2D12] dark:text-gray-300">
+                    All members of this circle will receive the meeting invitation.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-[#7C2D12] dark:text-gray-300 mb-3">
-                  Select mentees to invite:
-                </p>
-                {mentees.map(mentee => (
-                  <div key={mentee.id} className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id={mentee.id}
-                      checked={selectedMentees.includes(mentee.id)}
-                      onChange={() => handleMenteeToggle(mentee.id)}
-                      className="h-4 w-4 text-[#B45309] focus:ring-[#B45309] border-gray-300 rounded"
-                    />
-                    <label htmlFor={mentee.id} className="flex-1 cursor-pointer">
-                      <div className="font-medium text-[#503314] dark:text-white">{mentee.name}</div>
-                      <div className="text-sm text-[#7C2D12] dark:text-gray-300">{mentee.email}</div>
-                    </label>
-                  </div>
-                ))}
+                <label className="block text-sm font-medium text-[#503314] dark:text-white mb-2">
+                  Select Attendees *
+                </label>
+                <select
+                  onChange={(e) => {
+                    const menteeId = e.target.value;
+                    if (menteeId && !selectedMentees.includes(menteeId)) {
+                      setSelectedMentees(prev => [...prev, menteeId]);
+                    }
+                    e.target.value = '';
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
+                >
+                  <option value="">Add attendee...</option>
+                  {mentees
+                    .filter(mentee => !selectedMentees.includes(mentee.id))
+                    .map(mentee => (
+                      <option key={mentee.id} value={mentee.id}>
+                        {mentee.full_name} ({mentee.email})
+                      </option>
+                    ))
+                  }
+                </select>
+                {selectedMentees.length > 0 && (
+                  <p className="text-sm text-[#7C2D12] dark:text-gray-300">
+                    Selected attendees will receive the meeting link via email.
+                  </p>
+                )}
               </div>
             )}
 
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="text-sm text-[#7C2D12] dark:text-gray-300 mb-2">
-                Selected: {selectedMentees.length} attendees
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="text-sm text-[#7C2D12] dark:text-gray-300 mb-3">
+                Selected: {meetingData.type === 'circle' && selectedCircle ? 
+                  `1 circle (${circles.find(c => c.id === selectedCircle)?.title || 'Unknown'})` :
+                  `${selectedMentees.length} attendee${selectedMentees.length !== 1 ? 's' : ''}`
+                }
               </div>
-              <div className="flex flex-wrap gap-2">
-                {selectedMentees.map(menteeId => {
-                  const mentee = mentees.find(m => m.id === menteeId);
-                  return mentee ? (
-                    <span
-                      key={menteeId}
-                      className="inline-flex items-center px-2 py-1 bg-[#B45309]/10 text-[#B45309] text-xs rounded-full"
+              
+              {meetingData.type === 'circle' && selectedCircle ? (
+                <div className="p-3 bg-[#B45309]/10 border border-[#B45309]/20 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[#B45309] font-medium">
+                        {circles.find(c => c.id === selectedCircle)?.title}
+                      </span>
+                      <p className="text-xs text-[#7C2D12] dark:text-gray-400 mt-1">
+                        Meeting link will be sent to all circle members
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedCircle('')}
+                      className="text-[#B45309] hover:text-red-500 transition-colors"
                     >
-                      {mentee.name}
-                      <button
-                        onClick={() => handleMenteeToggle(menteeId)}
-                        className="ml-1 hover:text-red-500"
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedMentees.map(menteeId => {
+                    const mentee = mentees.find(m => m.id === menteeId);
+                    return mentee ? (
+                      <div
+                        key={menteeId}
+                        className="flex items-center justify-between p-2 bg-[#B45309]/10 border border-[#B45309]/20 rounded-lg"
                       >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ) : null;
-                })}
-              </div>
+                        <div>
+                          <span className="text-[#B45309] font-medium">{mentee.full_name}</span>
+                          <p className="text-xs text-[#7C2D12] dark:text-gray-400">
+                            Meeting link will be sent to {mentee.email}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleMenteeToggle(menteeId)}
+                          className="text-[#B45309] hover:text-red-500 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : null;
+                  })}
+                  {selectedMentees.length === 0 && meetingData.type !== 'circle' && (
+                    <p className="text-sm text-gray-500 italic">
+                      No attendees selected - use dropdown above to add attendees
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -312,10 +495,12 @@ export const ScheduleMeeting: React.FC = () => {
           </Button>
           <Button
             onClick={handleSchedule}
+            disabled={loading || success}
+            loading={loading}
             className="bg-[#B45309] hover:bg-[#7C2D12]"
           >
             <Calendar className="h-4 w-4 mr-2" />
-            Schedule Meeting
+            {success ? 'Meeting Scheduled!' : 'Schedule Meeting'}
           </Button>
         </div>
       </div>
