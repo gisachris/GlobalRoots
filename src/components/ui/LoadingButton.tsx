@@ -50,7 +50,7 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
           )}
         </div>
       )}
-      <span className={loading ? 'invisible' : 'visible'}>
+      <span className={loading ? 'invisible' : 'visible flex flex-nowrap'}>
         {children}
       </span>
     </Button>
