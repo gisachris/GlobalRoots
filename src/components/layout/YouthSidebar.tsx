@@ -2,17 +2,15 @@ import { useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
 import { 
-  Home, 
   BookOpen, 
   MessageSquare,
-  Settings2, 
-  LogOut,
   TableOfContents, 
   Folder, 
   X, 
   Calendar,
   ChevronRight,
-  Briefcase
+  User,
+  Settings2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
@@ -115,22 +113,6 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
         <ul className="space-y-1">
           <li>
             <Link 
-              to="/dashboard" 
-              onClick={handleLinkClick} 
-              className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
-                isActive('/dashboard') && location.pathname === '/' 
-                  ? 'bg-[#B45309]/10 text-[#B45309]' 
-                  : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
-              } ${!shouldShowText ? 'justify-center' : ''}`}
-              title={!shouldShowText ? "Dashboard" : ""}
-            >
-              <Home className="h-5 w-5 flex-shrink-0" />
-              {shouldShowText && <span className="ml-3">Dashboard</span>}
-            </Link>
-          </li>
-          
-          <li>
-            <Link 
               to="/learning" 
               onClick={handleLinkClick} 
               className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
@@ -197,6 +179,21 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
         <div className={`pt-6 mt-6 border-t border-[#B45309]/20 ${!shouldShowText ? 'mx-2' : ''}`}>
           <ul className="space-y-1">
             <li>
+            <Link 
+              to="/userProfile" 
+              onClick={handleLinkClick} 
+              className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
+                isActive('/userProfile') 
+                  ? 'bg-[#B45309]/10 text-[#B45309]' 
+                  : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
+              } ${!shouldShowText ? 'justify-center' : ''}`}
+              title={!shouldShowText ? "userProfile" : ""}
+            >
+              <User className="h-5 w-5 flex-shrink-0" />
+              {shouldShowText && <span className="ml-3">user Profile</span>}
+            </Link>
+          </li>
+            <li>
               <Link 
                 to="/settings" 
                 onClick={handleLinkClick} 
@@ -206,16 +203,6 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
                 <Settings2 className="h-5 w-5 flex-shrink-0" />
                 {shouldShowText && <span className="ml-3">Settings</span>}
               </Link>
-            </li>
-            <li>
-              <button 
-                onClick={() => { logout(); handleLinkClick(); }} 
-                className={`flex items-center w-full px-4 py-3 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all duration-200 ${!shouldShowText ? 'justify-center' : ''}`}
-                title={!shouldShowText ? "Log Out" : ""}
-              >
-                <LogOut className="h-5 w-5 flex-shrink-0" />
-                {shouldShowText && <span className="ml-3">Log Out</span>}
-              </button>
             </li>
           </ul>
         </div>

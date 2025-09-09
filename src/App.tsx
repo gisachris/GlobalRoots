@@ -124,7 +124,7 @@ function AppRoutes() {
           ) : <LandingPage />
         } />
 
-        <Route path="/dashboard" element={
+        <Route path="/userProfile" element={
           <SidebarLayout>
             <Dashboard />
           </SidebarLayout>

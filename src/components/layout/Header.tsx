@@ -123,7 +123,7 @@ export const Header = () => {
                     <NavLink to="/mentor/dashboard" label="Dashboard" currentPath={location.pathname} />
                   </>
                 )}
-                {user?.role === 'diaspora' && <NavLink to="/returnee" label="Returnship" currentPath={location.pathname} />}
+                {user?.role === 'mentor' && <NavLink to="/returnee" label="Returnship" currentPath={location.pathname} />}
               </>
             ) : (
               <>
@@ -179,7 +179,7 @@ export const Header = () => {
                     className="relative p-2 rounded-full hover:bg-[#F5F5F0]/80 transition-all duration-300"
                     onClick={() => setNotificationOpen(!notificationOpen)}
                   >
-                    <BellIcon className="h-5 w-5 text-[#503314] hover:text-[#B45309] transition-colors" />
+                    <BellIcon className="h-5 w-5 text-[#503314] dark:text-[#c59058] hover:text-[#B45309] hover:dark:text-[#863d06] transition-colors" />
                     {unreadCount > 0 && (
                       <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
                     )}
@@ -238,11 +238,10 @@ export const Header = () => {
                   size="sm" 
                   loading={isSigningOut}
                   onClick={handleLogout}
-                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center"
+                  className=" text-red-600 hover:bg-red-100 hover:text-red-700  items-center"
                   loadingText="Signing Out..."
                 >
-                  <LogOutIcon className="h-4 w-4 mr-1" />
-                  Logout
+                  <LogOutIcon className="h-4 w-4 mr-1" /><p>Logout</p>
                 </LoadingButton>
               </div> : 
               <div className="hidden lg:flex items-center space-x-3">

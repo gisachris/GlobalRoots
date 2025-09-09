@@ -113,7 +113,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         toast.success("Login successful!");
 
         // Redirect will be handled by useAuthRedirect hook
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error: any) {
       // Handle specific error types
