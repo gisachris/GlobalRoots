@@ -2,7 +2,7 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { supabase } from '../../lib/supabase-client';
+
 
 interface SignUpFormData {
   fullName: string;
@@ -102,20 +102,13 @@ export const SignUp = ({ onSignIn }: SignUpProps) => {
     if (!validateForm()) return;
 
     try {
-      // Sign up with user metadata including role
-      const { error } = await supabase.auth.signUp({
+      await signUp({
         email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            user_type: formData.userType,
-            role: formData.userType === 'mentee' ? 'youth' : 'mentor'
-          }
-        }
+        fullName: formData.fullName,
+        userType: formData.userType,
+        role: formData.userType === 'mentee' ? 'youth' : 'mentor'
       });
-
-      if (error) throw error;
 
       setMessage('Sign up successful! Please check your email and click the confirmation link to complete your registration.');
       // Don't auto-redirect - user needs to confirm email first

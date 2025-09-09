@@ -5,6 +5,16 @@ export interface User {
   id: string;
   email: string;
   role: 'youth' | 'mentor' | 'admin';
+  fullName?: string;
+  profileCompleted?: boolean;
+}
+
+interface SignUpData {
+  email: string;
+  password: string;
+  fullName?: string;
+  userType?: 'mentor' | 'mentee';
+  role?: 'youth' | 'mentor' | 'admin';
 }
 
 interface AuthContextType {
@@ -14,8 +24,9 @@ interface AuthContextType {
   isSigningUp: boolean;
   isSigningOut: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
+  completeProfile: (profileData: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +46,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          role: userRole
+          role: userRole,
+          fullName: session.user.user_metadata?.full_name,
+          profileCompleted: session.user.user_metadata?.profile_completed || false
         });
       }
       setLoading(false);
@@ -50,7 +63,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            role: userRole
+            role: userRole,
+            fullName: session.user.user_metadata?.full_name,
+            profileCompleted: session.user.user_metadata?.profile_completed || false
           });
         } else {
           setUser(null);
@@ -72,10 +87,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (data: SignUpData) => {
     setIsSigningUp(true);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+            user_type: data.userType,
+            role: data.role || (data.userType === 'mentee' ? 'youth' : 'mentor')
+          }
+        }
+      });
       if (error) throw error;
     } finally {
       setIsSigningUp(false);
@@ -92,16 +117,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const completeProfile = async (profileData: any) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          ...profileData,
+          profile_completed: true
+        }
+      });
+      if (error) throw error;
+
+      // Update local user state
+      if (user) {
+        setUser({ ...user, profileCompleted: true });
+      }
+    } catch (error) {
+      console.error('Error completing profile:', error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
+    <AuthContext.Provider value={{
+      user,
+      loading,
       isSigningIn,
       isSigningUp,
       isSigningOut,
-      signIn, 
-      signUp, 
-      signOut 
+      signIn,
+      signUp,
+      signOut,
+      completeProfile
     }}>
       {children}
     </AuthContext.Provider>
