@@ -215,7 +215,9 @@ function AppRoutes() {
         <Route path="/impact" element={<ImpactDashboard />} />
         <Route path="/settings" element={
           <ProtectedRoute>
-            <SettingsPage />
+            <SidebarLayout>
+              <SettingsPage />
+            </SidebarLayout>
           </ProtectedRoute>
         } />
 
