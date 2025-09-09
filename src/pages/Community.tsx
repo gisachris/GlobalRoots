@@ -174,7 +174,7 @@ export const Community = () => {
                 </div>
               )}
             </div>
-            {user?.role==='diaspora'&&<Button variant="primary" className="flex items-center bg-[#B45309] hover:bg-[#92400E] px-6 py-3 rounded-xl">
+            {user?.role==='mentor'&&<Button variant="primary" className="flex items-center bg-[#B45309] hover:bg-[#92400E] px-6 py-3 rounded-xl">
               <PlusIcon className="mr-2" size={18} />
               Create Circle
             </Button>}
@@ -297,7 +297,7 @@ export const Community = () => {
                     <Button variant="primary">RSVP</Button>
                   </CardFooter>
                 </Card>)}
-              {user?.role==='diaspora'&&<>{/* Create Event Card */}
+              {user?.role==='mentor'&&<>{/* Create Event Card */}
               <Card className="hover:shadow-md transition-shadow border-dashed">
                 <CardContent className="flex flex-col items-center justify-center h-full py-12">
                   <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center mb-4">

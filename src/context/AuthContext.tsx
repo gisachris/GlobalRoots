@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           role: userRole,
           fullName: session.user.user_metadata?.full_name,
           profileCompleted: session.user.user_metadata?.profile_completed || false
+
         });
       }
       setLoading(false);
@@ -67,6 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role: userRole,
             fullName: session.user.user_metadata?.full_name,
             profileCompleted: session.user.user_metadata?.profile_completed || false
+
           });
         } else {
           setUser(null);
