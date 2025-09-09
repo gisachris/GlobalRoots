@@ -257,7 +257,7 @@ export const Header = () => {
                 <Button 
                   variant="primary" 
                   size="sm" 
-                  onClick={() => navigate('/auth?mode=signup')}
+                  onClick={handleLogin}
                   className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-4 py-2"
                 >
                   Get Started
@@ -323,7 +323,7 @@ export const Header = () => {
                   variant="primary" 
                   fullWidth 
                   onClick={() => {
-                    navigate('/auth?mode=signup');
+                    handleLogin();
                     setMobileMenuOpen(false);
                   }} 
                   className="bg-[#B45309] hover:bg-[#92400E] text-white"

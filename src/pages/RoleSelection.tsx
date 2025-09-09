@@ -14,7 +14,7 @@ export const RoleSelection: React.FC = () => {
   useAuthRedirect();
 
   const handleRoleSelect = (role: string) => {
-    navigate(`/auth?role=${role}&source=${source}`);
+    navigate(`/auth?mode=signup&role=${role}&source=${source}`);
   };
 
   return (
