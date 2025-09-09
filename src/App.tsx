@@ -96,7 +96,8 @@ const MentorLayoutRoute = ({ children }: { children: React.ReactNode }) => {
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  // Only show loading overlay for authenticated users
+  if (loading && user) {
     return <LoadingOverlay isVisible={true} message="Initializing your account..." />;
   }
 
@@ -112,7 +113,9 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
         <Route path="/" element={
-          user ? (user.profileCompleted ===false?(
+          loading ? (
+            <LoadingOverlay isVisible={true} message="Loading..." />
+          ) : user ? (user.profileCompleted === false ? (
               <Navigate to="/onboarding" replace />
             ) : user.role === 'youth' ? (
               <SidebarLayout>

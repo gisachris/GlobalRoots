@@ -69,7 +69,7 @@ export const LandingPage = () => {
                 <Button
                   variant="primary"
                   size="lg"
-                  onClick={()=>navigate('/auth?role=mentee&source=hero')}
+                  onClick={()=>navigate('/role-selection?source=hero')}
                   className="bg-[#B45309] hover:bg-[#92400E] text-white rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Youth <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -77,7 +77,7 @@ export const LandingPage = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={()=>navigate('/auth?role=mentor&source=hero')}
+                  onClick={()=>navigate('/role-selection?source=hero')}
                   className="border-[#B45309] text-[#B45309] hover:bg-[#B45309]/10 rounded-md px-6 py-3 flex items-center justify-center transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg"
                 >
                   I am Diaspora <ArrowRightIcon className="ml-2 h-5 w-5" />
