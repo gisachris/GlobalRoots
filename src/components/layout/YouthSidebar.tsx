@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSidebar } from '../../context/SidebarContext';
 import { 
   Home, 
   BookOpen, 
@@ -23,8 +24,7 @@ interface YouthSidebarProps {
 
 export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
   const location = useLocation();
-  const [isPinned, setIsPinned] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const { isExpanded, isPinned, setIsExpanded, togglePinned } = useSidebar();
   const { user, logout } = useAuth();
   const sidebarRef = useRef(null);
   
@@ -53,7 +53,7 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
   };
 
   const togglePin = () => {
-    setIsPinned(!isPinned);
+    togglePinned();
     if (!isPinned) {
       setIsExpanded(true);
       onWidthChange?.(true);

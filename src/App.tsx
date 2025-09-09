@@ -53,6 +53,8 @@ import { Calendar } from './pages/Calendar';
 import { Notifications } from './pages/Notifications';
 import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
+import { SidebarProvider } from './context/SidebarContext';
+import { SidebarProvider } from './context/SidebarContext';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -313,13 +315,17 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <LanguageProvider>
-        <ThemeProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ThemeProvider>
-      </LanguageProvider>
+      <SidebarProvider>
+      <SidebarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ThemeProvider>
+        </LanguageProvider>
+      </SidebarProvider>
+      </SidebarProvider>
     </AuthProvider>
   );
 }
