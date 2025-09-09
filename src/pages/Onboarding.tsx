@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { CheckCircleIcon, LinkedinIcon, UserIcon, BriefcaseIcon, MapPinIcon, PlusIcon, XIcon } from 'lucide-react';
+import { IndustryComboBox } from '../components/ui/IndustryComboBox';
 
 export const Onboarding = () => {
   const { user, completeProfile } = useAuth();
@@ -18,6 +19,7 @@ export const Onboarding = () => {
   const [formData, setFormData] = useState<any>(null);
   const [newSkill, setNewSkill] = useState('');
   const [error, setError] = useState('');
+  console.log(formData)
 
   // Redirect if profile already completed
   useEffect(() => {
@@ -34,16 +36,16 @@ export const Onboarding = () => {
 
     setIsLoading(true);
     setError('');
-    
+
     try {
       console.log('=== ONBOARDING: Starting LinkedIn scrape ===');
       const profileData = await scrapeLinkedInProfile(linkedinUrl);
       console.log('=== ONBOARDING: Scraping completed ===');
-      
+
       const mapped = mapLinkedInDataToUserProfile(profileData, user?.role || 'mentor');
       console.log('=== ONBOARDING: Data mapped ===');
       console.log('Final mapped data:', mapped);
-      
+
       setScrapedData(profileData);
       setFormData(mapped);
       console.log('=== ONBOARDING: Form data set, moving to step 3 ===');
@@ -81,7 +83,7 @@ export const Onboarding = () => {
       education: [],
       skills: []
     };
-    
+
     setFormData(emptyData);
     setStep(3);
   };
@@ -242,7 +244,7 @@ export const Onboarding = () => {
                       placeholder="Enter your full name"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-[#503314] mb-2">
                       Location *
@@ -289,7 +291,7 @@ export const Onboarding = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-[#503314] mb-2">
-                          Hometown/Origin
+                          Hometown/Origin *
                         </label>
                         <input
                           type="text"
@@ -303,12 +305,10 @@ export const Onboarding = () => {
                         <label className="block text-sm font-medium text-[#503314] mb-2">
                           Industry/Field *
                         </label>
-                        <input
-                          type="text"
+                        <IndustryComboBox
                           value={formData.industry}
-                          onChange={(e) => handleInputChange('industry', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
-                          placeholder="Technology, Finance, etc."
+                          onChange={(value) => handleInputChange('industry', value)}
+                          placeholder="Select or type your industry"
                         />
                       </div>
                     </div>
@@ -363,12 +363,10 @@ export const Onboarding = () => {
                         <label className="block text-sm font-medium text-[#503314] mb-2">
                           Desired Industry *
                         </label>
-                        <input
-                          type="text"
+                        <IndustryComboBox
                           value={formData.desiredIndustry}
-                          onChange={(e) => handleInputChange('desiredIndustry', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
-                          placeholder="Industry you want to work in"
+                          onChange={(value) => handleInputChange('desiredIndustry', value)}
+                          placeholder="Select or type desired industry"
                         />
                       </div>
                       <div>
@@ -448,7 +446,7 @@ export const Onboarding = () => {
                 <div className="flex space-x-4 pt-6">
                   <Button
                     onClick={handleCompleteOnboarding}
-                    disabled={isCompleting || !formData.fullName || !formData.location}
+                    disabled={isCompleting || !formData.fullName || !formData.location || !formData.hometown}
                     className="flex-1 bg-[#B45309] hover:bg-[#7C2D12] text-white disabled:opacity-50"
                   >
                     {isCompleting ? (

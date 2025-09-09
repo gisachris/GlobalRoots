@@ -27,7 +27,7 @@ export interface LinkedInProfileData {
         startYear?: string;
         endYear?: string;
     }>;
-    skills?: string[] | Array<{title: string; subComponents?: any[]}>;
+    skills?: string[] | Array<{ title: string; subComponents?: any[] }>;
     profilePicture?: string;
     profileImage?: string;
     industry?: string;
@@ -45,7 +45,7 @@ export const scrapeLinkedInProfile = async (profileUrl: string): Promise<LinkedI
         const input = {
             profileUrls: [profileUrl]
         };
-        
+
         console.log('Starting LinkedIn profile scrape for:', profileUrl);
         console.log('Sending input to Apify actor:', input);
 
@@ -147,17 +147,16 @@ const parseAboutField = (about: string) => {
     return { role, cleanAbout };
 };
 
-const calculateYearsOfExperience = (experience: any[]) => {
-    if (!experience || experience.length === 0) return 0;
+const calculateYearsOfExperience = (experiences: any[]) => {
+    if (!experiences || experiences.length === 0) return 0;
 
     let totalYears = 0;
-    const currentYear = new Date().getFullYear();
 
-    experience.forEach(exp => {
-        if (exp.duration) {
-            // Try to extract years from duration string
-            const yearMatch = exp.duration.match(/(\d+)\s*yr/);
-            const monthMatch = exp.duration.match(/(\d+)\s*mo/);
+    experiences.forEach(exp => {
+        if (exp.caption) {
+            // Extract years and months from caption like "Sep 2024 - Present · 1 yr 1 mo"
+            const yearMatch = exp.caption.match(/(\d+)\s*yr/);
+            const monthMatch = exp.caption.match(/(\d+)\s*mo/);
 
             if (yearMatch) {
                 totalYears += parseInt(yearMatch[1]);
@@ -165,11 +164,6 @@ const calculateYearsOfExperience = (experience: any[]) => {
             if (monthMatch) {
                 totalYears += parseInt(monthMatch[1]) / 12;
             }
-        } else if (exp.startDate || exp.endDate) {
-            // Calculate from dates if available
-            const startYear = exp.startDate ? new Date(exp.startDate).getFullYear() : currentYear;
-            const endYear = exp.endDate ? new Date(exp.endDate).getFullYear() : currentYear;
-            totalYears += Math.max(0, endYear - startYear);
         } else {
             // Default to 1 year per position if no duration info
             totalYears += 1;
@@ -195,7 +189,7 @@ const extractFullName = (linkedInData: any) => {
 };
 
 export const mapLinkedInDataToUserProfile = (
-    linkedInData: LinkedInProfileData,
+    linkedInData: any,
     userRole: 'youth' | 'mentor'
 ) => {
     console.log('=== MAPPING LINKEDIN DATA ===');
@@ -203,39 +197,55 @@ export const mapLinkedInDataToUserProfile = (
 
     const { role: extractedRole, cleanAbout } = parseAboutField(linkedInData.about || '');
     const fullName = extractFullName(linkedInData);
-    const calculatedExperience = calculateYearsOfExperience(linkedInData.experience || []);
+
+    // Use the correct field names from the actual scraped data
+    const experiences = linkedInData.experiences || [];
+    const educations = linkedInData.educations || [];
+    const location = linkedInData.addressWithoutCountry || linkedInData.addressWithCountry || '';
+    const profilePicture = linkedInData.profilePic || linkedInData.profilePicHighQuality || '';
+
+    // Calculate total experience from all experiences
+    const calculatedExperience = calculateYearsOfExperience(experiences);
 
     console.log('Extracted fullName:', fullName);
+    console.log('Location:', location);
     console.log('Calculated experience years:', calculatedExperience);
     console.log('Available skills:', linkedInData.skills);
+    console.log('Experiences:', experiences);
+    console.log('Educations:', educations);
 
     // Process skills to ensure they are strings
-    const processedSkills = linkedInData.skills ? 
-        linkedInData.skills.map(skill => 
+    const processedSkills = linkedInData.skills ?
+        linkedInData.skills.map((skill: any) =>
             typeof skill === 'string' ? skill : skill.title || ''
-        ).filter(skill => skill.trim() !== '') : [];
+        ).filter((skill: string) => skill.trim() !== '') : [];
 
     const baseData = {
         fullName: fullName,
         about: cleanAbout || linkedInData.about || '',
-        location: linkedInData.location || '',
+        location: location,
         skills: processedSkills,
-        profilePicture: linkedInData.profilePicture || '',
+        profilePicture: profilePicture,
         headline: linkedInData.headline || '',
     };
 
     if (userRole === 'mentor') {
         const mentorData = {
             ...baseData,
-            currentRole: linkedInData.experience?.[0]?.title || extractedRole || linkedInData.headline || '',
-            currentCompany: linkedInData.experience?.[0]?.company || '',
-            industry: linkedInData.industry || '',
-            yearsOfExperience: calculatedExperience,
-            education: linkedInData.education || [],
-            experience: linkedInData.experience || [],
+            currentRole: experiences[0]?.title || linkedInData.jobTitle || extractedRole || linkedInData.headline || '',
+            currentCompany: experiences[0]?.subtitle || '',
+            industry: '',
+            yearsOfExperience: Math.round(calculatedExperience) || 1,
+            education: educations,
+            experience: experiences,
             hometown: '', // To be filled by user
-            certifications: [], // To be filled by user
-            fieldOfStudy: linkedInData.education?.[0]?.field || linkedInData.education?.[0]?.degree || '',
+            certifications: (linkedInData.licenseAndCertificates || []).map((cert: any) => ({
+                name: cert.title || '',
+                issuer: cert.subtitle || '',
+                date: cert.caption || ''
+            })),
+            fieldOfStudy: educations[0]?.subtitle?.split(',')[0]?.trim() ||
+                educations[0]?.subtitle?.split('-')[1]?.trim() || '',
         };
         console.log('Mapped mentor data:', mentorData);
         return mentorData;
@@ -244,10 +254,10 @@ export const mapLinkedInDataToUserProfile = (
         const menteeData = {
             ...baseData,
             currentStatus: 'Student', // Default, can be updated by user
-            currentRole: linkedInData.experience?.[0]?.title || linkedInData.education?.[0]?.degree || '',
-            desiredIndustry: linkedInData.industry || '',
+            currentRole: experiences[0]?.title || educations[0]?.subtitle || '',
+            desiredIndustry: '',
             careerStage: 'Early Career', // Default, can be updated by user
-            education: linkedInData.education || [],
+            education: educations,
         };
         console.log('Mapped mentee data:', menteeData);
         return menteeData;

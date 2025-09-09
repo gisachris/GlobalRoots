@@ -135,7 +135,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           about: profileData.about || '',
           location: profileData.location || '',
           hometown: profileData.hometown,
-          profile_picture: profileData.profilePicture,
+          profile_picture: profileData.profilePicture || profileData.profile_picture,
           headline: profileData.headline,
           current_role: profileData.currentRole,
           current_company: profileData.currentCompany,
