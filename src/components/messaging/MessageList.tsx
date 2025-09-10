@@ -48,15 +48,23 @@ export const MessageList: React.FC<MessageListProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-4">
       <div className="space-y-4">
-        {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            content={message.content}
-            timestamp={formatTimestamp(message.created_at)}
-            isMe={message.sender_id === currentUserId}
-            senderName={message.sender?.user_metadata?.full_name}
-          />
-        ))}
+        {messages.map((message, index) => {
+          const prevMessage = messages[index - 1];
+          const showSenderInfo = !prevMessage || prevMessage.sender_id !== message.sender_id;
+          
+          return (
+            <MessageBubble
+              key={message.id}
+              content={message.content}
+              timestamp={formatTimestamp(message.created_at)}
+              isMe={message.sender_id === currentUserId}
+              senderName={message.sender_name}
+              senderRole={message.sender_role}
+              senderAvatar={message.sender_avatar}
+              showSenderInfo={showSenderInfo}
+            />
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
     </div>

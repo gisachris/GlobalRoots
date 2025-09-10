@@ -11,11 +11,9 @@ interface Message {
   message_type: 'text' | 'file' | 'image';
   created_at: string;
   failed?: boolean;
-  sender?: {
-    id: string;
-    email: string;
-    user_metadata?: { full_name?: string };
-  };
+  sender_name?: string;
+  sender_role?: 'mentor' | 'youth';
+  sender_avatar?: string;
 }
 
 interface Conversation {
@@ -128,17 +126,28 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             schema: 'public', 
             table: 'messages'
           },
-          (payload) => {
+          async (payload) => {
             const message = payload.new as Message;
             const key = message.circle_id || message.conversation_id || '';
             
             // Only add if not from current user (avoid duplicates)
             if (message.sender_id !== user.id) {
-              dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
+              // Fetch sender info using function
+              const { data: profileData } = await supabase
+                .rpc('get_user_profile', { user_id: message.sender_id });
+              
+              const messageWithSender = {
+                ...message,
+                sender_name: profileData?.full_name || 'Unknown User',
+                sender_role: profileData?.role || 'youth',
+                sender_avatar: profileData?.avatar_url
+              };
+              
+              dispatch({ type: 'ADD_MESSAGE', payload: { key, message: messageWithSender } });
               
               // Show notification
               if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('New Message', {
+                new Notification(`New message from ${messageWithSender.sender_name}`, {
                   body: message.content,
                   icon: '/favicon.ico'
                 });
@@ -198,7 +207,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const key = circleId || conversationId || '';
     
-    // Send to database immediately (no optimistic updates to avoid duplicates)
+    // Send to database immediately
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -214,9 +223,15 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       if (error) throw error;
       
-      // Add message to state immediately for sender
+      // Add message to state immediately for sender with user info
       if (data) {
-        dispatch({ type: 'ADD_MESSAGE', payload: { key, message: data } });
+        const messageWithSender = {
+          ...data,
+          sender_name: user.user_metadata?.full_name || 'You',
+          sender_role: user.role || 'youth',
+          sender_avatar: user.user_metadata?.avatar_url
+        };
+        dispatch({ type: 'ADD_MESSAGE', payload: { key, message: messageWithSender } });
       }
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -231,26 +246,34 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!force && state.messages[key]?.length > 0) return;
 
     try {
-      let query = supabase
+      const { data: rawMessages, error } = await supabase
         .from('messages')
         .select('*')
+        .eq(circleId ? 'circle_id' : 'conversation_id', circleId || conversationId)
         .order('created_at', { ascending: true })
         .limit(50);
-
-      if (circleId) {
-        query = query.eq('circle_id', circleId);
-      } else if (conversationId) {
-        query = query.eq('conversation_id', conversationId);
-      }
-
-      const { data, error } = await query;
       
       if (error) {
         console.error('Failed to load messages:', error);
         return;
       }
       
-      dispatch({ type: 'SET_MESSAGES', payload: { key, messages: data || [] } });
+      // Fetch user profiles for all messages
+      const messagesWithSender = await Promise.all(
+        (rawMessages || []).map(async (msg) => {
+          const { data: profileData } = await supabase
+            .rpc('get_user_profile', { user_id: msg.sender_id });
+          
+          return {
+            ...msg,
+            sender_name: profileData?.full_name || 'Unknown User',
+            sender_role: profileData?.role || 'youth',
+            sender_avatar: profileData?.avatar_url
+          };
+        })
+      );
+
+      dispatch({ type: 'SET_MESSAGES', payload: { key, messages: messagesWithSender } });
     } catch (error) {
       console.error('Failed to load messages:', error);
     }

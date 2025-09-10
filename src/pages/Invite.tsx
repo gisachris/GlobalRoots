@@ -112,17 +112,17 @@ export const Invite: React.FC = () => {
             </p>
             {debugInfo && (
               <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded mb-4 whitespace-pre-line max-h-32 overflow-y-auto">
-                <strong>Debug Info:</strong><br/>{debugInfo}
+                <strong>Debug Info:</strong><br />{debugInfo}
               </div>
             )}
             <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded mb-4">
-              <strong>Troubleshooting:</strong><br/>
-              • Make sure you're logged in with the correct account<br/>
-              • Check if the invitation link is complete<br/>
-              • Try refreshing the page<br/>
+              <strong>Troubleshooting:</strong><br />
+              • Make sure you're logged in with the correct account<br />
+              • Check if the invitation link is complete<br />
+              • Try refreshing the page<br />
               • Contact the person who sent the invitation if issues persist
             </div>
-            
+
             <div className="flex space-x-2">
               <Button
                 onClick={() => navigate('/')}
