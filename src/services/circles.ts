@@ -22,15 +22,33 @@ export interface CircleMember {
 
 export const circlesService = {
   async getUserCircles(userId: string): Promise<Circle[]> {
-    const { data, error } = await supabase
+    // Get circles where user is mentor
+    const { data: mentorCircles, error: mentorError } = await supabase
       .from('circles')
       .select('*')
-      .or(`mentor_id.eq.${userId},id.in.(${await this.getUserCircleIds(userId)})`)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+      .eq('mentor_id', userId)
+      .eq('status', 'active');
 
-    if (error) throw error;
-    return data || [];
+    if (mentorError) throw mentorError;
+
+    // Get circles where user is participant
+    const { data: participantData, error: participantError } = await supabase
+      .from('circle_participants')
+      .select('circle_id, circles(*)')
+      .eq('user_id', userId)
+      .eq('status', 'accepted');
+
+    if (participantError) throw participantError;
+
+    const participantCircles = participantData?.map(p => p.circles).filter(Boolean) || [];
+    
+    // Combine and deduplicate
+    const allCircles = [...(mentorCircles || []), ...participantCircles];
+    const uniqueCircles = allCircles.filter((circle, index, self) => 
+      index === self.findIndex(c => c.id === circle.id)
+    );
+
+    return uniqueCircles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
   async getUserCircleIds(userId: string): Promise<string> {

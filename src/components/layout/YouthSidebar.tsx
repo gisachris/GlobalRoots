@@ -10,7 +10,8 @@ import {
   Calendar,
   ChevronRight,
   User,
-  Settings2
+  Settings2,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
@@ -129,17 +130,17 @@ export const YouthSidebar = ({ onClose, onWidthChange }: YouthSidebarProps) => {
           
           <li>
             <Link 
-              to="/mentorconnect" 
+              to="/circle" 
               onClick={handleLinkClick} 
               className={`flex items-center px-4 py-3 rounded-md transition-all duration-200 ${
-                isActive('/chat') 
+                isActive('/circle') 
                   ? 'bg-[#B45309]/10 text-[#B45309]' 
                   : 'text-[#503314] hover:bg-[#F5F5F0] dark:text-white dark:hover:bg-gray-700'
               } ${!shouldShowText ? 'justify-center' : ''}`}
-              title={!shouldShowText ? "Chat" : ""}
+              title={!shouldShowText ? "My Circles" : ""}
             >
-              <MessageSquare className="h-5 w-5 flex-shrink-0" />
-              {shouldShowText && <span className="ml-3">Chat</span>}
+              <Users className="h-5 w-5 flex-shrink-0" />
+              {shouldShowText && <span className="ml-3">My Circles</span>}
             </Link>
           </li>
           

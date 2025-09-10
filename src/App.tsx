@@ -55,6 +55,7 @@ import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
 import { MessagingProvider } from './context/MessagingContext';
+
 import  Circle  from './pages/Circle';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
@@ -172,6 +173,7 @@ function AppRoutes() {
             <MentorConnect />
           </ProtectedRoute>
         } />
+
         <Route path="/opportunities" element={
           <SidebarLayout>
             <YouthOpportunity />
@@ -325,8 +327,8 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <MessagingProvider>
-        <SidebarProvider>
+      <SidebarProvider>
+        <MessagingProvider>
           <LanguageProvider>
             <ThemeProvider>
               <BrowserRouter>
@@ -334,8 +336,8 @@ export function App() {
               </BrowserRouter>
             </ThemeProvider>
           </LanguageProvider>
-        </SidebarProvider>
-      </MessagingProvider>
+        </MessagingProvider>
+      </SidebarProvider>
     </AuthProvider>
   );
 }

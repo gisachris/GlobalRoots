@@ -6,6 +6,8 @@ export interface User {
   email: string;
   role: 'youth' | 'mentor' | 'admin';
   fullName?: string;
+  name?: string;
+  image?: string;
   profileCompleted?: boolean;
 }
 
@@ -26,6 +28,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
+  logout: () => Promise<void>;
   completeProfile: (profileData: any) => Promise<void>;
 }
 
@@ -42,14 +45,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const userRole = session.user.user_metadata?.role || 'youth';
+        const userRole = session.user.user_metadata?.role || session.user.user_metadata?.user_type === 'mentee' ? 'youth' : session.user.user_metadata?.user_type || 'youth';
+        console.log('User metadata:', session.user.user_metadata, 'Resolved role:', userRole);
         setUser({
           id: session.user.id,
           email: session.user.email!,
           role: userRole,
           fullName: session.user.user_metadata?.full_name,
+          name: session.user.user_metadata?.full_name,
+          image: session.user.user_metadata?.avatar_url,
           profileCompleted: session.user.user_metadata?.profile_completed || false
-
         });
       }
       setLoading(false);
@@ -60,14 +65,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const userRole = session.user.user_metadata?.role || 'youth';
+          const userRole = session.user.user_metadata?.role || session.user.user_metadata?.user_type === 'mentee' ? 'youth' : session.user.user_metadata?.user_type || 'youth';
+          console.log('Auth state change - User metadata:', session.user.user_metadata, 'Resolved role:', userRole);
           setUser({
             id: session.user.id,
             email: session.user.email!,
             role: userRole,
             fullName: session.user.user_metadata?.full_name,
+            name: session.user.user_metadata?.full_name,
+            image: session.user.user_metadata?.avatar_url,
             profileCompleted: session.user.user_metadata?.profile_completed || false
-
           });
         } else {
           setUser(null);
@@ -149,6 +156,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signIn,
       signUp,
       signOut,
+      logout: signOut,
       completeProfile
     }}>
       {children}

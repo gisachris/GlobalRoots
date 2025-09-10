@@ -28,10 +28,9 @@ export const MentorLayout: React.FC<MentorLayoutProps> = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/mentor/dashboard', icon: LayoutDashboard },
     { name: 'My Mentees', href: '/mentor/mentees', icon: Users },
-    { name: 'My Circles', href: '/mentor/circles', icon: Globe },
+    { name: 'My Circles', href: '/mentor/circles', icon: MessageCircle },
     { name: 'Calendar', href: '/mentor/calendar', icon: Calendar },
     { name: 'Resources', href: '/mentor/resources', icon: BookOpen },
-    { name: 'Messages', href: '/mentor/messages', icon: MessageCircle },
     { name: 'Job Market', href: '/mentor/marketplace', icon: Building },
     { name: 'Analytics', href: '/mentor/analytics', icon: TrendingUp },
     { name: 'Achievements', href: '/mentor/achievements', icon: Award },
