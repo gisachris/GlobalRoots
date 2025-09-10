@@ -102,10 +102,23 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [state, dispatch] = useReducer(messagingReducer, initialState);
   const { user } = useAuth();
 
-  // Request notification permission
+  // Request notification permission and check support
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+    console.log('=== NOTIFICATION SETUP ===');
+    console.log('Notification in window:', 'Notification' in window);
+    
+    if ('Notification' in window) {
+      console.log('Current permission:', Notification.permission);
+      if (Notification.permission === 'default') {
+        console.log('Requesting permission...');
+        Notification.requestPermission().then(permission => {
+          console.log('Permission result:', permission);
+        }).catch(error => {
+          console.error('Permission request failed:', error);
+        });
+      }
+    } else {
+      console.error('Notifications not supported in this browser');
     }
   }, []);
 
@@ -132,26 +145,75 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             
             // Only add if not from current user (avoid duplicates)
             if (message.sender_id !== user.id) {
-              // Fetch sender info using function
-              const { data: profileData } = await supabase
-                .rpc('get_user_profile', { user_id: message.sender_id });
+              console.log('=== NEW MESSAGE RECEIVED ===');
+              console.log('Message ID:', message.id);
+              console.log('Sender ID:', message.sender_id);
+              console.log('Current User ID:', user.id);
               
-              const messageWithSender = {
-                ...message,
-                sender_name: profileData?.full_name || 'Unknown User',
-                sender_role: profileData?.role || 'youth',
-                sender_avatar: profileData?.avatar_url
-              };
-              
-              dispatch({ type: 'ADD_MESSAGE', payload: { key, message: messageWithSender } });
-              
-              // Show notification
-              if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(`New message from ${messageWithSender.sender_name}`, {
-                  body: message.content,
-                  icon: '/favicon.ico'
-                });
+              try {
+                // Fetch sender info using function
+                const { data: profileData, error: profileError } = await supabase
+                  .rpc('get_user_profile', { user_id: message.sender_id });
+                
+                if (profileError) {
+                  console.error('Profile fetch error:', profileError);
+                }
+                
+                console.log('Profile data:', profileData);
+                
+                const messageWithSender = {
+                  ...message,
+                  sender_name: profileData?.full_name || 'Unknown User',
+                  sender_role: profileData?.role || 'youth',
+                  sender_avatar: profileData?.avatar_url
+                };
+                
+                console.log('Message with sender:', messageWithSender);
+                
+                dispatch({ type: 'ADD_MESSAGE', payload: { key, message: messageWithSender } });
+                
+                // Show notification
+                console.log('=== NOTIFICATION CHECK ===');
+                console.log('Notification in window:', 'Notification' in window);
+                console.log('Permission:', Notification.permission);
+                console.log('Document hidden:', document.hidden);
+                console.log('Document has focus:', document.hasFocus());
+                
+                const shouldShowNotification = true; // Always show for testing
+                console.log('Should show notification:', shouldShowNotification);
+                
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  try {
+                    console.log('Creating notification...');
+                    const notification = new Notification(`New message from ${messageWithSender.sender_name}`, {
+                      body: message.content,
+                      icon: '/favicon.ico',
+                      tag: `message-${message.id}`,
+                      requireInteraction: false,
+                      silent: false
+                    });
+                    
+                    notification.onshow = () => console.log('Notification shown');
+                    notification.onclick = () => console.log('Notification clicked');
+                    notification.onclose = () => console.log('Notification closed');
+                    notification.onerror = (error) => console.error('Notification error:', error);
+                    
+                    console.log('Notification created successfully:', notification);
+                    setTimeout(() => {
+                      console.log('Auto-closing notification');
+                      notification.close();
+                    }, 5000);
+                  } catch (notificationError) {
+                    console.error('Notification creation failed:', notificationError);
+                  }
+                } else {
+                  console.log('Notification blocked - permission:', Notification.permission);
+                }
+              } catch (error) {
+                console.error('Message processing error:', error);
               }
+            } else {
+              console.log('Message from current user, skipping notification');
             }
           }
         )
