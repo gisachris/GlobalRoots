@@ -119,7 +119,7 @@ export const circlesService = {
     return data || [];
   },
 
-  async inviteToCircle(circleId: string, email: string): Promise<void> {
+  async inviteToCircle(circleId: string, email: string): Promise<{ success: boolean; message: string }> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('User not authenticated');
 
@@ -132,13 +132,14 @@ export const circlesService = {
       .eq('circle_id', circleId)
       .eq('email', email)
       .eq('status', 'pending')
-      .single();
+      .maybeSingle();
 
     if (existingInvite) {
       throw new Error('Invitation already sent to this email');
     }
 
-    const { error } = await supabase
+    // Insert invitation (trigger will automatically send email)
+    const { data: invitation, error } = await supabase
       .from('invitations')
       .insert([{
         circle_id: circleId,
@@ -146,12 +147,26 @@ export const circlesService = {
         invited_by: user.id,
         token,
         status: 'pending'
-      }]);
+      }])
+      .select('id')
+      .single();
 
     if (error) throw error;
 
-    // For now, we'll just store the invitation. In a real app, you'd send an email here
-    console.log(`Invitation sent to ${email} with token: ${token}`);
+    // Wait a moment for email to be sent via trigger
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Check if email was sent successfully
+    const { data: sentInvite } = await supabase
+      .from('invitations')
+      .select('email_sent')
+      .eq('id', invitation.id)
+      .single();
+
+    return {
+      success: true,
+      message: sentInvite?.email_sent ? 'Invitation sent successfully!' : 'Invitation created (email pending)'
+    };
   },
 
   async acceptInvitation(token: string): Promise<void> {
@@ -160,7 +175,7 @@ export const circlesService = {
       .select('*')
       .eq('token', token)
       .eq('status', 'pending')
-      .single();
+      .maybeSingle();
 
     if (inviteError || !invitation) throw new Error('Invalid or expired invitation');
 
@@ -173,7 +188,7 @@ export const circlesService = {
       .select('id')
       .eq('circle_id', invitation.circle_id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (existingParticipant) {
       throw new Error('You are already a member of this circle');

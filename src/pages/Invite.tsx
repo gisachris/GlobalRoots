@@ -37,24 +37,30 @@ export const Invite: React.FC = () => {
           .from('invitations')
           .select('*, circle:circles(title)')
           .eq('token', token)
-          .single();
-        
+          .eq('status', 'pending')
+          .maybeSingle();
+
         if (inviteError) {
           setDebugInfo(`Invitation lookup error: ${inviteError.message}`);
           throw new Error('Invitation not found');
         }
-        
+
+        if (!inviteData) {
+          setDebugInfo('No invitation found with this token');
+          throw new Error('Invalid or expired invitation link');
+        }
+
         setInvitation(inviteData);
         setDebugInfo(`Found invitation for circle: ${inviteData.circle?.title}`);
-        
+
         await circlesService.acceptInvitation(token);
         setSuccess(true);
-        
+
         // Redirect based on user role
         setTimeout(() => {
           const redirectPath = user.role === 'mentor' ? '/mentor/circles' : '/circle';
-          navigate(redirectPath, { 
-            state: { message: 'Successfully joined the circle!' } 
+          navigate(redirectPath, {
+            state: { message: 'Successfully joined the circle!' }
           });
         }, 3000);
       } catch (err) {
@@ -102,7 +108,10 @@ export const Invite: React.FC = () => {
                 Debug: {debugInfo}
               </div>
             )}
-            <Button 
+            <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded mb-4">
+              <strong>Note:</strong> If you received this link via email, the invitation should work automatically.
+            </div>
+            <Button
               onClick={() => navigate('/')}
               className="bg-[#B45309] hover:bg-[#7C2D12]"
             >

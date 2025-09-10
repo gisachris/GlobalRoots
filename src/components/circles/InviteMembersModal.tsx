@@ -58,17 +58,24 @@ export const InviteMembersModal: React.FC<InviteMembersModalProps> = ({
 
     setLoading(true);
     try {
-      await Promise.all(
+      const results = await Promise.all(
         validEmails.map(email => circlesService.inviteToCircle(circleId, email.trim()))
       );
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-        setEmails(['']);
-      }, 2000);
+      
+      const allSuccessful = results.every(result => result.success);
+      if (allSuccessful) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          onClose();
+          setEmails(['']);
+        }, 3000);
+      } else {
+        throw new Error('Some invitations failed to send');
+      }
     } catch (error) {
       console.error('Error sending invitations:', error);
+      alert(error instanceof Error ? error.message : 'Failed to send invitations');
     } finally {
       setLoading(false);
     }
@@ -213,7 +220,7 @@ export const InviteMembersModal: React.FC<InviteMembersModalProps> = ({
                     Generate a shareable link that anyone can use to join this circle.
                   </p>
                   <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                    <strong>Note:</strong> Email invitations are stored in the database. In a production app, actual emails would be sent.
+                    <strong>Note:</strong> Email invitations are sent automatically via Resend. Check your email for the invitation link.
                   </div>
                   
                   {inviteLink ? (
