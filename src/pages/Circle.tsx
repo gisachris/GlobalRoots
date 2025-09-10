@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { MessageCircle, Send, Search, Users, UserPlus, Plus } from 'lucide-react';
@@ -10,14 +11,27 @@ import { useAuth } from '../context/AuthContext';
 import { circlesService } from '../services/circles';
 
 function Circle() {
+  const location = useLocation();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatType, setChatType] = useState<'circle' | 'conversation'>('circle');
   const [circles, setCircles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { state, sendMessage, loadMessages, loadConversations } = useMessaging();
   const { user } = useAuth();
+
+  useEffect(() => {
+    // Handle success message from navigation state
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
+      // Clear navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,7 +57,7 @@ function Circle() {
     };
 
     loadData();
-  }, [user?.id]);
+  }, [user?.id, loadConversations]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedChat || !user) return;
@@ -80,6 +94,12 @@ function Circle() {
 
   return (
     <div className="px-4 h-[calc(100vh-6rem)]">
+      {successMessage && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-600 text-sm font-medium">{successMessage}</p>
+        </div>
+      )}
+      
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#503314] dark:text-white">My Circles</h1>

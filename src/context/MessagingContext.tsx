@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase-client';
 import { useAuth } from './AuthContext';
 
@@ -108,7 +108,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [user]);
 
-  const sendMessage = async (content: string, circleId?: string, conversationId?: string) => {
+  const sendMessage = useCallback(async (content: string, circleId?: string, conversationId?: string) => {
     if (!user || !content.trim()) return;
 
     try {
@@ -129,9 +129,9 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [user]);
 
-  const loadMessages = async (circleId?: string, conversationId?: string) => {
+  const loadMessages = useCallback(async (circleId?: string, conversationId?: string) => {
     if (!user) return;
 
     try {
@@ -159,9 +159,9 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [user]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -181,9 +181,9 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [user]);
 
-  const createConversation = async (mentorId: string, menteeId: string): Promise<string> => {
+  const createConversation = useCallback(async (mentorId: string, menteeId: string): Promise<string> => {
     try {
       const { data, error } = await supabase
         .from('conversations')
@@ -197,7 +197,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
       throw error;
     }
-  };
+  }, []);
 
   return (
     <MessagingContext.Provider

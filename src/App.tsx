@@ -55,6 +55,7 @@ import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
 import { MessagingProvider } from './context/MessagingContext';
+import { Invite } from './pages/Invite';
 
 import  Circle  from './pages/Circle';
 
@@ -108,6 +109,7 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/invite/:token" element={<Invite />} />
         <Route path="/onboarding" element={
           <ProtectedRoute>
             <Onboarding />

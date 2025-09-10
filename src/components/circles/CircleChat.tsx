@@ -34,7 +34,7 @@ export const CircleChat: React.FC<CircleChatProps> = ({
     if (circleId) {
       loadMessages(circleId);
     }
-  }, [circleId, loadMessages]);
+  }, [circleId]);
 
   const handleSendMessage = async (content: string) => {
     if (!user) return;

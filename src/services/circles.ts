@@ -20,7 +20,51 @@ export interface CircleMember {
   joined_at: string;
 }
 
+export interface CreateCircleData {
+  title: string;
+  description: string;
+  category: string;
+  max_participants: number;
+  duration_weeks: number;
+  meeting_days: string[];
+  meeting_time: string;
+  timezone: string;
+  objectives: string[];
+  prerequisites?: string;
+  is_public: boolean;
+}
+
 export const circlesService = {
+  async createCircle(data: CreateCircleData): Promise<Circle> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    const { data: circle, error } = await supabase
+      .from('circles')
+      .insert([{
+        ...data,
+        mentor_id: user.id
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Add mentor as admin participant
+    const { error: participantError } = await supabase
+      .from('circle_participants')
+      .insert([{
+        circle_id: circle.id,
+        user_id: user.id,
+        status: 'accepted',
+        role: 'admin'
+      }]);
+
+    if (participantError) throw participantError;
+
+    return circle;
+  },
+
   async getUserCircles(userId: string): Promise<Circle[]> {
     // Get circles where user is mentor
     const { data: mentorCircles, error: mentorError } = await supabase
@@ -123,5 +167,28 @@ export const circlesService = {
       .eq('id', invitation.id);
 
     if (updateError) throw updateError;
+  },
+
+  async generateInviteLink(circleId: string): Promise<string> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    const token = crypto.randomUUID();
+    
+    // Store the invitation in the database
+    const { error } = await supabase
+      .from('invitations')
+      .insert([{
+        circle_id: circleId,
+        email: '', // Empty email for link-based invitations
+        invited_by: user.id,
+        token,
+        status: 'pending'
+      }]);
+
+    if (error) throw error;
+
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/invite/${token}`;
   }
 };

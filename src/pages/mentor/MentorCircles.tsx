@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { MessageCircle, Send, Search, Users, UserPlus, Plus } from 'lucide-react';
@@ -11,13 +11,26 @@ import { useAuth } from '../../context/AuthContext';
 import { circlesService } from '../../services/circles';
 
 export const MentorCircles: React.FC = () => {
+  const location = useLocation();
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatType, setChatType] = useState<'circle' | 'conversation'>('circle');
   const [circles, setCircles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { state, sendMessage, loadMessages, loadConversations } = useMessaging();
   const { user } = useAuth();
+
+  useEffect(() => {
+    // Handle success message from navigation state
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
+      // Clear navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,7 +44,13 @@ export const MentorCircles: React.FC = () => {
         ]);
 
         setCircles(circlesData);
-        if (circlesData.length > 0 && !selectedChat) {
+        
+        // If there's a specific circle to select from navigation state
+        const targetCircleId = location.state?.circleId;
+        if (targetCircleId && circlesData.find(c => c.id === targetCircleId)) {
+          setSelectedChat(targetCircleId);
+          setChatType('circle');
+        } else if (circlesData.length > 0 && !selectedChat) {
           setSelectedChat(circlesData[0].id);
           setChatType('circle');
         }
@@ -43,7 +62,7 @@ export const MentorCircles: React.FC = () => {
     };
 
     loadData();
-  }, [user?.id]);
+  }, [user?.id, location.state?.circleId, loadConversations]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedChat || !user) return;
@@ -80,6 +99,12 @@ export const MentorCircles: React.FC = () => {
 
   return (
     <div className="px-4 h-[calc(100vh-6rem)]">
+      {successMessage && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-600 text-sm font-medium">{successMessage}</p>
+        </div>
+      )}
+      
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#503314] dark:text-white">My Circles</h1>
