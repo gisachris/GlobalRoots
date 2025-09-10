@@ -72,9 +72,14 @@ export const CircleChat: React.FC<CircleChatProps> = ({
               <Users className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-[#503314] dark:text-white">{circleName}</h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-[#503314] dark:text-white">{circleName}</h3>
+                <div className={`w-2 h-2 rounded-full ${state.isConnected ? 'bg-green-500' : 'bg-red-500'}`} 
+                     title={state.isConnected ? 'Connected' : 'Reconnecting...'} />
+              </div>
               <p className="text-sm text-[#7C2D12] dark:text-gray-300">
                 {actualMemberCount} member{actualMemberCount !== 1 ? 's' : ''}
+                {!state.isConnected && ' • Reconnecting...'}
               </p>
             </div>
           </div>
