@@ -128,7 +128,7 @@ export const meetingService = {
     return data as (Meeting & { circles?: { title: string } })[];
   },
 
-  // Get meetings for a specific date range
+  // Get meetings for a specific date range (for mentors)
   async getMeetingsByDateRange(startDate: string, endDate: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -142,6 +142,28 @@ export const meetingService = {
       .gte('meeting_date', startDate)
       .lte('meeting_date', endDate)
       .eq('mentor_id', user.id)
+      .order('meeting_date', { ascending: true })
+      .order('meeting_time', { ascending: true });
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get meetings for mentees (where they are attendees)
+  async getMenteeMeetingsByDateRange(startDate: string, endDate: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('meetings')
+      .select(`
+        *,
+        circles(title),
+        meeting_attendees!inner(user_id)
+      `)
+      .gte('meeting_date', startDate)
+      .lte('meeting_date', endDate)
+      .eq('meeting_attendees.user_id', user.id)
       .order('meeting_date', { ascending: true })
       .order('meeting_time', { ascending: true });
 
