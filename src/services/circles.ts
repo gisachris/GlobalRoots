@@ -120,19 +120,38 @@ export const circlesService = {
   },
 
   async inviteToCircle(circleId: string, email: string): Promise<void> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
     const token = crypto.randomUUID();
     
+    // Check if invitation already exists for this email and circle
+    const { data: existingInvite } = await supabase
+      .from('invitations')
+      .select('id')
+      .eq('circle_id', circleId)
+      .eq('email', email)
+      .eq('status', 'pending')
+      .single();
+
+    if (existingInvite) {
+      throw new Error('Invitation already sent to this email');
+    }
+
     const { error } = await supabase
       .from('invitations')
       .insert([{
         circle_id: circleId,
         email,
-        invited_by: (await supabase.auth.getUser()).data.user?.id,
+        invited_by: user.id,
         token,
         status: 'pending'
       }]);
 
     if (error) throw error;
+
+    // For now, we'll just store the invitation. In a real app, you'd send an email here
+    console.log(`Invitation sent to ${email} with token: ${token}`);
   },
 
   async acceptInvitation(token: string): Promise<void> {
@@ -143,10 +162,22 @@ export const circlesService = {
       .eq('status', 'pending')
       .single();
 
-    if (inviteError || !invitation) throw new Error('Invalid invitation');
+    if (inviteError || !invitation) throw new Error('Invalid or expired invitation');
 
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('User not authenticated');
+
+    // Check if user is already a participant
+    const { data: existingParticipant } = await supabase
+      .from('circle_participants')
+      .select('id')
+      .eq('circle_id', invitation.circle_id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (existingParticipant) {
+      throw new Error('You are already a member of this circle');
+    }
 
     // Add user to circle
     const { error: participantError } = await supabase
@@ -188,7 +219,22 @@ export const circlesService = {
 
     if (error) throw error;
 
-    const baseUrl = window.location.origin;
+    // Use environment variable for base URL, fallback to window.location.origin
+    const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
     return `${baseUrl}/invite/${token}`;
+  },
+
+  async getPendingInvitations(email: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('invitations')
+      .select(`
+        *,
+        circle:circles(id, title, description, category)
+      `)
+      .eq('email', email)
+      .eq('status', 'pending');
+
+    if (error) throw error;
+    return data || [];
   }
 };

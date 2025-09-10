@@ -212,6 +212,9 @@ export const InviteMembersModal: React.FC<InviteMembersModalProps> = ({
                   <p className="text-sm text-[#7C2D12] dark:text-gray-300">
                     Generate a shareable link that anyone can use to join this circle.
                   </p>
+                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                    <strong>Note:</strong> Email invitations are stored in the database. In a production app, actual emails would be sent.
+                  </div>
                   
                   {inviteLink ? (
                     <div className="space-y-3">
@@ -233,6 +236,9 @@ export const InviteMembersModal: React.FC<InviteMembersModalProps> = ({
                       {linkCopied && (
                         <p className="text-sm text-green-600">Link copied to clipboard!</p>
                       )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        Share this link with people you want to invite to the circle.
+                      </p>
                     </div>
                   ) : (
                     <Button

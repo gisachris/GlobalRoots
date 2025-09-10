@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Users, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { circlesService } from '../services/circles';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase-client';
 
 export const Invite: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -14,6 +15,7 @@ export const Invite: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [invitation, setInvitation] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
     const handleInvitation = async () => {
@@ -30,6 +32,21 @@ export const Invite: React.FC = () => {
       }
 
       try {
+        // Debug: Check if invitation exists
+        const { data: inviteData, error: inviteError } = await supabase
+          .from('invitations')
+          .select('*, circle:circles(title)')
+          .eq('token', token)
+          .single();
+        
+        if (inviteError) {
+          setDebugInfo(`Invitation lookup error: ${inviteError.message}`);
+          throw new Error('Invitation not found');
+        }
+        
+        setInvitation(inviteData);
+        setDebugInfo(`Found invitation for circle: ${inviteData.circle?.title}`);
+        
         await circlesService.acceptInvitation(token);
         setSuccess(true);
         
@@ -77,9 +94,14 @@ export const Invite: React.FC = () => {
             <h2 className="text-xl font-semibold text-[#503314] mb-2">
               Invitation Error
             </h2>
-            <p className="text-[#7C2D12] mb-6">
+            <p className="text-[#7C2D12] mb-4">
               {error}
             </p>
+            {debugInfo && (
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded mb-4">
+                Debug: {debugInfo}
+              </div>
+            )}
             <Button 
               onClick={() => navigate('/')}
               className="bg-[#B45309] hover:bg-[#7C2D12]"
