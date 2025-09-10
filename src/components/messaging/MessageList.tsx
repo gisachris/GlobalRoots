@@ -6,9 +6,9 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
-  sender?: {
-    user_metadata?: { full_name?: string };
-  };
+  sender_name?: string;
+  sender_role?: 'mentor' | 'youth';
+  sender_avatar?: string;
 }
 
 interface MessageListProps {
