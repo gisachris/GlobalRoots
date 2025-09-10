@@ -39,14 +39,14 @@ export const MentorCircles: React.FC = () => {
 
       try {
         setLoading(true);
-        const [circlesData] = await Promise.all([
-          circlesService.getUserCircles(user.id),
-          loadConversations()
-        ]);
-
+        const circlesData = await circlesService.getUserCircles(user.id);
         setCircles(circlesData);
         
-        // If there's a specific circle to select from navigation state
+        // Load conversations separately to avoid blocking circles
+        loadConversations().catch(error => {
+          console.error('Failed to load conversations:', error);
+        });
+        
         const targetCircleId = location.state?.circleId;
         if (targetCircleId && circlesData.find(c => c.id === targetCircleId)) {
           setSelectedChat(targetCircleId);
@@ -56,14 +56,14 @@ export const MentorCircles: React.FC = () => {
           setChatType('circle');
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error loading circles:', error);
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [user?.id, location.state?.circleId, loadConversations]);
+  }, [user?.id, loadConversations]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedChat || !user) return;

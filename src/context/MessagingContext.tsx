@@ -60,6 +60,16 @@ const messagingReducer = (state: MessagingState, action: MessagingAction): Messa
       };
     case 'ADD_MESSAGE':
       const currentMessages = state.messages[action.payload.key] || [];
+      // Prevent duplicate messages
+      const messageExists = currentMessages.some(m => 
+        m.id === action.payload.message.id || 
+        (m.content === action.payload.message.content && 
+         m.sender_id === action.payload.message.sender_id &&
+         Math.abs(new Date(m.created_at).getTime() - new Date(action.payload.message.created_at).getTime()) < 1000)
+      );
+      
+      if (messageExists) return state;
+      
       return {
         ...state,
         messages: {
@@ -88,33 +98,81 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [state, dispatch] = useReducer(messagingReducer, initialState);
   const { user } = useAuth();
 
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) return;
 
-    const messagesSubscription = supabase
-      .channel('messages')
-      .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          const message = payload.new as Message;
-          const key = message.circle_id || message.conversation_id || '';
-          dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
-        }
-      )
-      .subscribe();
+    let messagesSubscription: any;
+    
+    try {
+      messagesSubscription = supabase
+        .channel(`messages-${user.id}`)
+        .on('postgres_changes', 
+          { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'messages'
+          },
+          (payload) => {
+            const message = payload.new as Message;
+            const key = message.circle_id || message.conversation_id || '';
+            
+            if (message.sender_id !== user.id && 'Notification' in window && Notification.permission === 'granted') {
+              new Notification('New Message', {
+                body: message.content,
+                icon: '/favicon.ico',
+                tag: key
+              });
+            }
+            
+            dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
+          }
+        )
+        .subscribe();
+    } catch (error) {
+      console.warn('Real-time subscription failed, continuing without it:', error);
+    }
 
     return () => {
-      messagesSubscription.unsubscribe();
+      try {
+        messagesSubscription?.unsubscribe();
+      } catch (error) {
+        console.warn('Failed to unsubscribe:', error);
+      }
     };
   }, [user]);
 
   const sendMessage = useCallback(async (content: string, circleId?: string, conversationId?: string) => {
     if (!user || !content.trim()) return;
 
+    // Optimistically add message to UI immediately
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}`,
+      sender_id: user.id,
+      content: content.trim(),
+      circle_id: circleId || undefined,
+      conversation_id: conversationId || undefined,
+      message_type: 'text',
+      created_at: new Date().toISOString(),
+      sender: {
+        id: user.id,
+        email: user.email || '',
+        user_metadata: { full_name: user.user_metadata?.full_name }
+      }
+    };
+    
+    const key = circleId || conversationId || '';
+    dispatch({ type: 'ADD_MESSAGE', payload: { key, message: optimisticMessage } });
+    
+    // Send to database in background
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
-      const { error } = await supabase
+      supabase
         .from('messages')
         .insert([{
           sender_id: user.id,
@@ -122,25 +180,23 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           circle_id: circleId || null,
           conversation_id: conversationId || null,
         }]);
-
-      if (error) throw error;
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      console.error('Failed to send message:', error);
     }
   }, [user]);
 
   const loadMessages = useCallback(async (circleId?: string, conversationId?: string) => {
     if (!user) return;
+    
+    const key = circleId || conversationId || '';
+    if (state.messages[key]?.length > 0) return;
 
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
       let query = supabase
         .from('messages')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .limit(50);
 
       if (circleId) {
         query = query.eq('circle_id', circleId);
@@ -148,25 +204,17 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         query = query.eq('conversation_id', conversationId);
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const key = circleId || conversationId || '';
+      const { data } = await query;
       dispatch({ type: 'SET_MESSAGES', payload: { key, messages: data || [] } });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      console.error('Failed to load messages:', error);
     }
-  }, [user]);
+  }, [user, state.messages]);
 
   const loadConversations = useCallback(async () => {
-    if (!user) return;
+    if (!user || state.conversations.length > 0) return;
 
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
@@ -178,10 +226,8 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dispatch({ type: 'SET_CONVERSATIONS', payload: data || [] });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [user]);
+  }, [user, state.conversations.length]);
 
   const createConversation = useCallback(async (mentorId: string, menteeId: string): Promise<string> => {
     try {

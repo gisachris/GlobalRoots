@@ -133,10 +133,7 @@ export const circlesService = {
   async getCircleMembers(circleId: string): Promise<CircleMember[]> {
     const { data, error } = await supabase
       .from('circle_participants')
-      .select(`
-        *,
-        user:auth.users!circle_participants_user_id_fkey(id, email, user_metadata)
-      `)
+      .select('*')
       .eq('circle_id', circleId)
       .eq('status', 'accepted');
 

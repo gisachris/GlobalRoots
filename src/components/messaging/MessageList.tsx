@@ -37,7 +37,7 @@ export const MessageList: React.FC<MessageListProps> = ({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  if (loading) {
+  if (loading && messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B45309]"></div>

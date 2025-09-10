@@ -36,9 +36,7 @@ export const Invite: React.FC = () => {
       }
 
       try {
-        addResult('Checking invitation in database...');
-        
-        // Debug: Check if invitation exists
+        // Check if invitation exists
         const { data: inviteData, error: inviteError } = await supabase
           .from('invitations')
           .select('*, circle:circles(title)')
@@ -47,22 +45,15 @@ export const Invite: React.FC = () => {
           .maybeSingle();
 
         if (inviteError) {
-          setDebugInfo(`Database error: ${inviteError.message}`);
-          throw new Error(`Database error: ${inviteError.message}`);
+          throw new Error('Failed to verify invitation');
         }
 
         if (!inviteData) {
-          setDebugInfo('No pending invitation found with this token');
           throw new Error('Invalid or expired invitation link');
         }
 
         setInvitation(inviteData);
-        setDebugInfo(`Found invitation for circle: ${inviteData.circle?.title}`);
-
-        addResult('Accepting invitation...');
         await circlesService.acceptInvitation(token);
-        
-        addResult('Successfully joined circle!');
         setSuccess(true);
 
         // Clear any stored token
@@ -84,9 +75,7 @@ export const Invite: React.FC = () => {
       }
     };
 
-    const addResult = (message: string) => {
-      setDebugInfo(prev => `${prev}\n${new Date().toLocaleTimeString()}: ${message}`);
-    };
+
 
     handleInvitation();
   }, [token, user, navigate]);
