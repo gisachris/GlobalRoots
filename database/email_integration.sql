@@ -11,7 +11,7 @@ BEGIN
   IF NEW.email IS NOT NULL AND NEW.email != '' THEN
     -- Call edge function to send email
     PERFORM net.http_post(
-      url := 'https://your-project-ref.supabase.co/functions/v1/send-circle-invitation',
+      url := 'https://tfpqvwslineokovtsduu.supabase.co/functions/v1/send-circle-invitation',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
         'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)

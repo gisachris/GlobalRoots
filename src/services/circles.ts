@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase-client';
+import { emailService } from './emailService';
 
 export interface Circle {
   id: string;
@@ -153,19 +154,24 @@ export const circlesService = {
 
     if (error) throw error;
 
-    // Wait a moment for email to be sent via trigger
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if email was sent successfully
-    const { data: sentInvite } = await supabase
-      .from('invitations')
-      .select('email_sent')
-      .eq('id', invitation.id)
+    // Get circle name for email
+    const { data: circle } = await supabase
+      .from('circles')
+      .select('title')
+      .eq('id', circleId)
       .single();
 
+    // Try to send email manually
+    const emailSent = await emailService.sendInvitationEmail(
+      invitation.id,
+      email,
+      circle?.title || 'Circle',
+      token
+    );
+    
     return {
       success: true,
-      message: sentInvite?.email_sent ? 'Invitation sent successfully!' : 'Invitation created (email pending)'
+      message: emailSent ? 'Invitation sent successfully!' : 'Invitation created (email pending)'
     };
   },
 

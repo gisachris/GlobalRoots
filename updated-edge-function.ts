@@ -1,17 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-interface InvitationRequest {
-  invitationId: string;
-  email: string;
-  circleName: string;
-  inviterName: string;
-  token: string;
 }
 
 serve(async (req) => {
@@ -20,32 +11,15 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
-    const { invitationId, email, circleName, inviterName, token }: InvitationRequest = await req.json()
-
-    // Validate invitation exists and hasn't been sent
-    const { data: invitation, error: inviteError } = await supabaseClient
-      .from('invitations')
-      .select('id, email_sent')
-      .eq('id', invitationId)
-      .eq('status', 'pending')
-      .single()
-
-    if (inviteError || !invitation) {
-      throw new Error('Invalid invitation')
-    }
-
-    if (invitation.email_sent) {
-      throw new Error('Email already sent')
-    }
-
-    // Send email via Resend
-    const inviteLink = `${Deno.env.get('VITE_APP_URL') || 'http://localhost:5173'}/invite/${token}`
+    const { email, circleName, inviterName, token } = await req.json()
     
+    console.log('Sending email to:', email)
+    console.log('Circle:', circleName)
+    console.log('Inviter:', inviterName)
+
+    const inviteLink = `http://localhost:5173/invite/${token}`
+    
+    // Create HTML email template
     const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -107,14 +81,26 @@ serve(async (req) => {
 </body>
 </html>`
 
+    // Send email via Resend
+    const resendApiKey = Deno.env.get('VITE_RESEND_API_KEY')
+    
+    if (!resendApiKey) {
+      console.log('Resend API key not found, logging email instead')
+      console.log('Email HTML:', emailHtml)
+      return new Response(
+        JSON.stringify({ success: true, message: 'Email logged (Resend API key missing)' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('VITE_RESEND_API_KEY')}`,
+        'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'GlobalRoots <noreply@globalroots.com>',
+        from: 'GlobalRoots <onboarding@resend.dev>',
         to: [email],
         subject: `You're invited to join "${circleName}" on GlobalRoots`,
         html: emailHtml,
@@ -123,22 +109,20 @@ serve(async (req) => {
 
     if (!resendResponse.ok) {
       const errorData = await resendResponse.text()
+      console.error('Resend API error:', errorData)
       throw new Error(`Resend API error: ${errorData}`)
     }
 
-    // Mark email as sent
-    await supabaseClient
-      .from('invitations')
-      .update({ email_sent: true, email_sent_at: new Date().toISOString() })
-      .eq('id', invitationId)
+    const resendResult = await resendResponse.json()
+    console.log('Email sent successfully via Resend:', resendResult)
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Email sent successfully' }),
+      JSON.stringify({ success: true, message: 'Email sent successfully via Resend!' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Email sending error:', error)
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
