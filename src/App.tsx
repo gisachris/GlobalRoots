@@ -54,6 +54,7 @@ import { Notifications } from './pages/Notifications';
 import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
+import { MessagingProvider } from './context/MessagingContext';
 import  Circle  from './pages/Circle';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
@@ -324,17 +325,17 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <SidebarProvider>
-      <SidebarProvider>
-        <LanguageProvider>
-          <ThemeProvider>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-          </ThemeProvider>
-        </LanguageProvider>
-      </SidebarProvider>
-      </SidebarProvider>
+      <MessagingProvider>
+        <SidebarProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </ThemeProvider>
+          </LanguageProvider>
+        </SidebarProvider>
+      </MessagingProvider>
     </AuthProvider>
   );
 }

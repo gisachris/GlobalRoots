@@ -1,86 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { MessageCircle, Send, Search, Phone, Video, MoreVertical } from 'lucide-react';
+import { MessageCircle, Send, Search, Phone, Video, MoreVertical, Users } from 'lucide-react';
+import { CircleChat } from '../../components/circles/CircleChat';
+import { MessageList } from '../../components/messaging/MessageList';
+import { MessageInput } from '../../components/messaging/MessageInput';
+import { useMessaging } from '../../context/MessagingContext';
+import { useAuth } from '../../context/AuthContext';
+import { circlesService } from '../../services/circles';
 
 export const MentorMessages: React.FC = () => {
-  const [selectedChat, setSelectedChat] = useState(1);
-  const [newMessage, setNewMessage] = useState('');
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [chatType, setChatType] = useState<'circle' | 'conversation'>('circle');
+  const [circles, setCircles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const { state, sendMessage, loadMessages, loadConversations } = useMessaging();
+  const { user } = useAuth();
 
-  const conversations = [
-    {
-      id: 1,
-      name: 'Jean-Paul Habimana',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      lastMessage: 'Thank you for the feedback on my React project!',
-      timestamp: '2 min ago',
-      unread: 2,
-      online: true
-    },
-    {
-      id: 2,
-      name: 'Alice Uwimana',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      lastMessage: 'Can we schedule a session for next week?',
-      timestamp: '1 hour ago',
-      unread: 0,
-      online: false
-    },
-    {
-      id: 3,
-      name: 'Frontend Circle Group',
-      avatar: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=150&h=150&fit=crop',
-      lastMessage: 'Sarah: Great progress everyone! Keep it up.',
-      timestamp: '3 hours ago',
-      unread: 5,
-      online: true,
-      isGroup: true
-    }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        const [circlesData] = await Promise.all([
+          circlesService.getUserCircles(user.id),
+          loadConversations()
+        ]);
+        
+        setCircles(circlesData);
+        if (circlesData.length > 0 && !selectedChat) {
+          setSelectedChat(circlesData[0].id);
+          setChatType('circle');
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [user, loadConversations]);
 
-  const messages = [
-    {
-      id: 1,
-      sender: 'Jean-Paul Habimana',
-      content: 'Hi Sarah! I just finished the React hooks assignment you gave me.',
-      timestamp: '10:30 AM',
-      isMe: false
-    },
-    {
-      id: 2,
-      sender: 'Me',
-      content: 'That\'s great! How did you find working with useEffect?',
-      timestamp: '10:32 AM',
-      isMe: true
-    },
-    {
-      id: 3,
-      sender: 'Jean-Paul Habimana',
-      content: 'It was challenging at first, but I think I understand the dependency array better now.',
-      timestamp: '10:35 AM',
-      isMe: false
-    },
-    {
-      id: 4,
-      sender: 'Me',
-      content: 'Perfect! That\'s exactly what I wanted to see. The cleanup function is the next important concept to master.',
-      timestamp: '10:37 AM',
-      isMe: true
-    },
-    {
-      id: 5,
-      sender: 'Jean-Paul Habimana',
-      content: 'Thank you for the feedback on my React project!',
-      timestamp: '10:40 AM',
-      isMe: false
+  const handleSendMessage = async (content: string) => {
+    if (!selectedChat || !user) return;
+    
+    try {
+      if (chatType === 'circle') {
+        await sendMessage(content, selectedChat);
+      } else {
+        await sendMessage(content, undefined, selectedChat);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
-  ];
+  };
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // Add message logic here
-      setNewMessage('');
-    }
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'now';
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hour${Math.floor(diffInMinutes / 60) !== 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -105,43 +91,63 @@ export const MentorMessages: React.FC = () => {
           </CardHeader>
           <CardContent className="p-0">
             <div className="space-y-1">
-              {conversations.map(conversation => (
+              {circles.map(circle => (
                 <div
-                  key={conversation.id}
-                  onClick={() => setSelectedChat(conversation.id)}
+                  key={circle.id}
+                  onClick={() => {
+                    setSelectedChat(circle.id);
+                    setChatType('circle');
+                  }}
                   className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                    selectedChat === conversation.id ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
+                    selectedChat === circle.id && chatType === 'circle' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <img
-                        src={conversation.avatar}
-                        alt={conversation.name}
-                        className="w-12 h-12 rounded-full"
-                      />
-                      {conversation.online && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                      )}
+                    <div className="w-12 h-12 bg-[#B45309] rounded-full flex items-center justify-center">
+                      <Users className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-[#503314] dark:text-white truncate">
-                          {conversation.name}
+                          {circle.title}
                         </h3>
                         <span className="text-xs text-[#7C2D12] dark:text-gray-300">
-                          {conversation.timestamp}
+                          {formatTimestamp(circle.created_at)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-[#7C2D12] dark:text-gray-300 truncate">
-                          {conversation.lastMessage}
+                          {circle.category} • Group
                         </p>
-                        {conversation.unread > 0 && (
-                          <span className="bg-[#B45309] text-white text-xs rounded-full px-2 py-1 min-w-[1.25rem] text-center">
-                            {conversation.unread}
-                          </span>
-                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {state.conversations.map(conversation => (
+                <div
+                  key={conversation.id}
+                  onClick={() => {
+                    setSelectedChat(conversation.id);
+                    setChatType('conversation');
+                  }}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                    selectedChat === conversation.id && chatType === 'conversation' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                      <MessageCircle className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-[#503314] dark:text-white truncate">
+                          1-to-1 Chat
+                        </h3>
+                        <span className="text-xs text-[#7C2D12] dark:text-gray-300">
+                          {formatTimestamp(conversation.created_at)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -152,82 +158,65 @@ export const MentorMessages: React.FC = () => {
         </Card>
 
         {/* Chat Area */}
-        <Card className="lg:col-span-2 flex flex-col">
-          {/* Chat Header */}
-          <CardHeader className="border-b border-gray-200 dark:border-gray-600">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-                  alt="Jean-Paul Habimana"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <h3 className="font-semibold text-[#503314] dark:text-white">Jean-Paul Habimana</h3>
-                  <p className="text-sm text-green-600">Online</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button size="sm" variant="outline" className="border-[#B45309] text-[#B45309]">
-                  <Phone className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="outline" className="border-[#B45309] text-[#B45309]">
-                  <Video className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="outline" className="border-[#B45309] text-[#B45309]">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-
-          {/* Messages */}
-          <CardContent className="flex-1 p-4 overflow-y-auto">
-            <div className="space-y-4">
-              {messages.map(message => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isMe ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.isMe
-                        ? 'bg-[#B45309] text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-[#503314] dark:text-white'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.isMe ? 'text-orange-100' : 'text-[#7C2D12] dark:text-gray-400'
-                    }`}>
-                      {message.timestamp}
-                    </p>
+        {selectedChat && chatType === 'circle' ? (
+          <div className="lg:col-span-2">
+            <CircleChat
+              circleId={selectedChat}
+              circleName={circles.find(c => c.id === selectedChat)?.title || 'Circle'}
+              memberCount={0}
+            />
+          </div>
+        ) : selectedChat && chatType === 'conversation' ? (
+          <Card className="lg:col-span-2 flex flex-col">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                    <MessageCircle className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#503314] dark:text-white">1-to-1 Chat</h3>
+                    <p className="text-sm text-[#7C2D12] dark:text-gray-300">Direct message</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-
-          {/* Message Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-600">
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                <div className="flex items-center space-x-2">
+                  <Button size="sm" variant="outline">
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <Video className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            
+            <MessageList
+              messages={state.messages[selectedChat] || []}
+              currentUserId={user?.id || ''}
+              loading={state.loading}
+            />
+            
+            <div className="p-4 border-t border-gray-200 dark:border-gray-600">
+              <MessageInput
+                onSendMessage={handleSendMessage}
+                disabled={state.loading}
                 placeholder="Type your message..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
               />
-              <Button 
-                onClick={handleSendMessage}
-                className="bg-[#B45309] hover:bg-[#7C2D12]"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card className="lg:col-span-2 flex items-center justify-center">
+            <div className="text-center">
+              <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[#503314] dark:text-white mb-2">
+                Select a conversation
+              </h3>
+              <p className="text-[#7C2D12] dark:text-gray-300">
+                Choose a circle or conversation to start messaging
+              </p>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
