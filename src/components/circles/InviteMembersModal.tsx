@@ -223,6 +223,23 @@ export const InviteMembersModal: React.FC<InviteMembersModalProps> = ({
                     <strong>Note:</strong> Email invitations are sent automatically via Resend. Check your email for the invitation link.
                   </div>
                   
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const { testInvitationSystem } = await import('../../utils/inviteTest');
+                        const result = await testInvitationSystem();
+                        alert(result ? 'Invitation system test passed!' : 'Invitation system test failed - check console');
+                      } catch (error) {
+                        console.error('Test error:', error);
+                        alert('Test failed - check console for details');
+                      }
+                    }}
+                    className="w-full text-xs"
+                  >
+                    🧪 Test Invitation System
+                  </Button>
+                  
                   {inviteLink ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">

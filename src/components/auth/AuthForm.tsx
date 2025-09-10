@@ -112,8 +112,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         await signIn(formData.email, formData.password);
         toast.success("Login successful!");
 
-        // Redirect will be handled by useAuthRedirect hook
-        navigate("/");
+        // Check for redirect parameter or pending invite token
+        const redirectParam = searchParams.get('redirect');
+        const pendingToken = localStorage.getItem('pendingInviteToken');
+        
+        if (redirectParam) {
+          navigate(decodeURIComponent(redirectParam));
+        } else if (pendingToken) {
+          localStorage.removeItem('pendingInviteToken');
+          navigate(`/invite/${pendingToken}`);
+        } else {
+          navigate("/");
+        }
       }
     } catch (error: any) {
       // Handle specific error types

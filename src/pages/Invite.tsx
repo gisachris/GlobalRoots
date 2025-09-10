@@ -20,18 +20,24 @@ export const Invite: React.FC = () => {
   useEffect(() => {
     const handleInvitation = async () => {
       if (!token) {
-        setError('Invalid invitation link');
+        setError('Invalid invitation link - no token provided');
         setLoading(false);
         return;
       }
 
+      setDebugInfo(`Processing token: ${token}`);
+
       if (!user) {
+        // Store the invitation token in localStorage for after login
+        localStorage.setItem('pendingInviteToken', token);
         // Redirect to login with return URL
-        navigate(`/auth?redirect=/invite/${token}`);
+        navigate(`/auth?redirect=${encodeURIComponent(`/invite/${token}`)}`);
         return;
       }
 
       try {
+        addResult('Checking invitation in database...');
+        
         // Debug: Check if invitation exists
         const { data: inviteData, error: inviteError } = await supabase
           .from('invitations')
@@ -41,33 +47,45 @@ export const Invite: React.FC = () => {
           .maybeSingle();
 
         if (inviteError) {
-          setDebugInfo(`Invitation lookup error: ${inviteError.message}`);
-          throw new Error('Invitation not found');
+          setDebugInfo(`Database error: ${inviteError.message}`);
+          throw new Error(`Database error: ${inviteError.message}`);
         }
 
         if (!inviteData) {
-          setDebugInfo('No invitation found with this token');
+          setDebugInfo('No pending invitation found with this token');
           throw new Error('Invalid or expired invitation link');
         }
 
         setInvitation(inviteData);
         setDebugInfo(`Found invitation for circle: ${inviteData.circle?.title}`);
 
+        addResult('Accepting invitation...');
         await circlesService.acceptInvitation(token);
+        
+        addResult('Successfully joined circle!');
         setSuccess(true);
+
+        // Clear any stored token
+        localStorage.removeItem('pendingInviteToken');
 
         // Redirect based on user role
         setTimeout(() => {
           const redirectPath = user.role === 'mentor' ? '/mentor/circles' : '/circle';
           navigate(redirectPath, {
-            state: { message: 'Successfully joined the circle!' }
+            state: { message: `Successfully joined ${inviteData.circle?.title || 'the circle'}!` }
           });
-        }, 3000);
+        }, 2000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to accept invitation');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to accept invitation';
+        setError(errorMessage);
+        setDebugInfo(`Error: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
+    };
+
+    const addResult = (message: string) => {
+      setDebugInfo(prev => `${prev}\n${new Date().toLocaleTimeString()}: ${message}`);
     };
 
     handleInvitation();
@@ -104,19 +122,34 @@ export const Invite: React.FC = () => {
               {error}
             </p>
             {debugInfo && (
-              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded mb-4">
-                Debug: {debugInfo}
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded mb-4 whitespace-pre-line max-h-32 overflow-y-auto">
+                <strong>Debug Info:</strong><br/>{debugInfo}
               </div>
             )}
             <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded mb-4">
-              <strong>Note:</strong> If you received this link via email, the invitation should work automatically.
+              <strong>Troubleshooting:</strong><br/>
+              • Make sure you're logged in with the correct account<br/>
+              • Check if the invitation link is complete<br/>
+              • Try refreshing the page<br/>
+              • Contact the person who sent the invitation if issues persist
             </div>
-            <Button
-              onClick={() => navigate('/')}
-              className="bg-[#B45309] hover:bg-[#7C2D12]"
-            >
-              Go Home
-            </Button>
+            
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => navigate('/')}
+                className="bg-[#B45309] hover:bg-[#7C2D12] flex-1"
+              >
+                Go Home
+              </Button>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                className="flex-1"
+              >
+                Retry
+              </Button>
+            </div>
+
           </CardContent>
         </Card>
       </div>

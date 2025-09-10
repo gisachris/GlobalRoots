@@ -9,7 +9,7 @@ import { MessageInput } from '../../components/messaging/MessageInput';
 import { useMessaging } from '../../context/MessagingContext';
 import { useAuth } from '../../context/AuthContext';
 import { circlesService } from '../../services/circles';
-import { InvitationTester } from '../../components/debug/InvitationTester';
+
 
 export const MentorCircles: React.FC = () => {
   const location = useLocation();
@@ -267,10 +267,7 @@ export const MentorCircles: React.FC = () => {
         )}
       </div>
       
-      {/* Debug Component - Remove in production */}
-      <div className="mt-8">
-        <InvitationTester />
-      </div>
+
     </div>
   );
 };
