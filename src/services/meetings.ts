@@ -149,45 +149,20 @@ export const meetingService = {
     return data;
   },
 
-  // Get meetings for mentees (where they are attendees)
+  // Get meetings for mentees using RPC function
   async getMenteeMeetingsByDateRange(startDate: string, endDate: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // First try to get meetings where user is an attendee
-    const { data: attendeeMeetings, error: attendeeError } = await supabase
-      .from('meetings')
-      .select(`
-        *,
-        circles(title),
-        meeting_attendees!inner(user_id)
-      `)
-      .gte('meeting_date', startDate)
-      .lte('meeting_date', endDate)
-      .eq('meeting_attendees.user_id', user.id)
-      .order('meeting_date', { ascending: true })
-      .order('meeting_time', { ascending: true });
+    const { data: meetings, error } = await supabase
+      .rpc('get_attendee_meetings', {
+        attendee_user_id: user.id,
+        start_date: startDate,
+        end_date: endDate
+      });
 
-    if (attendeeError) throw attendeeError;
-    
-    // If no attendee meetings found, show all meetings as fallback
-    if (!attendeeMeetings || attendeeMeetings.length === 0) {
-      const { data: allMeetings, error: allError } = await supabase
-        .from('meetings')
-        .select(`
-          *,
-          circles(title)
-        `)
-        .gte('meeting_date', startDate)
-        .lte('meeting_date', endDate)
-        .order('meeting_date', { ascending: true })
-        .order('meeting_time', { ascending: true });
-
-      if (allError) throw allError;
-      return allMeetings;
-    }
-    
-    return attendeeMeetings;
+    if (error) throw error;
+    return meetings || [];
   },
 
   // Update meeting status
