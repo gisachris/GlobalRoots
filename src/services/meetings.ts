@@ -154,7 +154,8 @@ export const meetingService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await supabase
+    // First try to get meetings where user is an attendee
+    const { data: attendeeMeetings, error: attendeeError } = await supabase
       .from('meetings')
       .select(`
         *,
@@ -167,8 +168,26 @@ export const meetingService = {
       .order('meeting_date', { ascending: true })
       .order('meeting_time', { ascending: true });
 
-    if (error) throw error;
-    return data;
+    if (attendeeError) throw attendeeError;
+    
+    // If no attendee meetings found, show all meetings as fallback
+    if (!attendeeMeetings || attendeeMeetings.length === 0) {
+      const { data: allMeetings, error: allError } = await supabase
+        .from('meetings')
+        .select(`
+          *,
+          circles(title)
+        `)
+        .gte('meeting_date', startDate)
+        .lte('meeting_date', endDate)
+        .order('meeting_date', { ascending: true })
+        .order('meeting_time', { ascending: true });
+
+      if (allError) throw allError;
+      return allMeetings;
+    }
+    
+    return attendeeMeetings;
   },
 
   // Update meeting status
