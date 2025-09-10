@@ -54,6 +54,9 @@ import { Notifications } from './pages/Notifications';
 import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
+import { MessagingProvider } from './context/MessagingContext';
+import { Invite } from './pages/Invite';
+
 import  Circle  from './pages/Circle';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
@@ -106,6 +109,7 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/invite/:token" element={<Invite />} />
         <Route path="/onboarding" element={
           <ProtectedRoute>
             <Onboarding />
@@ -171,6 +175,7 @@ function AppRoutes() {
             <MentorConnect />
           </ProtectedRoute>
         } />
+
         <Route path="/opportunities" element={
           <SidebarLayout>
             <YouthOpportunity />
@@ -325,15 +330,15 @@ export function App() {
   return (
     <AuthProvider>
       <SidebarProvider>
-      <SidebarProvider>
-        <LanguageProvider>
-          <ThemeProvider>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-          </ThemeProvider>
-        </LanguageProvider>
-      </SidebarProvider>
+        <MessagingProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </ThemeProvider>
+          </LanguageProvider>
+        </MessagingProvider>
       </SidebarProvider>
     </AuthProvider>
   );

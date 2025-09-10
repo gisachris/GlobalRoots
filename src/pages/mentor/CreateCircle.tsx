@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { 
@@ -13,6 +14,7 @@ import {
   Upload,
   CheckCircle
 } from 'lucide-react';
+import { circlesService, CreateCircleData } from '../../services/circles';
 
 interface CircleFormData {
   title: string;
@@ -32,6 +34,7 @@ interface CircleFormData {
 }
 
 export const CreateCircle: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<CircleFormData>({
     title: '',
     description: '',
@@ -51,6 +54,7 @@ export const CreateCircle: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = [
     'Web Development',
@@ -124,12 +128,50 @@ export const CreateCircle: React.FC = () => {
 
   const handleCreateCircle = async () => {
     setIsCreating(true);
+    setError(null);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Validate required fields
+      if (!formData.title || !formData.description || !formData.category) {
+        throw new Error('Please fill in all required fields');
+      }
+      
+      if (formData.schedule.days.length === 0 || !formData.schedule.time) {
+        throw new Error('Please set meeting schedule');
+      }
+      
+      if (formData.objectives.filter(obj => obj.trim()).length === 0) {
+        throw new Error('Please add at least one learning objective');
+      }
+
+      const createData: CreateCircleData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        max_participants: formData.maxParticipants,
+        duration_weeks: parseInt(formData.duration),
+        meeting_days: formData.schedule.days,
+        meeting_time: formData.schedule.time,
+        timezone: formData.schedule.timezone,
+        objectives: formData.objectives.filter(obj => obj.trim()),
+        prerequisites: formData.prerequisites || undefined,
+        is_public: formData.isPublic
+      };
+
+      const circle = await circlesService.createCircle(createData);
+      
+      // Navigate to the mentor circles page with success message
+      navigate('/mentor/circles', { 
+        state: { 
+          message: 'Circle created successfully!', 
+          circleId: circle.id 
+        } 
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create circle');
+    } finally {
       setIsCreating(false);
-      // Redirect to circle management or show success
-    }, 2000);
+    }
   };
 
   const renderStep1 = () => (
@@ -459,6 +501,12 @@ export const CreateCircle: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+          
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
@@ -475,7 +523,27 @@ export const CreateCircle: React.FC = () => {
             
             {currentStep < 3 ? (
               <Button
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={() => {
+                  // Basic validation before moving to next step
+                  if (currentStep === 1) {
+                    if (!formData.title || !formData.description || !formData.category) {
+                      setError('Please fill in all required fields');
+                      return;
+                    }
+                  }
+                  if (currentStep === 2) {
+                    if (formData.schedule.days.length === 0 || !formData.schedule.time) {
+                      setError('Please set meeting schedule');
+                      return;
+                    }
+                    if (formData.objectives.filter(obj => obj.trim()).length === 0) {
+                      setError('Please add at least one learning objective');
+                      return;
+                    }
+                  }
+                  setError(null);
+                  setCurrentStep(currentStep + 1);
+                }}
                 className="bg-[#B45309] hover:bg-[#7C2D12]"
               >
                 Next Step

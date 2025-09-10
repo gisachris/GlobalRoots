@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { MessageCircle, Send, Search, Phone, Video, MoreVertical, Users } from 'lucide-react';
-import { CircleChat } from '../../components/circles/CircleChat';
-import { MessageList } from '../../components/messaging/MessageList';
-import { MessageInput } from '../../components/messaging/MessageInput';
-import { useMessaging } from '../../context/MessagingContext';
-import { useAuth } from '../../context/AuthContext';
-import { circlesService } from '../../services/circles';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { MessageCircle, Send, Search, Users, UserPlus } from 'lucide-react';
+import { CircleChat } from '../components/circles/CircleChat';
+import { MessageList } from '../components/messaging/MessageList';
+import { MessageInput } from '../components/messaging/MessageInput';
+import { useMessaging } from '../context/MessagingContext';
+import { useAuth } from '../context/AuthContext';
+import { circlesService } from '../services/circles';
 
-export const MentorMessages: React.FC = () => {
+export const Messages: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatType, setChatType] = useState<'circle' | 'conversation'>('circle');
   const [circles, setCircles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const { state, sendMessage, loadMessages, loadConversations } = useMessaging();
   const { user } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
       if (!user?.id) return;
-      
+
       try {
         setLoading(true);
         const [circlesData] = await Promise.all([
           circlesService.getUserCircles(user.id),
           loadConversations()
         ]);
-        
+
         setCircles(circlesData);
         if (circlesData.length > 0 && !selectedChat) {
           setSelectedChat(circlesData[0].id);
@@ -40,13 +40,13 @@ export const MentorMessages: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [user?.id]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedChat || !user) return;
-    
+
     try {
       if (chatType === 'circle') {
         await sendMessage(content, selectedChat);
@@ -62,18 +62,28 @@ export const MentorMessages: React.FC = () => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'now';
     if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hour${Math.floor(diffInMinutes / 60) !== 1 ? 's' : ''} ago`;
     return date.toLocaleDateString();
   };
 
+  if (loading) {
+    return (
+      <div className="px-4 h-[calc(100vh-6rem)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B45309]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 h-[calc(100vh-6rem)]">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#503314] dark:text-white">Messages</h1>
-        <p className="text-[#7C2D12] dark:text-gray-300">Communicate with your mentees</p>
+        <p className="text-[#7C2D12] dark:text-gray-300">
+          {user?.role === 'mentor' ? 'Communicate with your mentees' : 'Chat with your mentors and circles'}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100%-5rem)]">
@@ -98,9 +108,8 @@ export const MentorMessages: React.FC = () => {
                     setSelectedChat(circle.id);
                     setChatType('circle');
                   }}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                    selectedChat === circle.id && chatType === 'circle' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
-                  }`}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedChat === circle.id && chatType === 'circle' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-[#B45309] rounded-full flex items-center justify-center">
@@ -124,7 +133,7 @@ export const MentorMessages: React.FC = () => {
                   </div>
                 </div>
               ))}
-              
+
               {state.conversations.map(conversation => (
                 <div
                   key={conversation.id}
@@ -132,9 +141,8 @@ export const MentorMessages: React.FC = () => {
                     setSelectedChat(conversation.id);
                     setChatType('conversation');
                   }}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                    selectedChat === conversation.id && chatType === 'conversation' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
-                  }`}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedChat === conversation.id && chatType === 'conversation' ? 'bg-[#B45309]/10 border-r-2 border-[#B45309]' : ''
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
@@ -179,23 +187,15 @@ export const MentorMessages: React.FC = () => {
                     <p className="text-sm text-[#7C2D12] dark:text-gray-300">Direct message</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button size="sm" variant="outline">
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Video className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             </CardHeader>
-            
+
             <MessageList
               messages={state.messages[selectedChat] || []}
               currentUserId={user?.id || ''}
               loading={state.loading}
             />
-            
+
             <div className="p-4 border-t border-gray-200 dark:border-gray-600">
               <MessageInput
                 onSendMessage={handleSendMessage}
