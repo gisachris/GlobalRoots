@@ -10,6 +10,7 @@ interface Message {
   content: string;
   message_type: 'text' | 'file' | 'image';
   created_at: string;
+  failed?: boolean;
   sender?: {
     id: string;
     email: string;
@@ -38,6 +39,8 @@ type MessagingAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_MESSAGES'; payload: { key: string; messages: Message[] } }
   | { type: 'ADD_MESSAGE'; payload: { key: string; message: Message } }
+  | { type: 'REPLACE_MESSAGE'; payload: { key: string; tempId: string; message: Message } }
+  | { type: 'MARK_MESSAGE_FAILED'; payload: { key: string; tempId: string } }
   | { type: 'SET_CONVERSATIONS'; payload: Conversation[] };
 
 const initialState: MessagingState = {
@@ -60,21 +63,44 @@ const messagingReducer = (state: MessagingState, action: MessagingAction): Messa
       };
     case 'ADD_MESSAGE':
       const currentMessages = state.messages[action.payload.key] || [];
-      // Prevent duplicate messages
-      const messageExists = currentMessages.some(m => 
-        m.id === action.payload.message.id || 
-        (m.content === action.payload.message.content && 
-         m.sender_id === action.payload.message.sender_id &&
-         Math.abs(new Date(m.created_at).getTime() - new Date(action.payload.message.created_at).getTime()) < 1000)
-      );
+      // Simple duplicate prevention by ID only
+      const messageExists = currentMessages.some(m => m.id === action.payload.message.id);
       
       if (messageExists) return state;
+      
+      // Sort messages by timestamp to maintain order
+      const newMessages = [...currentMessages, action.payload.message]
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       
       return {
         ...state,
         messages: {
           ...state.messages,
-          [action.payload.key]: [...currentMessages, action.payload.message],
+          [action.payload.key]: newMessages,
+        },
+      };
+    case 'REPLACE_MESSAGE':
+      const messagesForReplace = state.messages[action.payload.key] || [];
+      const updatedMessages = messagesForReplace.map(m => 
+        m.id === action.payload.tempId ? action.payload.message : m
+      );
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.payload.key]: updatedMessages,
+        },
+      };
+    case 'MARK_MESSAGE_FAILED':
+      const messagesForFail = state.messages[action.payload.key] || [];
+      const failedMessages = messagesForFail.map(m => 
+        m.id === action.payload.tempId ? { ...m, failed: true } : m
+      );
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.payload.key]: failedMessages,
         },
       };
     case 'SET_CONVERSATIONS':
@@ -87,7 +113,7 @@ const messagingReducer = (state: MessagingState, action: MessagingAction): Messa
 interface MessagingContextType {
   state: MessagingState;
   sendMessage: (content: string, circleId?: string, conversationId?: string) => Promise<void>;
-  loadMessages: (circleId?: string, conversationId?: string) => Promise<void>;
+  loadMessages: (circleId?: string, conversationId?: string, force?: boolean) => Promise<void>;
   loadConversations: () => Promise<void>;
   createConversation: (mentorId: string, menteeId: string) => Promise<string>;
 }
@@ -109,35 +135,90 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!user) return;
 
     let messagesSubscription: any;
+    let pollInterval: NodeJS.Timeout;
+    let isSubscriptionActive = false;
     
-    try {
-      messagesSubscription = supabase
-        .channel(`messages-${user.id}`)
-        .on('postgres_changes', 
-          { 
-            event: 'INSERT', 
-            schema: 'public', 
-            table: 'messages'
-          },
-          (payload) => {
-            const message = payload.new as Message;
-            const key = message.circle_id || message.conversation_id || '';
+    // Setup real-time subscription with retry
+    const setupSubscription = () => {
+      try {
+        messagesSubscription = supabase
+          .channel(`messages-${Date.now()}`)
+          .on('postgres_changes', 
+            { 
+              event: 'INSERT', 
+              schema: 'public', 
+              table: 'messages'
+            },
+            (payload) => {
+              const message = payload.new as Message;
+              const key = message.circle_id || message.conversation_id || '';
+              
+              if (message.sender_id !== user.id && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification('New Message', {
+                  body: message.content,
+                  icon: '/favicon.ico',
+                  tag: key
+                });
+              }
+              
+              dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
+            }
+          )
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              isSubscriptionActive = true;
+              if (pollInterval) {
+                clearInterval(pollInterval);
+              }
+            } else if (status === 'CLOSED') {
+              isSubscriptionActive = false;
+              startPolling();
+            }
+          });
+      } catch (error) {
+        console.warn('Real-time subscription failed:', error);
+        startPolling();
+      }
+    };
+
+    // Fallback polling mechanism
+    const startPolling = () => {
+      if (pollInterval) clearInterval(pollInterval);
+      
+      pollInterval = setInterval(async () => {
+        if (isSubscriptionActive) return;
+        
+        // Poll for new messages in active chats
+        Object.keys(state.messages).forEach(async (key) => {
+          try {
+            const lastMessage = state.messages[key]?.slice(-1)[0];
+            const lastTimestamp = lastMessage?.created_at || new Date(Date.now() - 60000).toISOString();
             
-            if (message.sender_id !== user.id && 'Notification' in window && Notification.permission === 'granted') {
-              new Notification('New Message', {
-                body: message.content,
-                icon: '/favicon.ico',
-                tag: key
-              });
+            let query = supabase
+              .from('messages')
+              .select('*')
+              .gt('created_at', lastTimestamp)
+              .order('created_at', { ascending: true });
+            
+            if (key.includes('-')) {
+              query = query.eq('conversation_id', key);
+            } else {
+              query = query.eq('circle_id', key);
             }
             
-            dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
+            const { data } = await query;
+            
+            data?.forEach(message => {
+              dispatch({ type: 'ADD_MESSAGE', payload: { key, message } });
+            });
+          } catch (error) {
+            console.error('Polling failed:', error);
           }
-        )
-        .subscribe();
-    } catch (error) {
-      console.warn('Real-time subscription failed, continuing without it:', error);
-    }
+        });
+      }, 3000);
+    };
+
+    setupSubscription();
 
     return () => {
       try {
@@ -145,15 +226,21 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       } catch (error) {
         console.warn('Failed to unsubscribe:', error);
       }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
     };
-  }, [user]);
+  }, [user, state.messages]);
 
   const sendMessage = useCallback(async (content: string, circleId?: string, conversationId?: string) => {
     if (!user || !content.trim()) return;
 
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    const key = circleId || conversationId || '';
+    
     // Optimistically add message to UI immediately
     const optimisticMessage: Message = {
-      id: `temp-${Date.now()}`,
+      id: tempId,
       sender_id: user.id,
       content: content.trim(),
       circle_id: circleId || undefined,
@@ -167,36 +254,46 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
     
-    const key = circleId || conversationId || '';
     dispatch({ type: 'ADD_MESSAGE', payload: { key, message: optimisticMessage } });
     
-    // Send to database in background
+    // Send to database with proper error handling
     try {
-      supabase
+      const { data, error } = await supabase
         .from('messages')
         .insert([{
           sender_id: user.id,
           content: content.trim(),
           circle_id: circleId || null,
           conversation_id: conversationId || null,
-        }]);
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Replace optimistic message with real one
+      if (data) {
+        dispatch({ type: 'REPLACE_MESSAGE', payload: { key, tempId, message: data } });
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
+      // Mark message as failed
+      dispatch({ type: 'MARK_MESSAGE_FAILED', payload: { key, tempId } });
     }
   }, [user]);
 
-  const loadMessages = useCallback(async (circleId?: string, conversationId?: string) => {
+  const loadMessages = useCallback(async (circleId?: string, conversationId?: string, force = false) => {
     if (!user) return;
     
     const key = circleId || conversationId || '';
-    if (state.messages[key]?.length > 0) return;
+    if (!force && state.messages[key]?.length > 0) return;
 
     try {
       let query = supabase
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(50);
+        .limit(100);
 
       if (circleId) {
         query = query.eq('circle_id', circleId);
