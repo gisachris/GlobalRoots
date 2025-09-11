@@ -19,7 +19,8 @@
     "react-lucid": "^0.0.1",
     "react-router-dom": "^6.26.2",
     "react-router-hash-link": "^2.4.3",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.18",

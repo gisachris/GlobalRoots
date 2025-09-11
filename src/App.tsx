@@ -5,6 +5,7 @@ import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Community } from './pages/Community';
 import { Projects } from './pages/Projects';
+import { ProjectsPage } from './components/projects/ProjectsPage';
 import { ReturneeHub } from './pages/ReturneeHub';
 import { ImpactDashboard } from './pages/ImpactDashboard';
 import { MentorConnect } from './pages/MentorConnect';
@@ -55,6 +56,7 @@ import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
 import { MessagingProvider } from './context/MessagingContext';
+import { ProjectsProvider } from './context/ProjectsContext';
 import { Invite } from './pages/Invite';
 
 import  Circle  from './pages/Circle';
@@ -194,7 +196,22 @@ function AppRoutes() {
         }/>
         <Route path="/projects" element={
           <SidebarLayout>
-            <Projects />
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
+        <Route path="/projects/new" element={
+          <SidebarLayout>
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
+        <Route path="/project/:projectId" element={
+          <SidebarLayout>
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
+        <Route path="/project/:projectId/edit" element={
+          <SidebarLayout>
+            <ProjectsPage />
           </SidebarLayout>
         } />
         <Route path="/userProjects" element={
@@ -309,6 +326,26 @@ function AppRoutes() {
             <MentorSettings />
           </MentorLayoutRoute>
         } />
+        <Route path="/mentor/projects" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/projects/new" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/project/:projectId" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/project/:projectId/edit" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
         <Route path="/mentor/schedule-meeting" element={
           <MentorLayoutRoute>
             <ScheduleMeeting />
@@ -329,17 +366,19 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <SidebarProvider>
-        <MessagingProvider>
-          <LanguageProvider>
-            <ThemeProvider>
-              <BrowserRouter>
-                <AppRoutes />
-              </BrowserRouter>
-            </ThemeProvider>
-          </LanguageProvider>
-        </MessagingProvider>
-      </SidebarProvider>
+      <ProjectsProvider>
+        <SidebarProvider>
+          <MessagingProvider>
+            <LanguageProvider>
+              <ThemeProvider>
+                <BrowserRouter>
+                  <AppRoutes />
+                </BrowserRouter>
+              </ThemeProvider>
+            </LanguageProvider>
+          </MessagingProvider>
+        </SidebarProvider>
+      </ProjectsProvider>
     </AuthProvider>
   );
 }
