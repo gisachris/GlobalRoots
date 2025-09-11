@@ -143,13 +143,20 @@ export const ProjectsList = () => {
                   </span>
                   <span>Updated {new Date(project.updated_at).toLocaleDateString()}</span>
                 </div>
-                <Button variant="outline" className="w-full" onClick={(e) => {
-                  e.stopPropagation();
-                  const editPath = user?.role === 'mentor' ? `/mentor/project/${project.id}/edit` : `/project/${project.id}/edit`;
-                  navigate(editPath);
-                }}>
-                  Edit Project
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={(e) => {
+                    e.stopPropagation();
+                    const editPath = user?.role === 'mentor' ? `/mentor/project/${project.id}/edit` : `/project/${project.id}/edit`;
+                    navigate(editPath);
+                  }}>
+                    Edit Project
+                  </Button>
+                  {(project.nodes && project.nodes.length > 0) && (
+                    <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded flex items-center">
+                      📊 Schema
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -12,9 +12,15 @@ export const useReactFlowProject = (projectId) => {
 
   useEffect(() => {
     if (currentProject && currentProject.id === projectId) {
+      console.log('Loading project canvas data:', currentProject);
       setNodes(currentProject.nodes || []);
       setEdges(currentProject.edges || []);
       setViewport(currentProject.canvas?.viewport || { x: 0, y: 0, zoom: 1 });
+    } else if (projectId && !currentProject) {
+      // Clear canvas if no project data
+      setNodes([]);
+      setEdges([]);
+      setViewport({ x: 0, y: 0, zoom: 1 });
     }
   }, [currentProject, projectId]);
 
@@ -24,7 +30,7 @@ export const useReactFlowProject = (projectId) => {
     }
 
     autoSaveTimeoutRef.current = setTimeout(async () => {
-      if (projectId && (nodes.length > 0 || edges.length > 0)) {
+      if (projectId) {
         try {
           setIsAutoSaving(true);
           console.log('Auto-saving project canvas:', { projectId, nodesCount: nodes.length, edgesCount: edges.length });
@@ -93,6 +99,7 @@ export const useReactFlowProject = (projectId) => {
         setIsAutoSaving(false);
       }
     }
+    console.log('No projectId available for manual save');
     return false;
   }, [projectId, nodes, edges, viewport, saveProjectCanvas]);
 

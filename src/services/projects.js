@@ -108,7 +108,10 @@ export class ProjectService {
 
     let query = supabase
       .from('projects')
-      .select('*')
+      .select(`
+        *,
+        project_nodes(node_id, node_data)
+      `)
       .eq('creator_id', userId);
 
     if (type) query = query.eq('type', type);
@@ -122,37 +125,49 @@ export class ProjectService {
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    return data;
+    
+    // Transform the data to include nodes info
+    return data.map(project => ({
+      ...project,
+      nodes: project.project_nodes || []
+    }));
   }
 
   async saveProjectCanvas(projectId, canvasData) {
     const { nodes, edges, viewport } = canvasData;
 
     try {
+      console.log('Saving canvas data:', { projectId, nodesCount: nodes?.length || 0, edgesCount: edges?.length || 0 });
+      
+      // Update canvas viewport data
       await supabase
         .from('projects')
         .update({
-          canvas_data: { viewport, settings: canvasData.settings || {} }
+          canvas_data: { viewport: viewport || { x: 0, y: 0, zoom: 1 }, settings: canvasData.settings || {} }
         })
         .eq('id', projectId);
 
+      // Sync nodes
       if (nodes && nodes.length > 0) {
         await this.syncProjectNodes(projectId, nodes);
       } else {
         await this.clearProjectNodes(projectId);
       }
 
+      // Sync edges
       if (edges && edges.length > 0) {
         await this.syncProjectConnections(projectId, edges);
       } else {
         await this.clearProjectConnections(projectId);
       }
 
+      // Update timestamp
       await supabase
         .from('projects')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', projectId);
 
+      console.log('Canvas data saved successfully');
     } catch (error) {
       console.error('Error saving canvas:', error);
       throw error;

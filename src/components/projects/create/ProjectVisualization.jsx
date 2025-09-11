@@ -12,6 +12,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useReactFlowProject } from '../../../hooks/useReactFlowProject';
 import { useProjects } from '../../../context/ProjectsContext';
+import { useAuth } from '../../../context/AuthContext';
 import { useParams } from 'react-router-dom';
 
 const CustomNode = ({ data }) => {
@@ -43,12 +44,14 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
   const { projectId: paramProjectId } = useParams();
   const projectId = propProjectId || paramProjectId;
   const { loadProject, currentProject, createProject } = useProjects();
+  const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [hasUnsavedProject, setHasUnsavedProject] = useState(false);
   
   const {
     nodes,
     edges,
+    viewport,
     isAutoSaving,
     onNodesChange,
     onEdgesChange,
@@ -57,6 +60,8 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
     manualSave,
     setNodes
   } = useReactFlowProject(projectId);
+  
+  const { saveProjectCanvas } = useProjects();
 
   useEffect(() => {
     if (projectId && (!currentProject || currentProject.id !== projectId)) {
@@ -139,7 +144,17 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
         });
         console.log('Project created for visualization:', newProject);
         setHasUnsavedProject(false);
-        // The useReactFlowProject hook will handle saving the canvas
+        
+        // Save the canvas data to the new project
+        if (newProject && newProject.id && (nodes.length > 0 || edges.length > 0)) {
+          await saveProjectCanvas(newProject.id, {
+            nodes,
+            edges,
+            viewport,
+            settings: {}
+          });
+        }
+        
         return newProject;
       } catch (error) {
         console.error('Failed to create project:', error);
@@ -154,26 +169,53 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
       } else {
         alert('Failed to save schema. Please try again.');
       }
+      return success;
     }
   };
 
-  const handleShareSchema = () => {
+  const handleShareSchema = async () => {
     if (!projectId && hasUnsavedProject) {
       alert('Please save the schema first before sharing.');
       return;
     }
     
-    const shareUrl = projectId ? `${window.location.origin}/project/${projectId}` : window.location.href;
+    let shareProjectId = projectId;
     
-    if (navigator.share) {
-      navigator.share({
-        title: 'Project Architecture Schema',
-        text: 'Check out this project architecture visualization',
-        url: shareUrl
-      });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      alert('Schema link copied to clipboard!');
+    // If no project exists but we have unsaved work, create one first
+    if (!projectId && (nodes.length > 0 || selectedTemplate)) {
+      const newProject = await handleSaveSchema();
+      if (newProject) {
+        shareProjectId = newProject.id;
+      } else {
+        return; // Failed to create project
+      }
+    }
+    
+    const shareUrl = shareProjectId 
+      ? `${window.location.origin}${user?.role === 'mentor' ? '/mentor' : ''}/project/${shareProjectId}` 
+      : window.location.href;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Project Architecture Schema',
+          text: 'Check out this project architecture visualization',
+          url: shareUrl
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Schema link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Sharing failed:', error);
+      // Fallback to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Schema link copied to clipboard!');
+      } catch (clipboardError) {
+        console.error('Clipboard failed:', clipboardError);
+        alert(`Share this link: ${shareUrl}`);
+      }
     }
   };
 

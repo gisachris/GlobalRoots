@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { SaveIcon, EyeIcon, PlusIcon, XIcon } from 'lucide-react';
 import { useProjects } from '../../../context/ProjectsContext';
 import { useAuth } from '../../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const ProjectForm = ({ userRole }) => {
-  const { createProject, loading } = useProjects();
+  const { createProject, updateProject, loadProject, currentProject, loading } = useProjects();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -28,6 +29,33 @@ export const ProjectForm = ({ userRole }) => {
   const [errors, setErrors] = useState({});
   const [isPreview, setIsPreview] = useState(false);
   const [newTech, setNewTech] = useState('');
+
+  // Load existing project data if editing
+  useEffect(() => {
+    if (projectId && (!currentProject || currentProject.id !== projectId)) {
+      loadProject(projectId);
+    }
+  }, [projectId, currentProject, loadProject]);
+
+  // Populate form with existing project data
+  useEffect(() => {
+    if (currentProject && projectId === currentProject.id) {
+      setFormData({
+        title: currentProject.title || '',
+        description: currentProject.description || '',
+        type: currentProject.type || (user?.role === 'mentor' ? 'project' : 'innovation'),
+        visibility: currentProject.visibility || 'private',
+        status: currentProject.status || 'draft',
+        technologies: currentProject.technologies || [],
+        teamSize: currentProject.teamSize || 1,
+        maxTeamSize: currentProject.maxTeamSize || 5,
+        deadline: currentProject.deadline || '',
+        requirements: currentProject.requirements || '',
+        category: currentProject.category || '',
+        isPublic: currentProject.visibility === 'public'
+      });
+    }
+  }, [currentProject, projectId, user?.role]);
 
   const categories = [
     'Web Development',
@@ -104,23 +132,35 @@ export const ProjectForm = ({ userRole }) => {
         ...formData,
         status: 'published'
       };
-      const project = await createProject(projectData);
-      console.log('Project created successfully:', project);
-      // Navigate back to projects list after successful creation
+      
+      if (projectId) {
+        await updateProject(projectId, projectData);
+        console.log('Project updated successfully');
+      } else {
+        await createProject(projectData);
+        console.log('Project created successfully');
+      }
+      
       const projectsPath = user?.role === 'mentor' ? '/mentor/projects' : '/projects';
       navigate(projectsPath);
     } catch (error) {
-      console.error('Failed to create project:', error);
-      alert('Failed to create project. Please try again.');
+      console.error('Failed to save project:', error);
+      alert('Failed to save project. Please try again.');
     }
   };
 
   const handleSaveDraft = async () => {
     try {
       const draftData = { ...formData, status: 'draft' };
-      const project = await createProject(draftData);
-      console.log('Draft saved successfully:', project);
-      // Navigate back to projects list after successful save
+      
+      if (projectId) {
+        await updateProject(projectId, draftData);
+        console.log('Draft updated successfully');
+      } else {
+        await createProject(draftData);
+        console.log('Draft saved successfully');
+      }
+      
       const projectsPath = user?.role === 'mentor' ? '/mentor/projects' : '/projects';
       navigate(projectsPath);
     } catch (error) {
@@ -202,12 +242,14 @@ export const ProjectForm = ({ userRole }) => {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-[#503314] dark:text-white mb-2">
-          Create New {entityType}
+          {projectId ? `Edit ${entityType}` : `Create New ${entityType}`}
         </h2>
         <p className="text-[#7C2D12] dark:text-gray-300">
-          {userRole === 'mentor' 
-            ? 'Set up a new project for your mentees to collaborate on'
-            : 'Share your innovative idea with the community'
+          {projectId 
+            ? `Update your ${entityType.toLowerCase()} details`
+            : userRole === 'mentor' 
+              ? 'Set up a new project for your mentees to collaborate on'
+              : 'Share your innovative idea with the community'
           }
         </p>
       </div>
@@ -416,7 +458,7 @@ export const ProjectForm = ({ userRole }) => {
           </Button>
           <Button type="submit" variant="primary" className="flex items-center" disabled={loading}>
             <SaveIcon className="h-4 w-4 mr-2" />
-            {loading ? 'Creating...' : `Publish ${entityType}`}
+            {loading ? 'Saving...' : projectId ? `Update ${entityType}` : `Publish ${entityType}`}
           </Button>
           <Button type="button" variant="outline" onClick={() => setIsPreview(true)}>
             <EyeIcon className="h-4 w-4 mr-2" />
