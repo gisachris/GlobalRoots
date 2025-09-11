@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { NetworkIcon, PlusIcon, SaveIcon, DownloadIcon } from 'lucide-react';
@@ -6,13 +6,13 @@ import ReactFlow, {
   MiniMap,
   Controls,
   Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
   Handle,
   Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { useReactFlowProject } from '../../../hooks/useReactFlowProject';
+import { useProjects } from '../../../context/ProjectsContext';
+import { useParams } from 'react-router-dom';
 
 const CustomNode = ({ data }) => {
   return (
@@ -39,10 +39,29 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-export const ProjectVisualization = () => {
+export const ProjectVisualization = ({ projectId: propProjectId }) => {
+  const { projectId: paramProjectId } = useParams();
+  const projectId = propProjectId || paramProjectId;
+  const { loadProject, currentProject } = useProjects();
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
+  const {
+    nodes,
+    edges,
+    isAutoSaving,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onViewportChange,
+    manualSave,
+    setNodes
+  } = useReactFlowProject(projectId);
+
+  useEffect(() => {
+    if (projectId && (!currentProject || currentProject.id !== projectId)) {
+      loadProject(projectId);
+    }
+  }, [projectId, currentProject, loadProject]);
 
   const templates = [
     {
@@ -71,10 +90,7 @@ export const ProjectVisualization = () => {
     }
   ];
 
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
+
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template.id);
@@ -88,7 +104,6 @@ export const ProjectVisualization = () => {
       data: { label: nodeName },
     }));
     setNodes(templateNodes);
-    setEdges([]);
   };
 
   const addCustomNode = () => {
@@ -101,7 +116,7 @@ export const ProjectVisualization = () => {
       },
       data: { label: `Node ${nodes.length + 1}` },
     };
-    setNodes((nds) => [...nds, newNode]);
+    setNodes(prev => [...prev, newNode]);
   };
 
   return (
@@ -164,6 +179,10 @@ export const ProjectVisualization = () => {
                 <PlusIcon className="h-4 w-4 mr-1" />
                 Add Node
               </Button>
+              <Button variant="outline" size="sm" onClick={manualSave} disabled={isAutoSaving}>
+                <SaveIcon className="h-4 w-4 mr-1" />
+                {isAutoSaving ? 'Saving...' : 'Save'}
+              </Button>
               <Button variant="outline" size="sm">
                 <DownloadIcon className="h-4 w-4 mr-1" />
                 Export
@@ -179,6 +198,7 @@ export const ProjectVisualization = () => {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
+              onViewportChange={onViewportChange}
               nodeTypes={nodeTypes}
               fitView
               className="bg-gray-50 dark:bg-gray-700"
@@ -187,6 +207,13 @@ export const ProjectVisualization = () => {
               <MiniMap />
               <Background variant="dots" gap={12} size={1} />
             </ReactFlow>
+            
+            {/* Auto-save indicator */}
+            {isAutoSaving && (
+              <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                Saving...
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

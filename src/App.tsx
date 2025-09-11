@@ -56,6 +56,7 @@ import EmailConfirmation from './components/auth/EmailConfirmation';
 import { Onboarding } from './pages/Onboarding';
 import { SidebarProvider } from './context/SidebarContext';
 import { MessagingProvider } from './context/MessagingContext';
+import { ProjectsProvider } from './context/ProjectsContext';
 import { Invite } from './pages/Invite';
 
 import  Circle  from './pages/Circle';
@@ -335,17 +336,19 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <SidebarProvider>
-        <MessagingProvider>
-          <LanguageProvider>
-            <ThemeProvider>
-              <BrowserRouter>
-                <AppRoutes />
-              </BrowserRouter>
-            </ThemeProvider>
-          </LanguageProvider>
-        </MessagingProvider>
-      </SidebarProvider>
+      <ProjectsProvider>
+        <SidebarProvider>
+          <MessagingProvider>
+            <LanguageProvider>
+              <ThemeProvider>
+                <BrowserRouter>
+                  <AppRoutes />
+                </BrowserRouter>
+              </ThemeProvider>
+            </LanguageProvider>
+          </MessagingProvider>
+        </SidebarProvider>
+      </ProjectsProvider>
     </AuthProvider>
   );
 }

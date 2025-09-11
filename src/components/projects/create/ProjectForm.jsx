@@ -2,22 +2,23 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { SaveIcon, EyeIcon, PlusIcon, XIcon } from 'lucide-react';
+import { useProjects } from '../../../context/ProjectsContext';
+import { useAuth } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const ProjectForm = ({ userRole }) => {
+  const { createProject, loading } = useProjects();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
-    status: 'Planning',
-    isPublic: false,
-    teamSize: 1,
-    maxTeamSize: 5,
-    deadline: '',
-    technologies: [],
-    requirements: ''
+    type: user?.role === 'mentor' ? 'project' : 'innovation',
+    visibility: 'private',
+    status: 'draft'
   });
 
-  const [newTech, setNewTech] = useState('');
+  const [errors, setErrors] = useState({});
   const [isPreview, setIsPreview] = useState(false);
 
   const categories = [
@@ -33,12 +34,11 @@ export const ProjectForm = ({ userRole }) => {
     'Other'
   ];
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
   };
 
   const addTechnology = () => {
@@ -58,10 +58,34 @@ export const ProjectForm = ({ userRole }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.length < 3) {
+      newErrors.title = 'Title must be at least 3 characters';
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+    
+    if (!validateForm()) return;
+
+    try {
+      const project = await createProject(formData);
+      navigate(`/project/${project.id}/edit`);
+    } catch (error) {
+      console.error('Failed to create project:', error);
+    }
   };
 
   const entityType = userRole === 'mentor' ? 'Project' : 'Innovation';
@@ -159,55 +183,54 @@ export const ProjectForm = ({ userRole }) => {
               </label>
               <input
                 type="text"
-                name="title"
                 value={formData.title}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent ${
+                  errors.title ? 'border-red-500' : 'border-[#B45309]/20'
+                }`}
                 placeholder={`Enter ${entityType.toLowerCase()} title`}
-                required
+                maxLength={200}
               />
+              {errors.title && <span className="text-red-500 text-sm mt-1">{errors.title}</span>}
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">Description *</label>
               <textarea
-                name="description"
                 value={formData.description}
-                onChange={handleInputChange}
+                onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent ${
+                  errors.description ? 'border-red-500' : 'border-[#B45309]/20'
+                }`}
                 placeholder={`Describe your ${entityType.toLowerCase()}`}
-                required
+                maxLength={5000}
               />
+              {errors.description && <span className="text-red-500 text-sm mt-1">{errors.description}</span>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Category</label>
+                <label className="block text-sm font-medium mb-2">Visibility</label>
                 <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
+                  value={formData.visibility}
+                  onChange={(e) => handleInputChange('visibility', e.target.value)}
                   className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 >
-                  <option value="">Select category</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
+                  <option value="private">Private</option>
+                  <option value="public">Public</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Status</label>
                 <select
-                  name="status"
                   value={formData.status}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange('status', e.target.value)}
                   className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 >
-                  <option value="Planning">Planning</option>
-                  <option value="Recruiting">Recruiting</option>
-                  <option value="In Progress">In Progress</option>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
                 </select>
               </div>
             </div>
@@ -330,9 +353,16 @@ export const ProjectForm = ({ userRole }) => {
         </Card>
 
         <div className="flex gap-4">
-          <Button type="submit" variant="primary" className="flex items-center">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" className="flex items-center" disabled={loading}>
             <SaveIcon className="h-4 w-4 mr-2" />
-            Create {entityType}
+            {loading ? 'Creating...' : `Create ${entityType}`}
           </Button>
           <Button type="button" variant="outline" onClick={() => setIsPreview(true)}>
             <EyeIcon className="h-4 w-4 mr-2" />
