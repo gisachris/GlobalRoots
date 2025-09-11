@@ -1,20 +1,48 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { NetworkIcon, PlusIcon, SaveIcon, DownloadIcon } from 'lucide-react';
-import { ConnectionHandle } from './ConnectionHandle';
-import { ConnectionLine } from './ConnectionLine';
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Handle,
+  Position,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+
+const CustomNode = ({ data }) => {
+  return (
+    <div className="bg-white dark:bg-gray-800 border-2 border-[#B45309] rounded-lg p-3 shadow-sm min-w-[100px]">
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-3 h-3 !bg-blue-500 border-2 border-white"
+      />
+      <div className="flex items-center">
+        <NetworkIcon className="h-4 w-4 text-[#B45309] mr-2" />
+        <span className="text-xs font-medium">{data.label}</span>
+      </div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-3 h-3 !bg-green-500 border-2 border-white"
+      />
+    </div>
+  );
+};
+
+const nodeTypes = {
+  custom: CustomNode,
+};
 
 export const ProjectVisualization = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [customNodes, setCustomNodes] = useState([]);
-  const [connections, setConnections] = useState([]);
-  const [temporaryConnection, setTemporaryConnection] = useState(null);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [isDraggingConnection, setIsDraggingConnection] = useState(false);
-  const [draggedNode, setDraggedNode] = useState(null);
-  const svgRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const templates = [
     {
@@ -43,137 +71,37 @@ export const ProjectVisualization = () => {
     }
   ];
 
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
+
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template.id);
-    setCustomNodes(template.nodes.map((node, index) => ({
-      id: index + 1,
-      name: node,
-      x: 100 + (index % 3) * 200,
-      y: 100 + Math.floor(index / 3) * 150
-    })));
-    setConnections([]);
+    const templateNodes = template.nodes.map((nodeName, index) => ({
+      id: `${index + 1}`,
+      type: 'custom',
+      position: { 
+        x: 100 + (index % 3) * 200, 
+        y: 100 + Math.floor(index / 3) * 150 
+      },
+      data: { label: nodeName },
+    }));
+    setNodes(templateNodes);
+    setEdges([]);
   };
 
   const addCustomNode = () => {
     const newNode = {
-      id: Date.now(),
-      name: `Node ${customNodes.length + 1}`,
-      x: 100 + (customNodes.length % 4) * 150,
-      y: 100 + Math.floor(customNodes.length / 4) * 120
+      id: `${Date.now()}`,
+      type: 'custom',
+      position: { 
+        x: 100 + (nodes.length % 4) * 150, 
+        y: 100 + Math.floor(nodes.length / 4) * 120 
+      },
+      data: { label: `Node ${nodes.length + 1}` },
     };
-    setCustomNodes([...customNodes, newNode]);
-  };
-
-  const handleConnectionStart = useCallback((data) => {
-    setIsDraggingConnection(true);
-    const rect = canvasRef.current.getBoundingClientRect();
-    const startPos = {
-      x: data.position.x - rect.left,
-      y: data.position.y - rect.top
-    };
-    setTemporaryConnection({
-      sourceNode: data.nodeId,
-      sourceHandle: data.handleId,
-      type: data.type,
-      startPos,
-      endPos: startPos
-    });
-  }, []);
-
-  const handleConnectionDrag = useCallback((e) => {
-    if (isDraggingConnection && temporaryConnection) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      setTemporaryConnection(prev => ({
-        ...prev,
-        endPos: {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        }
-      }));
-    }
-  }, [isDraggingConnection, temporaryConnection]);
-
-  const handleConnectionEnd = useCallback((data) => {
-    if (isDraggingConnection && temporaryConnection && data) {
-      const isValidConnection = 
-        data.nodeId !== temporaryConnection.sourceNode &&
-        data.type !== temporaryConnection.type &&
-        !connections.some(c => 
-          c.sourceNode === temporaryConnection.sourceNode && 
-          c.targetNode === data.nodeId
-        );
-
-      if (isValidConnection) {
-        const rect = canvasRef.current.getBoundingClientRect();
-        const newConnection = {
-          id: Date.now(),
-          sourceNode: temporaryConnection.sourceNode,
-          sourceHandle: temporaryConnection.sourceHandle,
-          targetNode: data.nodeId,
-          targetHandle: data.handleId,
-          startPos: temporaryConnection.startPos,
-          endPos: {
-            x: data.position.x - rect.left,
-            y: data.position.y - rect.top
-          }
-        };
-        setConnections(prev => [...prev, newConnection]);
-      }
-    }
-    setTemporaryConnection(null);
-    setIsDraggingConnection(false);
-  }, [isDraggingConnection, temporaryConnection, connections]);
-
-  // Node dragging
-  const handleNodeMouseDown = useCallback((e, nodeId) => {
-    if (e.target.closest('.connection-handle')) return;
-    e.preventDefault();
-    const rect = canvasRef.current.getBoundingClientRect();
-    const node = customNodes.find(n => n.id === nodeId);
-    setDraggedNode({
-      id: nodeId,
-      offsetX: e.clientX - rect.left - node.x,
-      offsetY: e.clientY - rect.top - node.y
-    });
-  }, [customNodes]);
-
-  const handleMouseMove = useCallback((e) => {
-    if (isDraggingConnection) {
-      handleConnectionDrag(e);
-    } else if (draggedNode) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const newX = e.clientX - rect.left - draggedNode.offsetX;
-      const newY = e.clientY - rect.top - draggedNode.offsetY;
-      
-      setCustomNodes(prev => prev.map(node => 
-        node.id === draggedNode.id 
-          ? { ...node, x: Math.max(0, newX), y: Math.max(0, newY) }
-          : node
-      ));
-    }
-  }, [isDraggingConnection, draggedNode, handleConnectionDrag]);
-
-  const handleMouseUp = useCallback(() => {
-    if (isDraggingConnection) {
-      handleConnectionEnd(null);
-    }
-    setDraggedNode(null);
-  }, [isDraggingConnection, handleConnectionEnd]);
-
-  // Global mouse events
-  React.useEffect(() => {
-    if (isDraggingConnection || draggedNode) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDraggingConnection, draggedNode, handleMouseMove, handleMouseUp]);
-
-  const deleteConnection = (connectionId) => {
-    setConnections(prev => prev.filter(c => c.id !== connectionId));
+    setNodes((nds) => [...nds, newNode]);
   };
 
   return (
@@ -227,141 +155,44 @@ export const ProjectVisualization = () => {
       </Card>
 
       {/* Visualization Canvas */}
-      {selectedTemplate && (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Project Architecture</CardTitle>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={addCustomNode}>
-                  <PlusIcon className="h-4 w-4 mr-1" />
-                  Add Node
-                </Button>
-                <Button variant="outline" size="sm">
-                  <DownloadIcon className="h-4 w-4 mr-1" />
-                  Export
-                </Button>
-              </div>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Project Architecture</CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={addCustomNode}>
+                <PlusIcon className="h-4 w-4 mr-1" />
+                Add Node
+              </Button>
+              <Button variant="outline" size="sm">
+                <DownloadIcon className="h-4 w-4 mr-1" />
+                Export
+              </Button>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="relative bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[400px] border-2 border-dashed border-gray-300">
-              {/* Canvas Area */}
-              <div 
-                ref={canvasRef}
-                className="relative w-full h-full"
-              >
-                {customNodes.map((node) => (
-                  <div 
-                    key={node.id}
-                    className={`absolute bg-white dark:bg-gray-800 border-2 rounded-lg p-3 shadow-sm cursor-move select-none ${
-                      selectedNode === node.id ? 'border-blue-500' : 'border-[#B45309]'
-                    }`}
-                    style={{ left: node.x, top: node.y, width: '100px', height: '40px' }}
-                    onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
-                    onClick={() => setSelectedNode(node.id)}
-                  >
-                    <div className="flex items-center h-full">
-                      <NetworkIcon className="h-4 w-4 text-[#B45309] mr-2 flex-shrink-0" />
-                      <span className="text-xs font-medium truncate">{node.name}</span>
-                    </div>
-                    
-                    {/* Connection Handles */}
-                    <ConnectionHandle
-                      nodeId={node.id}
-                      handleId="input"
-                      type="input"
-                      position="left"
-                      onConnectionStart={handleConnectionStart}
-                      onConnectionEnd={handleConnectionEnd}
-                    />
-                    <ConnectionHandle
-                      nodeId={node.id}
-                      handleId="output"
-                      type="output"
-                      position="right"
-                      onConnectionStart={handleConnectionStart}
-                      onConnectionEnd={handleConnectionEnd}
-                    />
-                  </div>
-                ))}
-
-                {/* Connection Lines */}
-                <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ pointerEvents: 'none' }}>
-                  <defs>
-                    <marker
-                      id="arrowhead"
-                      markerWidth="10"
-                      markerHeight="7"
-                      refX="9"
-                      refY="3.5"
-                      orient="auto"
-                    >
-                      <polygon
-                        points="0 0, 10 3.5, 0 7"
-                        fill="#666"
-                      />
-                    </marker>
-                  </defs>
-                  
-                  {/* Permanent connections */}
-                  {connections.map((connection) => {
-                    const sourceNode = customNodes.find(n => n.id === connection.sourceNode);
-                    const targetNode = customNodes.find(n => n.id === connection.targetNode);
-                    if (!sourceNode || !targetNode) return null;
-                    
-                    const startPos = {
-                      x: sourceNode.x + (connection.sourceHandle === 'output' ? 100 : 0),
-                      y: sourceNode.y + 20
-                    };
-                    const endPos = {
-                      x: targetNode.x + (connection.targetHandle === 'input' ? 0 : 100),
-                      y: targetNode.y + 20
-                    };
-                    
-                    return (
-                      <ConnectionLine
-                        key={connection.id}
-                        startPos={startPos}
-                        endPos={endPos}
-                        onDelete={() => deleteConnection(connection.id)}
-                      />
-                    );
-                  })}
-                  
-                  {/* Temporary connection */}
-                  {temporaryConnection && (
-                    <ConnectionLine
-                      startPos={temporaryConnection.startPos}
-                      endPos={temporaryConnection.endPos}
-                      isTemporary
-                    />
-                  )}
-                </svg>
-
-                {customNodes.length === 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <NetworkIcon className="h-12 w-12 mx-auto mb-2" />
-                      <p>Select a template to start building your architecture</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Instructions */}
-                {customNodes.length > 0 && (
-                  <div className="absolute top-2 left-2 bg-blue-100 dark:bg-blue-900 p-2 rounded text-xs text-blue-800 dark:text-blue-200">
-                    Drag from green (output) to blue (input) handles to connect nodes
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[500px] border-2 border-dashed border-gray-300 rounded-lg">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              fitView
+              className="bg-gray-50 dark:bg-gray-700"
+            >
+              <Controls />
+              <MiniMap />
+              <Background variant="dots" gap={12} size={1} />
+            </ReactFlow>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Node Properties Panel */}
-      {customNodes.length > 0 && (
+      {nodes.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Node Properties</CardTitle>
@@ -372,9 +203,9 @@ export const ProjectVisualization = () => {
                 <label className="block text-sm font-medium mb-2">Selected Node</label>
                 <select className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent">
                   <option value="">Select a node to edit</option>
-                  {customNodes.map((node) => (
+                  {nodes.map((node) => (
                     <option key={node.id} value={node.id}>
-                      {node.name}
+                      {node.data.label}
                     </option>
                   ))}
                 </select>
@@ -436,8 +267,9 @@ export const ProjectVisualization = () => {
               </h3>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                 <li>• Use templates as starting points for common architectures</li>
-                <li>• Add custom nodes to represent specific project components</li>
-                <li>• Connect related components to show data flow</li>
+                <li>• Drag nodes to reposition them</li>
+                <li>• Drag from node edges to create connections</li>
+                <li>• Use controls to zoom and fit view</li>
                 <li>• Export diagrams to share with your mentees</li>
               </ul>
             </div>
