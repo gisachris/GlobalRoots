@@ -128,7 +128,7 @@ export const meetingService = {
     return data as (Meeting & { circles?: { title: string } })[];
   },
 
-  // Get meetings for a specific date range
+  // Get meetings for a specific date range (for mentors)
   async getMeetingsByDateRange(startDate: string, endDate: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -147,6 +147,22 @@ export const meetingService = {
 
     if (error) throw error;
     return data;
+  },
+
+  // Get meetings for mentees using RPC function
+  async getMenteeMeetingsByDateRange(startDate: string, endDate: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data: meetings, error } = await supabase
+      .rpc('get_attendee_meetings', {
+        attendee_user_id: user.id,
+        start_date: startDate,
+        end_date: endDate
+      });
+
+    if (error) throw error;
+    return meetings || [];
   },
 
   // Update meeting status
