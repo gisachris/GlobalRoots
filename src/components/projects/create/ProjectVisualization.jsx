@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { NetworkIcon, PlusIcon, SaveIcon, DownloadIcon } from 'lucide-react';
+import { ConnectionHandle } from './ConnectionHandle';
+import { ConnectionLine } from './ConnectionLine';
 
 export const ProjectVisualization = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [customNodes, setCustomNodes] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const [temporaryConnection, setTemporaryConnection] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [isDraggingConnection, setIsDraggingConnection] = useState(false);
+  const [draggedNode, setDraggedNode] = useState(null);
+  const svgRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const templates = [
     {
@@ -42,16 +51,129 @@ export const ProjectVisualization = () => {
       x: 100 + (index % 3) * 200,
       y: 100 + Math.floor(index / 3) * 150
     })));
+    setConnections([]);
   };
 
   const addCustomNode = () => {
     const newNode = {
-      id: customNodes.length + 1,
+      id: Date.now(),
       name: `Node ${customNodes.length + 1}`,
       x: 100 + (customNodes.length % 4) * 150,
       y: 100 + Math.floor(customNodes.length / 4) * 120
     };
     setCustomNodes([...customNodes, newNode]);
+  };
+
+  const handleConnectionStart = useCallback((data) => {
+    setIsDraggingConnection(true);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const startPos = {
+      x: data.position.x - rect.left,
+      y: data.position.y - rect.top
+    };
+    setTemporaryConnection({
+      sourceNode: data.nodeId,
+      sourceHandle: data.handleId,
+      type: data.type,
+      startPos,
+      endPos: startPos
+    });
+  }, []);
+
+  const handleConnectionDrag = useCallback((e) => {
+    if (isDraggingConnection && temporaryConnection) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      setTemporaryConnection(prev => ({
+        ...prev,
+        endPos: {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        }
+      }));
+    }
+  }, [isDraggingConnection, temporaryConnection]);
+
+  const handleConnectionEnd = useCallback((data) => {
+    if (isDraggingConnection && temporaryConnection && data) {
+      const isValidConnection = 
+        data.nodeId !== temporaryConnection.sourceNode &&
+        data.type !== temporaryConnection.type &&
+        !connections.some(c => 
+          c.sourceNode === temporaryConnection.sourceNode && 
+          c.targetNode === data.nodeId
+        );
+
+      if (isValidConnection) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const newConnection = {
+          id: Date.now(),
+          sourceNode: temporaryConnection.sourceNode,
+          sourceHandle: temporaryConnection.sourceHandle,
+          targetNode: data.nodeId,
+          targetHandle: data.handleId,
+          startPos: temporaryConnection.startPos,
+          endPos: {
+            x: data.position.x - rect.left,
+            y: data.position.y - rect.top
+          }
+        };
+        setConnections(prev => [...prev, newConnection]);
+      }
+    }
+    setTemporaryConnection(null);
+    setIsDraggingConnection(false);
+  }, [isDraggingConnection, temporaryConnection, connections]);
+
+  // Node dragging
+  const handleNodeMouseDown = useCallback((e, nodeId) => {
+    if (e.target.closest('.connection-handle')) return;
+    e.preventDefault();
+    const rect = canvasRef.current.getBoundingClientRect();
+    const node = customNodes.find(n => n.id === nodeId);
+    setDraggedNode({
+      id: nodeId,
+      offsetX: e.clientX - rect.left - node.x,
+      offsetY: e.clientY - rect.top - node.y
+    });
+  }, [customNodes]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (isDraggingConnection) {
+      handleConnectionDrag(e);
+    } else if (draggedNode) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const newX = e.clientX - rect.left - draggedNode.offsetX;
+      const newY = e.clientY - rect.top - draggedNode.offsetY;
+      
+      setCustomNodes(prev => prev.map(node => 
+        node.id === draggedNode.id 
+          ? { ...node, x: Math.max(0, newX), y: Math.max(0, newY) }
+          : node
+      ));
+    }
+  }, [isDraggingConnection, draggedNode, handleConnectionDrag]);
+
+  const handleMouseUp = useCallback(() => {
+    if (isDraggingConnection) {
+      handleConnectionEnd(null);
+    }
+    setDraggedNode(null);
+  }, [isDraggingConnection, handleConnectionEnd]);
+
+  // Global mouse events
+  React.useEffect(() => {
+    if (isDraggingConnection || draggedNode) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDraggingConnection, draggedNode, handleMouseMove, handleMouseUp]);
+
+  const deleteConnection = (connectionId) => {
+    setConnections(prev => prev.filter(c => c.id !== connectionId));
   };
 
   return (
@@ -125,40 +247,96 @@ export const ProjectVisualization = () => {
           <CardContent>
             <div className="relative bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[400px] border-2 border-dashed border-gray-300">
               {/* Canvas Area */}
-              <div className="relative w-full h-full">
+              <div 
+                ref={canvasRef}
+                className="relative w-full h-full"
+              >
                 {customNodes.map((node) => (
-                  <div
+                  <div 
                     key={node.id}
-                    className="absolute bg-white dark:bg-gray-800 border-2 border-[#B45309] rounded-lg p-3 shadow-sm cursor-move"
-                    style={{ left: node.x, top: node.y }}
+                    className={`absolute bg-white dark:bg-gray-800 border-2 rounded-lg p-3 shadow-sm cursor-move select-none ${
+                      selectedNode === node.id ? 'border-blue-500' : 'border-[#B45309]'
+                    }`}
+                    style={{ left: node.x, top: node.y, width: '100px', height: '40px' }}
+                    onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+                    onClick={() => setSelectedNode(node.id)}
                   >
-                    <div className="flex items-center">
-                      <NetworkIcon className="h-4 w-4 text-[#B45309] mr-2" />
-                      <span className="text-sm font-medium">{node.name}</span>
+                    <div className="flex items-center h-full">
+                      <NetworkIcon className="h-4 w-4 text-[#B45309] mr-2 flex-shrink-0" />
+                      <span className="text-xs font-medium truncate">{node.name}</span>
                     </div>
+                    
+                    {/* Connection Handles */}
+                    <ConnectionHandle
+                      nodeId={node.id}
+                      handleId="input"
+                      type="input"
+                      position="left"
+                      onConnectionStart={handleConnectionStart}
+                      onConnectionEnd={handleConnectionEnd}
+                    />
+                    <ConnectionHandle
+                      nodeId={node.id}
+                      handleId="output"
+                      type="output"
+                      position="right"
+                      onConnectionStart={handleConnectionStart}
+                      onConnectionEnd={handleConnectionEnd}
+                    />
                   </div>
                 ))}
 
-                {/* Connection Lines (simplified) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  {customNodes.map((node, index) => {
-                    if (index < customNodes.length - 1) {
-                      const nextNode = customNodes[index + 1];
-                      return (
-                        <line
-                          key={`line-${index}`}
-                          x1={node.x + 50}
-                          y1={node.y + 20}
-                          x2={nextNode.x + 50}
-                          y2={nextNode.y + 20}
-                          stroke="#B45309"
-                          strokeWidth="2"
-                          strokeDasharray="5,5"
-                        />
-                      );
-                    }
-                    return null;
+                {/* Connection Lines */}
+                <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ pointerEvents: 'none' }}>
+                  <defs>
+                    <marker
+                      id="arrowhead"
+                      markerWidth="10"
+                      markerHeight="7"
+                      refX="9"
+                      refY="3.5"
+                      orient="auto"
+                    >
+                      <polygon
+                        points="0 0, 10 3.5, 0 7"
+                        fill="#666"
+                      />
+                    </marker>
+                  </defs>
+                  
+                  {/* Permanent connections */}
+                  {connections.map((connection) => {
+                    const sourceNode = customNodes.find(n => n.id === connection.sourceNode);
+                    const targetNode = customNodes.find(n => n.id === connection.targetNode);
+                    if (!sourceNode || !targetNode) return null;
+                    
+                    const startPos = {
+                      x: sourceNode.x + (connection.sourceHandle === 'output' ? 100 : 0),
+                      y: sourceNode.y + 20
+                    };
+                    const endPos = {
+                      x: targetNode.x + (connection.targetHandle === 'input' ? 0 : 100),
+                      y: targetNode.y + 20
+                    };
+                    
+                    return (
+                      <ConnectionLine
+                        key={connection.id}
+                        startPos={startPos}
+                        endPos={endPos}
+                        onDelete={() => deleteConnection(connection.id)}
+                      />
+                    );
                   })}
+                  
+                  {/* Temporary connection */}
+                  {temporaryConnection && (
+                    <ConnectionLine
+                      startPos={temporaryConnection.startPos}
+                      endPos={temporaryConnection.endPos}
+                      isTemporary
+                    />
+                  )}
                 </svg>
 
                 {customNodes.length === 0 && (
@@ -167,6 +345,13 @@ export const ProjectVisualization = () => {
                       <NetworkIcon className="h-12 w-12 mx-auto mb-2" />
                       <p>Select a template to start building your architecture</p>
                     </div>
+                  </div>
+                )}
+                
+                {/* Instructions */}
+                {customNodes.length > 0 && (
+                  <div className="absolute top-2 left-2 bg-blue-100 dark:bg-blue-900 p-2 rounded text-xs text-blue-800 dark:text-blue-200">
+                    Drag from green (output) to blue (input) handles to connect nodes
                   </div>
                 )}
               </div>
