@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation, useParams } from 'react-router-dom';
 import { ProjectsTabNav } from './navigation/ProjectsTabNav';
 import { SubTabNav } from './navigation/SubTabNav';
 import { ProjectsList } from './my-projects/ProjectsList';
@@ -36,11 +37,30 @@ const tabConfig = {
 
 export const ProjectsPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const { projectId } = useParams();
   const [activeMainTab, setActiveMainTab] = useState('my-projects');
   const [activeSubTab, setActiveSubTab] = useState('list');
 
   const userRole = user?.role === 'mentor' ? 'mentor' : 'youth';
   const config = tabConfig[userRole];
+
+  // Handle URL-based navigation
+  useEffect(() => {
+    if (location.pathname.includes('/new')) {
+      const createTab = userRole === 'mentor' ? 'create-projects' : 'create-innovation';
+      setActiveMainTab(createTab);
+      setActiveSubTab('form');
+    } else if (projectId && location.pathname.includes('/edit')) {
+      const createTab = userRole === 'mentor' ? 'create-projects' : 'create-innovation';
+      setActiveMainTab(createTab);
+      setActiveSubTab('visualization');
+    } else if (projectId) {
+      // Viewing a specific project
+      setActiveMainTab('my-projects');
+      setActiveSubTab('list');
+    }
+  }, [location.pathname, userRole, projectId]);
 
   // Reset sub-tab when main tab changes
   useEffect(() => {

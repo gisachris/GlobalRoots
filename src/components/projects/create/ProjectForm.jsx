@@ -15,11 +15,19 @@ export const ProjectForm = ({ userRole }) => {
     description: '',
     type: user?.role === 'mentor' ? 'project' : 'innovation',
     visibility: 'private',
-    status: 'draft'
+    status: 'draft',
+    technologies: [],
+    teamSize: 1,
+    maxTeamSize: 5,
+    deadline: '',
+    requirements: '',
+    category: '',
+    isPublic: false
   });
 
   const [errors, setErrors] = useState({});
   const [isPreview, setIsPreview] = useState(false);
+  const [newTech, setNewTech] = useState('');
 
   const categories = [
     'Web Development',
@@ -35,9 +43,20 @@ export const ProjectForm = ({ userRole }) => {
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }));
+    if (typeof field === 'object') {
+      // Handle event objects
+      const { name, value: inputValue, type, checked } = field.target;
+      const finalValue = type === 'checkbox' ? checked : inputValue;
+      setFormData(prev => ({ ...prev, [name]: finalValue }));
+      if (errors[name]) {
+        setErrors(prev => ({ ...prev, [name]: null }));
+      }
+    } else {
+      // Handle direct field/value pairs
+      setFormData(prev => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors(prev => ({ ...prev, [field]: null }));
+      }
     }
   };
 
@@ -81,10 +100,32 @@ export const ProjectForm = ({ userRole }) => {
     if (!validateForm()) return;
 
     try {
-      const project = await createProject(formData);
-      navigate(`/project/${project.id}/edit`);
+      const projectData = {
+        ...formData,
+        status: 'published'
+      };
+      const project = await createProject(projectData);
+      console.log('Project created successfully:', project);
+      // Navigate back to projects list after successful creation
+      const projectsPath = user?.role === 'mentor' ? '/mentor/projects' : '/projects';
+      navigate(projectsPath);
     } catch (error) {
       console.error('Failed to create project:', error);
+      alert('Failed to create project. Please try again.');
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      const draftData = { ...formData, status: 'draft' };
+      const project = await createProject(draftData);
+      console.log('Draft saved successfully:', project);
+      // Navigate back to projects list after successful save
+      const projectsPath = user?.role === 'mentor' ? '/mentor/projects' : '/projects';
+      navigate(projectsPath);
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+      alert('Failed to save draft. Please try again.');
     }
   };
 
@@ -137,7 +178,7 @@ export const ProjectForm = ({ userRole }) => {
               <div>
                 <h4 className="font-medium mb-2">Technologies</h4>
                 <div className="flex flex-wrap gap-1">
-                  {formData.technologies.map(tech => (
+                  {(formData.technologies || []).map(tech => (
                     <span key={tech} className="px-2 py-1 bg-[#B45309]/10 text-[#B45309] text-xs rounded">
                       {tech}
                     </span>
@@ -248,7 +289,7 @@ export const ProjectForm = ({ userRole }) => {
                 <input
                   type="number"
                   name="teamSize"
-                  value={formData.teamSize}
+                  value={formData.teamSize || 1}
                   onChange={handleInputChange}
                   min="1"
                   className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
@@ -260,9 +301,9 @@ export const ProjectForm = ({ userRole }) => {
                 <input
                   type="number"
                   name="maxTeamSize"
-                  value={formData.maxTeamSize}
+                  value={formData.maxTeamSize || 5}
                   onChange={handleInputChange}
-                  min={formData.teamSize}
+                  min={formData.teamSize || 1}
                   className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 />
               </div>
@@ -272,7 +313,7 @@ export const ProjectForm = ({ userRole }) => {
                 <input
                   type="date"
                   name="deadline"
-                  value={formData.deadline}
+                  value={formData.deadline || ''}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 />
@@ -301,7 +342,7 @@ export const ProjectForm = ({ userRole }) => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {formData.technologies.map(tech => (
+              {(formData.technologies || []).map(tech => (
                 <span
                   key={tech}
                   className="inline-flex items-center px-3 py-1 bg-[#B45309]/10 text-[#B45309] rounded-full text-sm"
@@ -329,7 +370,7 @@ export const ProjectForm = ({ userRole }) => {
               <label className="block text-sm font-medium mb-2">Requirements & Skills Needed</label>
               <textarea
                 name="requirements"
-                value={formData.requirements}
+                value={formData.requirements || ''}
                 onChange={handleInputChange}
                 rows={4}
                 className="w-full px-3 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
@@ -341,7 +382,7 @@ export const ProjectForm = ({ userRole }) => {
               <input
                 type="checkbox"
                 name="isPublic"
-                checked={formData.isPublic}
+                checked={formData.isPublic || false}
                 onChange={handleInputChange}
                 className="h-4 w-4 text-[#B45309] focus:ring-[#B45309] border-gray-300 rounded"
               />
@@ -356,13 +397,26 @@ export const ProjectForm = ({ userRole }) => {
           <Button 
             type="button" 
             variant="outline" 
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              const projectsPath = user?.role === 'mentor' ? '/mentor/projects' : '/projects';
+              navigate(projectsPath);
+            }}
           >
             Cancel
           </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleSaveDraft}
+            disabled={loading}
+            className="flex items-center"
+          >
+            <SaveIcon className="h-4 w-4 mr-2" />
+            Save Draft
+          </Button>
           <Button type="submit" variant="primary" className="flex items-center" disabled={loading}>
             <SaveIcon className="h-4 w-4 mr-2" />
-            {loading ? 'Creating...' : `Create ${entityType}`}
+            {loading ? 'Creating...' : `Publish ${entityType}`}
           </Button>
           <Button type="button" variant="outline" onClick={() => setIsPreview(true)}>
             <EyeIcon className="h-4 w-4 mr-2" />

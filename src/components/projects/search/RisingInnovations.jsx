@@ -1,13 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { TrendingUpIcon, StarIcon, ThumbsUpIcon, EyeIcon, MessageCircleIcon } from 'lucide-react';
+import { TrendingUpIcon, StarIcon, ThumbsUpIcon, EyeIcon, MessageCircleIcon, ShareIcon } from 'lucide-react';
+import { useProjects } from '../../../context/ProjectsContext';
+import { useAuth } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const RisingInnovations = () => {
+  const { risingInnovations, loading, loadRisingInnovations, toggleProjectStar } = useProjects();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('trending');
 
-  // Mock innovations data with star ratings and engagement metrics
-  const innovations = [
+  useEffect(() => {
+    loadRisingInnovations();
+  }, [loadRisingInnovations]);
+
+  const handleStarProject = async (projectId) => {
+    if (!user?.id) return;
+    try {
+      await toggleProjectStar(projectId, user.id);
+      loadRisingInnovations(); // Refresh to get updated star count
+    } catch (error) {
+      console.error('Failed to star project:', error);
+    }
+  };
+
+  const handleShareProject = (project) => {
+    if (navigator.share) {
+      navigator.share({
+        title: project.title,
+        text: project.description,
+        url: window.location.origin + `/project/${project.id}`
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.origin + `/project/${project.id}`);
+      alert('Project link copied to clipboard!');
+    }
+  };
+
+  // Use real data instead of mock data
+  const innovations = risingInnovations || [
     {
       id: 1,
       title: 'Smart Water Quality Monitor',
@@ -65,34 +98,21 @@ export const RisingInnovations = () => {
   const sortedInnovations = [...innovations].sort((a, b) => {
     switch (sortBy) {
       case 'stars':
-        return b.stars - a.stars;
-      case 'votes':
-        return b.votes - a.votes;
+        return b.star_count - a.star_count;
       case 'views':
-        return b.views - a.views;
+        return b.view_count - a.view_count;
       case 'recent':
-        return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(b.created_at) - new Date(a.created_at);
       default: // trending
-        return b.trending ? 1 : -1;
+        return b.star_count - a.star_count; // Use star count as trending metric
     }
   });
 
-  const renderStars = (rating) => {
+  const renderStars = (starCount) => {
     return (
       <div className="flex items-center">
-        {[...Array(5)].map((_, i) => (
-          <StarIcon
-            key={i}
-            className={`h-4 w-4 ${
-              i < Math.floor(rating) 
-                ? 'text-yellow-400 fill-current' 
-                : i < rating 
-                ? 'text-yellow-400 fill-current opacity-50'
-                : 'text-gray-300'
-            }`}
-          />
-        ))}
-        <span className="ml-1 text-sm font-medium">{rating}</span>
+        <StarIcon className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+        <span className="text-sm font-medium">{starCount} stars</span>
       </div>
     );
   };
@@ -110,8 +130,7 @@ export const RisingInnovations = () => {
           className="px-4 py-2 border border-[#B45309]/20 rounded-md focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
         >
           <option value="trending">Trending</option>
-          <option value="stars">Highest Rated</option>
-          <option value="votes">Most Voted</option>
+          <option value="stars">Most Starred</option>
           <option value="views">Most Viewed</option>
           <option value="recent">Most Recent</option>
         </select>
@@ -128,84 +147,125 @@ export const RisingInnovations = () => {
         </div>
       </div>
 
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B45309]"></div>
+        </div>
+      )}
+
       {/* Innovations Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {sortedInnovations.map((innovation) => (
-          <Card key={innovation.id} className={`${innovation.trending ? 'border-[#B45309]/40 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700' : ''}`}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <CardTitle className="text-lg flex items-center">
-                    {innovation.title}
-                    {innovation.trending && (
-                      <div className="ml-2 px-2 py-1 bg-[#B45309] text-white text-xs rounded-full flex items-center">
-                        <TrendingUpIcon className="h-3 w-3 mr-1" />
-                        Trending
-                      </div>
-                    )}
-                  </CardTitle>
-                  <CardDescription>{innovation.description}</CardDescription>
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  by <span className="font-medium text-[#503314] dark:text-white">{innovation.creator}</span>
-                </span>
-                <span className="text-xs px-2 py-1 bg-[#B45309]/10 text-[#B45309] rounded-full">
-                  {innovation.category}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Rating */}
-                <div className="flex items-center justify-between">
-                  {renderStars(innovation.stars)}
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <ThumbsUpIcon className="h-4 w-4 mr-1" />
-                      {innovation.votes}
-                    </div>
-                    <div className="flex items-center">
-                      <EyeIcon className="h-4 w-4 mr-1" />
-                      {innovation.views}
-                    </div>
-                    <div className="flex items-center">
-                      <MessageCircleIcon className="h-4 w-4 mr-1" />
-                      {innovation.comments}
-                    </div>
+      {!loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {sortedInnovations.map((innovation) => (
+            <Card key={innovation.id} className={`${innovation.star_count > 50 ? 'border-[#B45309]/40 bg-gradient-to-br from-white to-[#F5F5F0] dark:from-gray-800 dark:to-gray-700' : ''}`}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg flex items-center">
+                      {innovation.title}
+                      {innovation.star_count > 50 && (
+                        <div className="ml-2 px-2 py-1 bg-[#B45309] text-white text-xs rounded-full flex items-center">
+                          <TrendingUpIcon className="h-3 w-3 mr-1" />
+                          Trending
+                        </div>
+                      )}
+                    </CardTitle>
+                    <CardDescription>{innovation.description}</CardDescription>
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <Button variant="primary" size="sm" className="flex-1">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    Rate Innovation
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">
+                    Created {new Date(innovation.created_at).toLocaleDateString()}
+                  </span>
+                  <span className="text-xs px-2 py-1 bg-[#B45309]/10 text-[#B45309] rounded-full capitalize">
+                    {innovation.type}
+                  </span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Stats */}
+                  <div className="flex items-center justify-between">
+                    {renderStars(innovation.star_count)}
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <EyeIcon className="h-4 w-4 mr-1" />
+                        {innovation.view_count}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleStarProject(innovation.id)}
+                      className="flex items-center"
+                    >
+                      <StarIcon className="h-4 w-4 mr-1" />
+                      Star
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleShareProject(innovation)}
+                      className="flex items-center"
+                    >
+                      <ShareIcon className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
+                    <Button variant="primary" size="sm" className="flex-1">
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {!loading && sortedInnovations.length === 0 && (
+        <div className="text-center py-12">
+          <TrendingUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No rising innovations yet</h3>
+          <p className="text-gray-500 mb-4">Be the first to share an innovative idea!</p>
+          <Button 
+            variant="primary"
+            onClick={() => {
+              const newPath = user?.role === 'mentor' ? '/mentor/projects/new' : '/projects/new';
+              navigate(newPath);
+            }}
+          >
+            Submit Innovation
+          </Button>
+        </div>
+      )}
 
       {/* Call to Action */}
-      <Card className="text-center bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 border-[#B45309]/20">
-        <CardContent className="pt-6">
-          <TrendingUpIcon className="h-12 w-12 text-[#B45309] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[#503314] dark:text-white mb-2">
-            Share Your Innovation
-          </h3>
-          <p className="text-[#7C2D12] dark:text-gray-300 mb-4">
-            Have a great idea? Share it with the community and get feedback from peers and mentors.
-          </p>
-          <Button variant="primary">Submit Innovation</Button>
-        </CardContent>
-      </Card>
+      {!loading && sortedInnovations.length > 0 && (
+        <Card className="text-center bg-gradient-to-br from-[#B45309]/5 to-[#92400E]/5 border-[#B45309]/20">
+          <CardContent className="pt-6">
+            <TrendingUpIcon className="h-12 w-12 text-[#B45309] mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-[#503314] dark:text-white mb-2">
+              Share Your Innovation
+            </h3>
+            <p className="text-[#7C2D12] dark:text-gray-300 mb-4">
+              Have a great idea? Share it with the community and get feedback from peers and mentors.
+            </p>
+            <Button 
+              variant="primary"
+              onClick={() => {
+                const newPath = user?.role === 'mentor' ? '/mentor/projects/new' : '/projects/new';
+                navigate(newPath);
+              }}
+            >
+              Submit Innovation
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

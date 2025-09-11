@@ -55,9 +55,12 @@ export const ProjectsList = () => {
           <h2 className="text-2xl font-bold text-[#503314] dark:text-white">My Projects</h2>
           <p className="text-[#7C2D12] dark:text-gray-300">Manage your active projects</p>
         </div>
-        <Button variant="primary" className="flex items-center" onClick={() => navigate('/projects?tab=create-projects&subtab=form')}>
+        <Button variant="primary" className="flex items-center" onClick={() => {
+          const newPath = user?.role === 'mentor' ? '/mentor/projects/new' : '/projects/new';
+          navigate(newPath);
+        }}>
           <PlusIcon className="h-4 w-4 mr-2" />
-          New Project
+          New {user?.role === 'mentor' ? 'Project' : 'Innovation'}
         </Button>
       </div>
 
@@ -142,7 +145,8 @@ export const ProjectsList = () => {
                 </div>
                 <Button variant="outline" className="w-full" onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/project/${project.id}/edit`);
+                  const editPath = user?.role === 'mentor' ? `/mentor/project/${project.id}/edit` : `/project/${project.id}/edit`;
+                  navigate(editPath);
                 }}>
                   Edit Project
                 </Button>
@@ -163,7 +167,10 @@ export const ProjectsList = () => {
           <p className="text-gray-500 mb-4">
             {filters.search || filters.type || filters.status ? 'Try adjusting your filters' : 'Get started by creating your first project'}
           </p>
-          <Button variant="primary" onClick={() => navigate('/projects?tab=create-projects&subtab=form')}>Create Project</Button>
+          <Button variant="primary" onClick={() => {
+            const newPath = user?.role === 'mentor' ? '/mentor/projects/new' : '/projects/new';
+            navigate(newPath);
+          }}>Create {user?.role === 'mentor' ? 'Project' : 'Innovation'}</Button>
         </div>
       )}
     </div>

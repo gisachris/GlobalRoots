@@ -199,6 +199,21 @@ function AppRoutes() {
             <ProjectsPage />
           </SidebarLayout>
         } />
+        <Route path="/projects/new" element={
+          <SidebarLayout>
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
+        <Route path="/project/:projectId" element={
+          <SidebarLayout>
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
+        <Route path="/project/:projectId/edit" element={
+          <SidebarLayout>
+            <ProjectsPage />
+          </SidebarLayout>
+        } />
         <Route path="/userProjects" element={
           <SidebarLayout>
             <UserPersonalProjects />
@@ -312,6 +327,21 @@ function AppRoutes() {
           </MentorLayoutRoute>
         } />
         <Route path="/mentor/projects" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/projects/new" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/project/:projectId" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/project/:projectId/edit" element={
           <MentorLayoutRoute>
             <ProjectsPage />
           </MentorLayoutRoute>

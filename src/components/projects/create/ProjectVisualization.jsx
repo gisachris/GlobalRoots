@@ -42,8 +42,9 @@ const nodeTypes = {
 export const ProjectVisualization = ({ projectId: propProjectId }) => {
   const { projectId: paramProjectId } = useParams();
   const projectId = propProjectId || paramProjectId;
-  const { loadProject, currentProject } = useProjects();
+  const { loadProject, currentProject, createProject } = useProjects();
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [hasUnsavedProject, setHasUnsavedProject] = useState(false);
   
   const {
     nodes,
@@ -67,8 +68,8 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
     {
       id: 'web-app',
       name: 'Web Application',
-      description: 'Standard web application architecture',
-      nodes: ['Frontend', 'Backend API', 'Database', 'Authentication']
+      description: 'Complete web application architecture',
+      nodes: ['React Frontend', 'Node.js API', 'PostgreSQL DB', 'Authentication', 'File Storage', 'Email Service', 'Payment Gateway', 'Admin Dashboard']
     },
     {
       id: 'mobile-app',
@@ -98,12 +99,15 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
       id: `${index + 1}`,
       type: 'custom',
       position: { 
-        x: 100 + (index % 3) * 200, 
-        y: 100 + Math.floor(index / 3) * 150 
+        x: 50 + (index % 4) * 180, 
+        y: 80 + Math.floor(index / 4) * 120 
       },
       data: { label: nodeName },
     }));
     setNodes(templateNodes);
+    if (!projectId) {
+      setHasUnsavedProject(true);
+    }
   };
 
   const addCustomNode = () => {
@@ -117,6 +121,60 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
       data: { label: `Node ${nodes.length + 1}` },
     };
     setNodes(prev => [...prev, newNode]);
+    if (!projectId) {
+      setHasUnsavedProject(true);
+    }
+  };
+
+  const handleSaveSchema = async () => {
+    if (!projectId && hasUnsavedProject) {
+      // Create a new project first
+      try {
+        const newProject = await createProject({
+          title: `${selectedTemplate ? templates.find(t => t.id === selectedTemplate)?.name : 'Custom'} Architecture`,
+          description: 'Project architecture visualization',
+          type: 'project',
+          status: 'draft',
+          visibility: 'private'
+        });
+        console.log('Project created for visualization:', newProject);
+        setHasUnsavedProject(false);
+        // The useReactFlowProject hook will handle saving the canvas
+        return newProject;
+      } catch (error) {
+        console.error('Failed to create project:', error);
+        alert('Failed to save schema. Please try again.');
+        return null;
+      }
+    } else if (projectId) {
+      // Save existing project
+      const success = await manualSave();
+      if (success) {
+        alert('Schema saved successfully!');
+      } else {
+        alert('Failed to save schema. Please try again.');
+      }
+    }
+  };
+
+  const handleShareSchema = () => {
+    if (!projectId && hasUnsavedProject) {
+      alert('Please save the schema first before sharing.');
+      return;
+    }
+    
+    const shareUrl = projectId ? `${window.location.origin}/project/${projectId}` : window.location.href;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Project Architecture Schema',
+        text: 'Check out this project architecture visualization',
+        url: shareUrl
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      alert('Schema link copied to clipboard!');
+    }
   };
 
   return (
@@ -274,11 +332,16 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
 
       {/* Actions */}
       <div className="flex gap-4">
-        <Button variant="primary" className="flex items-center">
+        <Button 
+          variant="primary" 
+          className="flex items-center"
+          onClick={handleSaveSchema}
+          disabled={isAutoSaving}
+        >
           <SaveIcon className="h-4 w-4 mr-2" />
-          Save Schema
+          {isAutoSaving ? 'Saving...' : 'Save Schema'}
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleShareSchema}>
           Share with Mentees
         </Button>
       </div>

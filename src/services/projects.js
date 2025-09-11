@@ -4,16 +4,33 @@ export class ProjectService {
   async createProject(projectData) {
     const { data: user } = await supabase.auth.getUser();
     
+    if (!user?.user?.id) {
+      throw new Error('User not authenticated');
+    }
+    
+    const projectToInsert = {
+      title: projectData.title,
+      description: projectData.description || '',
+      type: projectData.type || 'project',
+      status: projectData.status || 'draft',
+      visibility: projectData.visibility || 'private',
+      creator_id: user.user.id,
+    };
+    
+    console.log('Creating project with data:', projectToInsert);
+    
     const { data, error } = await supabase
       .from('projects')
-      .insert({
-        ...projectData,
-        creator_id: user?.user?.id,
-      })
+      .insert(projectToInsert)
       .select('*')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    
+    console.log('Project created successfully:', data);
     return data;
   }
 

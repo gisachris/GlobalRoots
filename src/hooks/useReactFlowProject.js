@@ -24,15 +24,17 @@ export const useReactFlowProject = (projectId) => {
     }
 
     autoSaveTimeoutRef.current = setTimeout(async () => {
-      if (projectId && nodes.length >= 0 && edges.length >= 0) {
+      if (projectId && (nodes.length > 0 || edges.length > 0)) {
         try {
           setIsAutoSaving(true);
+          console.log('Auto-saving project canvas:', { projectId, nodesCount: nodes.length, edgesCount: edges.length });
           await saveProjectCanvas(projectId, {
             nodes,
             edges,
             viewport,
             settings: {}
           });
+          console.log('Auto-save completed successfully');
         } catch (error) {
           console.error('Auto-save failed:', error);
         } finally {
@@ -75,12 +77,14 @@ export const useReactFlowProject = (projectId) => {
     if (projectId) {
       try {
         setIsAutoSaving(true);
+        console.log('Manual save initiated:', { projectId, nodesCount: nodes.length, edgesCount: edges.length });
         await saveProjectCanvas(projectId, {
           nodes,
           edges,
           viewport,
           settings: {}
         });
+        console.log('Manual save completed successfully');
         return true;
       } catch (error) {
         console.error('Manual save failed:', error);
@@ -89,6 +93,7 @@ export const useReactFlowProject = (projectId) => {
         setIsAutoSaving(false);
       }
     }
+    return false;
   }, [projectId, nodes, edges, viewport, saveProjectCanvas]);
 
   useEffect(() => {
