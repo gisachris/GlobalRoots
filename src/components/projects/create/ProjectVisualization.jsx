@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { NetworkIcon, PlusIcon, SaveIcon, DownloadIcon } from 'lucide-react';
+import { ShareModal } from '../../ui/ShareModal';
+import { NetworkIcon, PlusIcon, SaveIcon, DownloadIcon, ShareIcon } from 'lucide-react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -47,6 +48,7 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
   const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [hasUnsavedProject, setHasUnsavedProject] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   const {
     nodes,
@@ -179,44 +181,16 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
       return;
     }
     
-    let shareProjectId = projectId;
-    
     // If no project exists but we have unsaved work, create one first
     if (!projectId && (nodes.length > 0 || selectedTemplate)) {
       const newProject = await handleSaveSchema();
-      if (newProject) {
-        shareProjectId = newProject.id;
-      } else {
+      if (!newProject) {
         return; // Failed to create project
       }
     }
     
-    const shareUrl = shareProjectId 
-      ? `${window.location.origin}${user?.role === 'mentor' ? '/mentor' : ''}/project/${shareProjectId}` 
-      : window.location.href;
-    
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Project Architecture Schema',
-          text: 'Check out this project architecture visualization',
-          url: shareUrl
-        });
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        alert('Schema link copied to clipboard!');
-      }
-    } catch (error) {
-      console.error('Sharing failed:', error);
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        alert('Schema link copied to clipboard!');
-      } catch (clipboardError) {
-        console.error('Clipboard failed:', clipboardError);
-        alert(`Share this link: ${shareUrl}`);
-      }
-    }
+    // Open share modal
+    setShowShareModal(true);
   };
 
   return (
@@ -384,7 +358,8 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
           {isAutoSaving ? 'Saving...' : 'Save Schema'}
         </Button>
         <Button variant="outline" onClick={handleShareSchema}>
-          Share with Mentees
+          <ShareIcon className="h-4 w-4 mr-2" />
+          Share Schema
         </Button>
       </div>
 
@@ -408,6 +383,14 @@ export const ProjectVisualization = ({ projectId: propProjectId }) => {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Share Modal */}
+      <ShareModal 
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        project={currentProject}
+        user={user}
+      />
     </div>
   );
 };

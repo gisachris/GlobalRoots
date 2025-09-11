@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../ui/Card';
 import { Button } from '../../ui/Button';
+import { ShareModal } from '../../ui/ShareModal';
 import { SearchIcon, FilterIcon, UsersIcon, CalendarIcon, StarIcon, ShareIcon, EyeIcon } from 'lucide-react';
 import { useProjects } from '../../../context/ProjectsContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -11,6 +12,8 @@ export const AllProjects = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     loadPublicProjects();
@@ -27,16 +30,8 @@ export const AllProjects = () => {
   };
 
   const handleShareProject = (project) => {
-    if (navigator.share) {
-      navigator.share({
-        title: project.title,
-        text: project.description,
-        url: window.location.origin + `/project/${project.id}`
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.origin + `/project/${project.id}`);
-      alert('Project link copied to clipboard!');
-    }
+    setSelectedProject(project);
+    setShowShareModal(true);
   };
 
   // Use real data instead of mock data
@@ -271,6 +266,14 @@ export const AllProjects = () => {
           <p className="text-gray-500">Try adjusting your search criteria</p>
         </div>
       )}
+      
+      {/* Share Modal */}
+      <ShareModal 
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        project={selectedProject}
+        user={user}
+      />
     </div>
   );
 };

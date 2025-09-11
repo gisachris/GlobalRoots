@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../ui/Card';
 import { Button } from '../../ui/Button';
+import { ShareModal } from '../../ui/ShareModal';
 import { TrendingUpIcon, StarIcon, ThumbsUpIcon, EyeIcon, MessageCircleIcon, ShareIcon } from 'lucide-react';
 import { useProjects } from '../../../context/ProjectsContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -11,6 +12,8 @@ export const RisingInnovations = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('trending');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     loadRisingInnovations();
@@ -27,16 +30,8 @@ export const RisingInnovations = () => {
   };
 
   const handleShareProject = (project) => {
-    if (navigator.share) {
-      navigator.share({
-        title: project.title,
-        text: project.description,
-        url: window.location.origin + `/project/${project.id}`
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.origin + `/project/${project.id}`);
-      alert('Project link copied to clipboard!');
-    }
+    setSelectedProject(project);
+    setShowShareModal(true);
   };
 
   // Use real data instead of mock data
@@ -266,6 +261,14 @@ export const RisingInnovations = () => {
           </CardContent>
         </Card>
       )}
+      
+      {/* Share Modal */}
+      <ShareModal 
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        project={selectedProject}
+        user={user}
+      />
     </div>
   );
 };
