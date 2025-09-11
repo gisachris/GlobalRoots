@@ -105,7 +105,7 @@ export const Header = () => {
           {/* Logo */}
           <Logo isFooter={false}/>
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center justify-center space-x-6 flex-1">
             {isAuthenticated ? (
               <>
                 <NavLink to="/" label="Home" currentPath={location.pathname} />
@@ -120,11 +120,9 @@ export const Header = () => {
                 {user?.role === 'mentor' && (
                   <>
                     <NavLink to="/opportunities" label="Opportunities" currentPath={location.pathname} />
-                    <NavLink to="/projects" label="Projects" currentPath={location.pathname} />
-                    <NavLink to="/mentor/dashboard" label="Dashboard" currentPath={location.pathname} />
+                    <NavLink to="/mentor/projects" label="Projects" currentPath={location.pathname} />
                   </>
                 )}
-                {user?.role === 'mentor' && <NavLink to="/returnee" label="Returnship" currentPath={location.pathname} />}
               </>
             ) : (
               <>

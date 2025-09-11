@@ -5,6 +5,7 @@ import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Community } from './pages/Community';
 import { Projects } from './pages/Projects';
+import { ProjectsPage } from './components/projects/ProjectsPage';
 import { ReturneeHub } from './pages/ReturneeHub';
 import { ImpactDashboard } from './pages/ImpactDashboard';
 import { MentorConnect } from './pages/MentorConnect';
@@ -194,7 +195,7 @@ function AppRoutes() {
         }/>
         <Route path="/projects" element={
           <SidebarLayout>
-            <Projects />
+            <ProjectsPage />
           </SidebarLayout>
         } />
         <Route path="/userProjects" element={
@@ -307,6 +308,11 @@ function AppRoutes() {
         <Route path="/mentor/settings" element={
           <MentorLayoutRoute>
             <MentorSettings />
+          </MentorLayoutRoute>
+        } />
+        <Route path="/mentor/projects" element={
+          <MentorLayoutRoute>
+            <ProjectsPage />
           </MentorLayoutRoute>
         } />
         <Route path="/mentor/schedule-meeting" element={
