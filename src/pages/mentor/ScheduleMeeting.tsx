@@ -38,56 +38,39 @@ export const ScheduleMeeting: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Try to load from database first
-      const [menteesResult, circlesResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, full_name, email')
-          .eq('role', 'youth')
-          .limit(20),
-        supabase
-          .from('circles')
-          .select('id, title')
-          .eq('mentor_id', user.id)
-          .eq('status', 'active')
-      ]);
+      // Use RPC to get users with mentee user_type from auth.users
+      const { data: menteeUsers, error: menteeError } = await supabase
+        .rpc('get_users_by_metadata', { 
+          metadata_key: 'user_type', 
+          metadata_value: 'mentee' 
+        });
 
-      // Use database data if available, otherwise use examples
-      const menteesData = menteesResult.data && menteesResult.data.length > 0 
-        ? menteesResult.data 
-        : [
-            { id: '550e8400-e29b-41d4-a716-446655440001', full_name: 'Jean-Paul Habimana', email: 'jeanpaul@example.com' },
-            { id: '550e8400-e29b-41d4-a716-446655440002', full_name: 'Alice Uwimana', email: 'alice@example.com' },
-            { id: '550e8400-e29b-41d4-a716-446655440003', full_name: 'Bob Nkurunziza', email: 'bob@example.com' },
-            { id: '550e8400-e29b-41d4-a716-446655440004', full_name: 'Carol Mukamana', email: 'carol@example.com' },
-            { id: '550e8400-e29b-41d4-a716-446655440005', full_name: 'David Nsengimana', email: 'david@example.com' },
-            { id: '550e8400-e29b-41d4-a716-446655440006', full_name: 'Grace Uwimana', email: 'grace@example.com' }
-          ];
+      if (menteeError) {
+        console.error('RPC error:', menteeError);
+        setMentees([]);
+      } else {
+        const formattedMentees = menteeUsers?.map((u: any) => ({
+          id: u.id,
+          full_name: u.raw_user_meta_data?.full_name || u.email,
+          email: u.email
+        })) || [];
+        
+        setMentees(formattedMentees);
+        console.log('Found mentees:', formattedMentees.length);
+      }
 
-      const circlesData = circlesResult.data && circlesResult.data.length > 0
-        ? circlesResult.data
-        : [
-            { id: '550e8400-e29b-41d4-a716-446655441001', title: 'Frontend Development Mastery' },
-            { id: '550e8400-e29b-41d4-a716-446655441002', title: 'Career Transition Bootcamp' },
-            { id: '550e8400-e29b-41d4-a716-446655441003', title: 'Startup Founders Circle' },
-            { id: '550e8400-e29b-41d4-a716-446655441004', title: 'Data Science Fundamentals' },
-            { id: '550e8400-e29b-41d4-a716-446655441005', title: 'Mobile App Development' }
-          ];
+      const circlesResult = await supabase
+        .from('circles')
+        .select('id, title')
+        .eq('mentor_id', user.id)
+        .eq('status', 'active')
+        .order('title');
 
-      setMentees(menteesData);
-      setCircles(circlesData);
+      setCircles(circlesResult.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
-      // Fallback to example data on error
-      setMentees([
-        { id: '550e8400-e29b-41d4-a716-446655440001', full_name: 'Jean-Paul Habimana', email: 'jeanpaul@example.com' },
-        { id: '550e8400-e29b-41d4-a716-446655440002', full_name: 'Alice Uwimana', email: 'alice@example.com' },
-        { id: '550e8400-e29b-41d4-a716-446655440003', full_name: 'Bob Nkurunziza', email: 'bob@example.com' }
-      ]);
-      setCircles([
-        { id: '550e8400-e29b-41d4-a716-446655441001', title: 'Frontend Development Mastery' },
-        { id: '550e8400-e29b-41d4-a716-446655441002', title: 'Career Transition Bootcamp' }
-      ]);
+      setMentees([]);
+      setCircles([]);
     }
   };
 
@@ -397,14 +380,17 @@ export const ScheduleMeeting: React.FC = () => {
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#B45309] focus:border-transparent"
                 >
                   <option value="">Add attendee...</option>
-                  {mentees
-                    .filter(mentee => !selectedMentees.includes(mentee.id))
-                    .map(mentee => (
-                      <option key={mentee.id} value={mentee.id}>
-                        {mentee.full_name} ({mentee.email})
-                      </option>
-                    ))
-                  }
+                  {mentees.length === 0 ? (
+                    <option disabled>No mentees found</option>
+                  ) : (
+                    mentees
+                      .filter(mentee => !selectedMentees.includes(mentee.id))
+                      .map(mentee => (
+                        <option key={mentee.id} value={mentee.id}>
+                          {mentee.full_name} ({mentee.email})
+                        </option>
+                      ))
+                  )}
                 </select>
                 {selectedMentees.length > 0 && (
                   <p className="text-sm text-[#7C2D12] dark:text-gray-300">
