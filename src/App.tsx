@@ -60,6 +60,8 @@ import { ProjectsProvider } from './context/ProjectsContext';
 import { Invite } from './pages/Invite';
 
 import  Circle  from './pages/Circle';
+import {motion, AnimatePresence} from 'framer-motion';
+import FirstLandingPage from './pages/FirstLandingPage';
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -98,268 +100,300 @@ const MentorLayoutRoute = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const FirstTime = ({children, isDisplayed}:{children:React.ReactNode, isDisplayed:boolean})=>{
+  return !isDisplayed ? (
+        <motion.div
+          key="landing"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FirstLandingPage />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="main"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+         {children}
+        </motion.div>
+      )
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <LoadingOverlay isVisible={true} message="Initializing your account..." />;
+    return (
+      <AnimatePresence mode='wait'>
+        <FirstTime isDisplayed= {false}>
+          <LoadingOverlay isVisible={true} message="Initializing your account..." />
+        </FirstTime>
+      </AnimatePresence>
+      ) 
   }
 
   return (
-    <Layout>
-      <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/confirm-email" element={<EmailConfirmation />} />
-        <Route path="/role-selection" element={<RoleSelection />} />
-        <Route path="/invite/:token" element={<Invite />} />
-        <Route path="/onboarding" element={
-          <ProtectedRoute>
-            <Onboarding />
-          </ProtectedRoute>
-        } />
-        <Route path="/" element={
-          user ? (user.profileCompleted ===false?(
-              <Navigate to="/onboarding" replace />
-            ) : user.role === 'youth' ? (
+    <AnimatePresence mode='wait'>
+      <FirstTime isDisplayed={false}>
+        <Layout>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/confirm-email" element={<EmailConfirmation />} />
+            <Route path="/role-selection" element={<RoleSelection />} />
+            <Route path="/invite/:token" element={<Invite />} />
+            <Route path="/onboarding" element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            } />
+            <Route path="/" element={
+              user ? (user.profileCompleted ===false?(
+                  <Navigate to="/onboarding" replace />
+                ) : user.role === 'youth' ? (
+                    <SidebarLayout>
+                      <YouthDashboard />
+                    </SidebarLayout>
+                ) : user.role === 'mentor' ? (
+                    <MentorLayoutRoute>
+                      <MentorDashboard />
+                    </MentorLayoutRoute>
+                ) : <LandingPage />
+              ) : <LandingPage />
+            } />
+
+            <Route path="/userProfile" element={
               <SidebarLayout>
-                <YouthDashboard />
+                <Dashboard />
               </SidebarLayout>
-            ) : user.role === 'mentor' ? (
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/mentors" element={
+              <ProtectedRoute>
+                <MentorsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/learning" element={
+              <SidebarLayout>
+                <LearningPage />
+              </SidebarLayout>
+            } />
+            <Route path="/mentees" element={
+              <ProtectedRoute>
+                <MenteesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/content" element={
+              <ProtectedRoute>
+                <ContentCreationPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/post-job" element={
+              <ProtectedRoute>
+                <PostJobPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/candidates" element={
+              <ProtectedRoute>
+                <CandidatesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/mentorconnect" element={
+              <ProtectedRoute>
+                <MentorConnect />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/opportunities" element={
+              <SidebarLayout>
+                <YouthOpportunity />
+              </SidebarLayout>
+            } />
+            <Route path="/community" element={
+              <SidebarLayout>
+                <Community />
+              </SidebarLayout>
+            } />
+            <Route path='/circle' element={
+              <SidebarLayout>
+                <Circle/>
+              </SidebarLayout>
+
+            }/>
+            <Route path="/projects" element={
+              <SidebarLayout>
+                <ProjectsPage />
+              </SidebarLayout>
+            } />
+            <Route path="/projects/new" element={
+              <SidebarLayout>
+                <ProjectsPage />
+              </SidebarLayout>
+            } />
+            <Route path="/project/:projectId" element={
+              <SidebarLayout>
+                <ProjectsPage />
+              </SidebarLayout>
+            } />
+            <Route path="/project/:projectId/edit" element={
+              <SidebarLayout>
+                <ProjectsPage />
+              </SidebarLayout>
+            } />
+            <Route path="/userProjects" element={
+              <SidebarLayout>
+                <UserPersonalProjects />
+              </SidebarLayout>
+            } />
+            <Route path="/discussions" element={
+              <SidebarLayout>
+                <Discussions />
+              </SidebarLayout>
+            } />
+            <Route path='/calendar' element={
+              <SidebarLayout>
+                <Calendar />
+              </SidebarLayout>
+            } />
+            <Route path='/notifications' element={
+              <SidebarLayout>
+                <Notifications />
+              </SidebarLayout>
+            } />
+            <Route path="/returnee" element={<ReturneeHub />} />
+            <Route path="/impact" element={<ImpactDashboard />} />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <SidebarLayout>
+                  <SettingsPage />
+                </SidebarLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/admin/users" element={
+              <ProtectedRoute>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/content" element={
+              <ProtectedRoute>
+                <AdminContentPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/jobs" element={
+              <ProtectedRoute>
+                <AdminJobsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <ProtectedRoute>
+                <AdminAnalyticsPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Mentor Routes */}
+            <Route path="/mentor/dashboard" element={
               <MentorLayoutRoute>
                 <MentorDashboard />
               </MentorLayoutRoute>
-            ) : <LandingPage />
-          ) : <LandingPage />
-        } />
+            } />
+            <Route path="/mentor/create-circle" element={
+              <MentorLayoutRoute>
+                <CreateCircle />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/edit-profile" element={
+              <MentorLayoutRoute>
+                <EditProfile />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/mentees" element={
+              <MentorLayoutRoute>
+                <MentorMentees />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/circles" element={
+              <MentorLayoutRoute>
+                <MentorCircles />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/calendar" element={
+              <MentorLayoutRoute>
+                <MentorCalendar />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/resources" element={
+              <MentorLayoutRoute>
+                <MentorResources />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/messages" element={
+              <MentorLayoutRoute>
+                <MentorMessages />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/marketplace" element={
+              <MentorLayoutRoute>
+                <MentorMarketplace />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/analytics" element={
+              <MentorLayoutRoute>
+                <MentorAnalytics />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/achievements" element={
+              <MentorLayoutRoute>
+                <MentorAchievements />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/settings" element={
+              <MentorLayoutRoute>
+                <MentorSettings />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/projects" element={
+              <MentorLayoutRoute>
+                <ProjectsPage />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/projects/new" element={
+              <MentorLayoutRoute>
+                <ProjectsPage />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/project/:projectId" element={
+              <MentorLayoutRoute>
+                <ProjectsPage />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/project/:projectId/edit" element={
+              <MentorLayoutRoute>
+                <ProjectsPage />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/mentor/schedule-meeting" element={
+              <MentorLayoutRoute>
+                <ScheduleMeeting />
+              </MentorLayoutRoute>
+            } />
+            <Route path="/linkedin-integration" element={
+              <ProtectedRoute>
+                <LinkedInIntegration />
+              </ProtectedRoute>
+            } />
 
-        <Route path="/userProfile" element={
-          <SidebarLayout>
-            <Dashboard />
-          </SidebarLayout>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/mentors" element={
-          <ProtectedRoute>
-            <MentorsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/learning" element={
-          <SidebarLayout>
-            <LearningPage />
-          </SidebarLayout>
-        } />
-        <Route path="/mentees" element={
-          <ProtectedRoute>
-            <MenteesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/content" element={
-          <ProtectedRoute>
-            <ContentCreationPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/post-job" element={
-          <ProtectedRoute>
-            <PostJobPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/candidates" element={
-          <ProtectedRoute>
-            <CandidatesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/mentorconnect" element={
-          <ProtectedRoute>
-            <MentorConnect />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities" element={
-          <SidebarLayout>
-            <YouthOpportunity />
-          </SidebarLayout>
-        } />
-        <Route path="/community" element={
-          <SidebarLayout>
-            <Community />
-          </SidebarLayout>
-        } />
-        <Route path='/circle' element={
-          <SidebarLayout>
-            <Circle/>
-          </SidebarLayout>
-
-        }/>
-        <Route path="/projects" element={
-          <SidebarLayout>
-            <ProjectsPage />
-          </SidebarLayout>
-        } />
-        <Route path="/projects/new" element={
-          <SidebarLayout>
-            <ProjectsPage />
-          </SidebarLayout>
-        } />
-        <Route path="/project/:projectId" element={
-          <SidebarLayout>
-            <ProjectsPage />
-          </SidebarLayout>
-        } />
-        <Route path="/project/:projectId/edit" element={
-          <SidebarLayout>
-            <ProjectsPage />
-          </SidebarLayout>
-        } />
-        <Route path="/userProjects" element={
-          <SidebarLayout>
-            <UserPersonalProjects />
-          </SidebarLayout>
-        } />
-        <Route path="/discussions" element={
-          <SidebarLayout>
-            <Discussions />
-          </SidebarLayout>
-        } />
-        <Route path='/calendar' element={
-          <SidebarLayout>
-            <Calendar />
-          </SidebarLayout>
-        } />
-        <Route path='/notifications' element={
-          <SidebarLayout>
-            <Notifications />
-          </SidebarLayout>
-        } />
-        <Route path="/returnee" element={<ReturneeHub />} />
-        <Route path="/impact" element={<ImpactDashboard />} />
-        <Route path="/settings" element={
-          <ProtectedRoute>
-            <SidebarLayout>
-              <SettingsPage />
-            </SidebarLayout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/admin/users" element={
-          <ProtectedRoute>
-            <AdminUsersPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/content" element={
-          <ProtectedRoute>
-            <AdminContentPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/jobs" element={
-          <ProtectedRoute>
-            <AdminJobsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/analytics" element={
-          <ProtectedRoute>
-            <AdminAnalyticsPage />
-          </ProtectedRoute>
-        } />
-
-        {/* Mentor Routes */}
-        <Route path="/mentor/dashboard" element={
-          <MentorLayoutRoute>
-            <MentorDashboard />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/create-circle" element={
-          <MentorLayoutRoute>
-            <CreateCircle />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/edit-profile" element={
-          <MentorLayoutRoute>
-            <EditProfile />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/mentees" element={
-          <MentorLayoutRoute>
-            <MentorMentees />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/circles" element={
-          <MentorLayoutRoute>
-            <MentorCircles />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/calendar" element={
-          <MentorLayoutRoute>
-            <MentorCalendar />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/resources" element={
-          <MentorLayoutRoute>
-            <MentorResources />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/messages" element={
-          <MentorLayoutRoute>
-            <MentorMessages />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/marketplace" element={
-          <MentorLayoutRoute>
-            <MentorMarketplace />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/analytics" element={
-          <MentorLayoutRoute>
-            <MentorAnalytics />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/achievements" element={
-          <MentorLayoutRoute>
-            <MentorAchievements />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/settings" element={
-          <MentorLayoutRoute>
-            <MentorSettings />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/projects" element={
-          <MentorLayoutRoute>
-            <ProjectsPage />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/projects/new" element={
-          <MentorLayoutRoute>
-            <ProjectsPage />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/project/:projectId" element={
-          <MentorLayoutRoute>
-            <ProjectsPage />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/project/:projectId/edit" element={
-          <MentorLayoutRoute>
-            <ProjectsPage />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/mentor/schedule-meeting" element={
-          <MentorLayoutRoute>
-            <ScheduleMeeting />
-          </MentorLayoutRoute>
-        } />
-        <Route path="/linkedin-integration" element={
-          <ProtectedRoute>
-            <LinkedInIntegration />
-          </ProtectedRoute>
-        } />
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Layout>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Layout>
+      </FirstTime>
+    </AnimatePresence>
   );
 }
 
