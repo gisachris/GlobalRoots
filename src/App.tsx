@@ -123,12 +123,22 @@ const FirstTime = ({children, isDisplayed}:{children:React.ReactNode, isDisplaye
 }
 
 function AppRoutes() {
+  const [isDisplayed, setIsDisplayed] = React.useState(()=>localStorage.getItem('isDisplayed')==='true');
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      if(localStorage.getItem('isDiplayed')!=='true'){
+        setIsDisplayed(true);
+        localStorage.setItem('isDisplayed','true')
+      }
+    }, 4700);
+  }, []);
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <AnimatePresence mode='wait'>
-        <FirstTime isDisplayed= {false}>
+        <FirstTime isDisplayed= {isDisplayed}>
           <LoadingOverlay isVisible={true} message="Initializing your account..." />
         </FirstTime>
       </AnimatePresence>
@@ -137,7 +147,7 @@ function AppRoutes() {
 
   return (
     <AnimatePresence mode='wait'>
-      <FirstTime isDisplayed={false}>
+      <FirstTime isDisplayed={isDisplayed}>
         <Layout>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
