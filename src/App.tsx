@@ -131,7 +131,7 @@ function AppRoutes() {
         setIsDisplayed(true);
         localStorage.setItem('isDisplayed','true')
       }
-    }, 3500);
+    }, 5500);
   }, []);
   const { user, loading } = useAuth();
 
